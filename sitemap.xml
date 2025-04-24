@@ -4,7 +4,7 @@
   <url>
     <loc>http://molittle-git.github.io/posts/4a17b156.html</loc>
     
-    <lastmod>2025-04-23</lastmod>
+    <lastmod>2025-04-24</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13,7 +13,16 @@
   <url>
     <loc>http://molittle-git.github.io/posts/fe7e69f4.html</loc>
     
-    <lastmod>2025-04-23</lastmod>
+    <lastmod>2025-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://molittle-git.github.io/link/index.html</loc>
+    
+    <lastmod>2025-04-24</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

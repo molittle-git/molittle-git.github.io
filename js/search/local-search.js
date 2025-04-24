@@ -331,6 +331,7 @@ window.addEventListener('load', () => {
 
   const searchClickFn = () => {
     btf.addEventListenerPjax(document.querySelector('#search-button > .search'), 'click', openSearch)
+    btf.addEventListenerPjax(document.querySelector('#menu-search').addEventListener('click', openSearch))
   }
 
   const searchFnOnce = () => {
