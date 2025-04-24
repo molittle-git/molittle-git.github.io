@@ -348,7 +348,6 @@
   }
   
   #body-wrap.error .aside-list .aside-list-item .content .title {
-    -webkit-line-clamp: 2;
     overflow: hidden;
     display: -webkit-box;
     -webkit-box-orient: vertical;
