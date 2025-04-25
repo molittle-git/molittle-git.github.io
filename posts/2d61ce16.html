@@ -1,0 +1,650 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>梯度下降优化 | molittle</title><meta name="author" content="molittle"><meta name="copyright" content="molittle"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="梯度下降优化1、归一化 Normalization1.1、归一化目的  梯度下降的原理和应用，我们已经在前面课程中进行了学习，大家仔细观察下图。 ![]()   不同方向的陡峭度是不一样的，即不同维度的数值大小是不同。也就是说梯度下降的快慢是不同的：  如果维度多了，就是超平面（了解一下霍金所说的宇宙十一维空间），很难画出来了，感受一下下面这张图的空间维度情况。 ![]()   如果拿多元线性回归">
+<meta property="og:type" content="article">
+<meta property="og:title" content="梯度下降优化">
+<meta property="og:url" content="http://molittle-git.github.io/posts/2d61ce16.html">
+<meta property="og:site_name" content="molittle">
+<meta property="og:description" content="梯度下降优化1、归一化 Normalization1.1、归一化目的  梯度下降的原理和应用，我们已经在前面课程中进行了学习，大家仔细观察下图。 ![]()   不同方向的陡峭度是不一样的，即不同维度的数值大小是不同。也就是说梯度下降的快慢是不同的：  如果维度多了，就是超平面（了解一下霍金所说的宇宙十一维空间），很难画出来了，感受一下下面这张图的空间维度情况。 ![]()   如果拿多元线性回归">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://molittle-git.github.io/img/123.png">
+<meta property="article:published_time" content="2025-03-03T02:51:08.000Z">
+<meta property="article:modified_time" content="2025-04-25T09:03:31.813Z">
+<meta property="article:author" content="molittle">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://molittle-git.github.io/img/123.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "梯度下降优化",
+  "url": "http://molittle-git.github.io/posts/2d61ce16.html",
+  "image": "http://molittle-git.github.io/img/123.png",
+  "datePublished": "2025-03-03T02:51:08.000Z",
+  "dateModified": "2025-04-25T09:03:31.813Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "molittle",
+      "url": "http://molittle-git.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/butterfly-icon.png"><link rel="canonical" href="http://molittle-git.github.io/posts/2d61ce16.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="manifest" href="/manifest.json"/><meta name="msapplication-TileColor" content="#3b70fc"/><link rel="apple-touch-icon" sizes="180x180" href="/img/siteicon/128.png"/><link rel="icon" type="image/png" sizes="32x32" href="/img/siteicon/32.png"/><link rel="icon" type="image/png" sizes="16x16" href="/img/siteicon/16.png"/><link rel="mask-icon" href="/img/siteicon/128.png" color="#5bbad5"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '梯度下降优化',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="/js/title.js"></script><script data-pjax src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-double-row-display@1.00/cardlistpost.min.css"/>
+<style>#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags:before {content:"\A";
+  white-space: pre;}#recent-posts > .recent-post-item >.recent-post-info > .article-meta-wrap > .tags > .article-meta__separator{display:none}</style>
+<link rel="stylesheet" href="/css/runtime/runtime.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="molittle" type="application/atom+xml">
+</head><body><div id="web_bg" style="background-image: url(/img/789.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-home1"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shangpinfenlei24"></use></svg><span> 分类</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/artitalk/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liaotian"></use></svg><span> 闲言碎语</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-customerservice-fill1"></use></svg><span> 音乐馆</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liuyanban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shijianzhou_gaoliang"></use></svg><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/bangumis/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon_bilibili-circle"></use></svg><span> 追番</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/fcircle/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-zhifeiji1"></use></svg><span> 朋友圈</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon-lianjie"></use></svg><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-medium-circle-fill"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(img/123.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">molittle</span></a><a class="nav-page-title" href="/"><span class="site-name">梯度下降优化</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-home1"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shangpinfenlei24"></use></svg><span> 分类</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/artitalk/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liaotian"></use></svg><span> 闲言碎语</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-customerservice-fill1"></use></svg><span> 音乐馆</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liuyanban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shijianzhou_gaoliang"></use></svg><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/bangumis/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon_bilibili-circle"></use></svg><span> 追番</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/fcircle/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-zhifeiji1"></use></svg><span> 朋友圈</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon-lianjie"></use></svg><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-medium-circle-fill"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">梯度下降优化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-03-03T02:51:08.000Z" title="发表于 2025-03-03 10:51:08">2025-03-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-04-25T09:03:31.813Z" title="更新于 2025-04-25 17:03:31">2025-04-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/program/">program</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/program/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="梯度下降优化"><a href="#梯度下降优化" class="headerlink" title="梯度下降优化"></a>梯度下降优化</h2><h3 id="1、归一化-Normalization"><a href="#1、归一化-Normalization" class="headerlink" title="1、归一化 Normalization"></a>1、归一化 Normalization</h3><h4 id="1-1、归一化目的"><a href="#1-1、归一化目的" class="headerlink" title="1.1、归一化目的"></a>1.1、归一化目的</h4><p>  梯度下降的原理和应用，我们已经在前面课程中进行了学习，大家仔细观察下图。</p>
+<p>![]()</p>
+<p>  不同方向的<strong>陡峭度</strong>是不一样的，即不同维度的数值大小是不同。也就是说梯度下降的快慢是不同的：</p>
+<p> 如果维度多了，就是<strong>超平面</strong>（了解一下霍金所说的宇宙十一维空间），很难画出来了，感受一下下面这张图的空间维度情况。</p>
+<p>![]()</p>
+<p>  如果拿多元线性回归举例的话，因为多元线性回归的损失函数 MSE 是凸函数，所以我们可以把损失函数看成是一个碗。然后下面的图就是从碗上方去俯瞰！哪里是损失最小的地方呢？当然对应的就是碗底的地方！所以下图碗中心的地方颜色较浅的区域就是损失函数最小的地方。</p>
+<p>![]()</p>
+<p>  上面两张图都是进行梯度下降，你有没有发现，略有不同啊？两张图形都是鸟瞰图，左边的图形做了归一化处理，右边是没有做归一化的俯瞰图。</p>
+<p>  啥是归一化呢？请带着疑问跟我走~</p>
+<p>  我们先来说一下为什么没做归一化是右侧图示，举个例子假如我们客户数据信息，有两个维度，一个是用户的年龄，一个是用户的月收入，目标变量是快乐程度。</p>
+<p>name</p>
+<p>age</p>
+<p>salary</p>
+<p>happy</p>
+<p>路博通</p>
+<p>36</p>
+<p>7000</p>
+<p>100</p>
+<p>马老师</p>
+<p>42</p>
+<p>20000</p>
+<p>180</p>
+<p>赵老师</p>
+<p>22</p>
+<p>30000</p>
+<p>164</p>
+<p>……</p>
+<p>……</p>
+<p>……</p>
+<p>……</p>
+<p>  我们可以里面写出线性回归公式， $y = \theta_1x_1 + \theta_2x_2 + b$ ，那么这样每一条样本不同维度对应的数量级不同，原因是每个维度对应的物理含义不同嘛，但是计算机能理解 36 和 7000 分别是年龄和收入吗？计算机只是拿到一堆数字而已。</p>
+<p>  我们把 $x_1$ 看成是年龄，$x_2$ 看成是收入， y 对应着快乐程度。机器学习就是在知道 X，y的情况下解方程组调整出最优解的过程。根据公式我们也可以发现 y 是两部分贡献之和，按常理来说，一开始并不知道两个部分谁更重要的情况下，可以想象为两部分对 y 的贡献是一样的即 $\theta_1x_1 = \theta_2x_2$ ，如果 $x_1 \ll x_2$ ，那么最终 $\theta_1 \gg \theta_2$ （远大于）。</p>
+<p>  这样是不是就比较好理解为什么之前右侧示图里为什么 $\theta_1 &gt; \theta_2$ ，看起来就是椭圆。再思考一下，梯度下降第 1 步的操作，是不是所有的维度 $\theta$ 都是根据在期望 $\mu$ 为 0 方差 $\sigma$ 为 1 的正太分布随机生成的，说白了就是一开始的 $\theta_1$ 和 $\theta_2$ 数值是差不多的。所以可以发现 $\theta_1$ 从初始值到目标位置 $\theta_1^{target}$ 的距离要远大于 $\theta_2$ 从初始值到目标位置$\theta_2^{target}$。</p>
+<p>  因为 $x_1 \ll x_2$，根据梯度公式 $g<em>j= (h</em>{\theta}(x) - y)x_j$ ，得出 $g_1 \ll g_2$。根据梯度下降公式：$\theta_j^{n+1} = \theta_j^n - \eta * g_j$ 可知，每次调整 $\theta_1$ 的幅度 $\ll$ （远小于） $\theta_2$ 的调整幅度。</p>
+<p>  总结一下 ，根据上面得到的两个结论 ，它俩之间是互相矛盾的 ，意味着最后 $\theta_2$ 需要比 $\theta_1$ 更少的迭代次数就可以收敛，而我们要最终求得最优解，就必须每个维度 $\theta$ 都收敛才可以，所以会出现 $\theta_2$ 等待 $\theta_1$ 收敛的情况。讲到这里对应图大家应该可以理解为什么右图是先顺着 $\theta_2$ 的坐标轴往下走再往右走的原因了吧。</p>
+<p><strong>结论:</strong></p>
+<p>  归一化的一个目的是，使得梯度下降在不同维度 $\theta$ 参数（不同数量级）上，可以步调一致协同的进行梯度下降。这就好比社会主义，一小部分人先富裕起来了，先富带后富，这需要一定的时间，先富的这批人等待其他的人富裕起来；但是，更好途经是实现共同富裕，最后每个人都不能落下， 优化的步伐是一致的。</p>
+<p>![]()</p>
+<p>经过归一化处理，收敛的速度，明显快了！</p>
+<h4 id="1-2、归一化本质"><a href="#1-2、归一化本质" class="headerlink" title="1.2、归一化本质"></a>1.2、归一化本质</h4><p>  做归一化的目的是要实现<strong>“共同富裕”</strong>，而之所以梯度下降优化时不能达到步调一致的根本原因其实还是 $x_1$ 和 $x_2$ 的数量级不同。所以什么是归一化？</p>
+<p>  答案自然就出来了，就是把 $x_1$ 和 $x_2$ 的数量级统一，扩展一点说，如果有更多特征维度，就要把各个特征维度 $x_1、x_2、……、x_n$ 的数量级统一，来做到无量纲化。</p>
+<h4 id="1-3、最大值最小值归一化"><a href="#1-3、最大值最小值归一化" class="headerlink" title="1.3、最大值最小值归一化"></a>1.3、最大值最小值归一化</h4><p>  也称为离差标准化，是对原始数据的线性变换，<strong>使结果值映射到[0 - 1]之间</strong>。转换函数如下：</p>
+<p>$X^* = \frac{X - X_min}{X_max -X_min}$</p>
+<p>  其实我们很容易发现使用最大值最小值归一化（min-max标准化）的时候，优点是一定可以把数值归一到 0 ~ 1 之间，缺点是如果有一个离群值（比如马云的财富），正如我们举的例子一样，会使得一个数值为 1，其它数值都几乎为 0，所以受离群值的影响比较大！</p>
+<p><strong>代码演示：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">x_1 = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">10</span>)</span><br><span class="line">x_2 = np.random.randint(<span class="number">100</span>,<span class="number">300</span>,size = <span class="number">10</span>)</span><br><span class="line">x = np.c_[x_1,x_2]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之前的数据：&#x27;</span>)</span><br><span class="line">display(x)</span><br><span class="line">x_ = (x - x.<span class="built_in">min</span>(axis = <span class="number">0</span>)) / (x.<span class="built_in">max</span>(axis = <span class="number">0</span>) - x.<span class="built_in">min</span>(axis = <span class="number">0</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之后的数据：&#x27;</span>)</span><br><span class="line">display(x_)</span><br></pre></td></tr></table></figure>
+<p><strong>使用scikit-learn函数：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> MinMaxScaler</span><br><span class="line">x_1 = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">10</span>)</span><br><span class="line">x_2 = np.random.randint(<span class="number">100</span>,<span class="number">300</span>,size = <span class="number">10</span>)</span><br><span class="line">x = np.c_[x_1,x_2]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之前的数据：&#x27;</span>)</span><br><span class="line">display(x)</span><br><span class="line">min_max_scaler = MinMaxScaler()</span><br><span class="line">x_ = min_max_scaler.fit_transform(x)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之后的数据：&#x27;</span>)</span><br><span class="line">display(x_)</span><br></pre></td></tr></table></figure>
+<h4 id="1-4、0-均值标准化"><a href="#1-4、0-均值标准化" class="headerlink" title="1.4、0-均值标准化"></a>1.4、0-均值标准化</h4><p>  这种方法给予原始数据的均值（mean）和标准差（standard deviation）进行数据的标准化，也叫做Z-score标准化。经过处理的数据符合标准正态分布，即均值为0，标准差为1，转化函数为：</p>
+<p>$X^* = \frac{X - \mu}{\sigma}$</p>
+<p>其中μ为所有样本数据的均值，σ为所有样本数据的标准差。</p>
+<p>$\mu = \frac{1}{n}\sum\limits_{i = 1}^nx_i$</p>
+<p>$\sigma = \sqrt{\frac{1}{n}\sum\limits_{i = 1}^n(x_i - \mu)^2}$</p>
+<p>  相对于最大值最小值归一化来说，因为标准归一化除以了标准差，而标准差的计算会考虑到所有样本数据，所以受到离群值的影响会小一些，这就是除以方差的好处！但是，0-均值标准化不一定会把数据缩放到 0 ~ 1 之间了。既然是0均值，也就意味着，有正有负！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">x_1 = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">10</span>)</span><br><span class="line">x_2 = np.random.randint(<span class="number">100</span>,<span class="number">300</span>,size = <span class="number">10</span>)</span><br><span class="line">x = np.c_[x_1,x_2]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之前的数据：&#x27;</span>)</span><br><span class="line">display(x)</span><br><span class="line">x_ = (x - x.mean(axis = <span class="number">0</span>)) / x.std(axis = <span class="number">0</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之后的数据：&#x27;</span>)</span><br><span class="line">display(x_)</span><br></pre></td></tr></table></figure>
+<p><strong>使用scikit-learn函数：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler</span><br><span class="line">x_1 = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">10</span>)</span><br><span class="line">x_2 = np.random.randint(<span class="number">100</span>,<span class="number">300</span>,size = <span class="number">10</span>)</span><br><span class="line">x = np.c_[x_1,x_2]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之前的数据：&#x27;</span>)</span><br><span class="line">display(x)</span><br><span class="line">standard_scaler = StandardScaler()</span><br><span class="line">x_ = standard_scaler.fit_transform(x)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;归一化之后的数据：&#x27;</span>)</span><br><span class="line">display(x_)</span><br></pre></td></tr></table></figure>
+<p>  那为什么要减去均值呢？其实做均值归一化还有一个特殊的好处（对比最大值最小值归一化，全部是正数0~1），我们来看一下梯度下降的式子，你就会发现 $\alpha$ 是正数，不管 A 是正还是负（ A 就是 $\hat{y} - y = h_{\theta}(x) - y$），对于所有的维度 X，比如这里的 $x_1$ 和 $x_2$ 来说，$\alpha$ 乘上 A 都是一样的符号，那么每次迭代的时候 $w_1^{t+1}$ 和 $w_2^{t+1}$ 的更新幅度符号也必然是一样的，这样就会像下图有右侧所示：要想从 $w_t$ 更新到 $w^*$ 就必然要么 $w_1$ 和 $w_2$ 同时变大再同时变小，或者就 $w_1$ 和 $w_2$ 同时变小再同时变大。不能如图上所示蓝色的最优解路径，即 $w_1$ 变小的同时 $w_2$ 变大！</p>
+<p>![]()</p>
+<p>  那我们如何才能做到让 $w_1$ 变小的时候 $w_2$ 变大呢？归其根本还是数据集 X 矩阵（经过min-max归一化）中的数据均为正数。所以如果我们可以让 $x_1$ 和 $x_2$ 它们符号不同，比如有正有负，其实就可以在做梯度下降的时候有更多的可能性去让更新尽可能沿着最优解路径去走。</p>
+<p>  结论：<strong>0-均值标准化</strong>处理数据之后，属性有正有负，可以让梯度下降沿着最优路径进行~</p>
+<p><strong>注意：</strong></p>
+<p>  我们在做特征工程的时候，很多时候如果对训练集的数据进行了预处理，比如这里讲的归一化，那么未来对测试集的时候，和模型上线来新的数据的时候，都要进行<strong>相同的</strong>数据预处理流程，而且所使用的均值和方差是来自当时训练集的均值和方差!</p>
+<p>  因为我们人工智能要干的事情就是从训练集数据中找规律，然后利用找到的规律去预测新产生的数据。这也就是说假设训练集和测试集以及未来新来的数据是属于同分布的！从代码上面来说如何去使用训练集的均值和方差呢？就需要把 scaler 对象持久化， 回头模型上线的时候再加载进来去对新来的数据进行处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> joblib</span><br><span class="line">joblib.dump(standard_scaler,<span class="string">&#x27;scale&#x27;</span>) <span class="comment"># 持久化</span></span><br><span class="line">standard_scaler = joblib.load(<span class="string">&#x27;scale&#x27;</span>) <span class="comment"># 加载</span></span><br><span class="line">standard_scaler.transform(x) <span class="comment"># 使用</span></span><br></pre></td></tr></table></figure>
+<h3 id="2、正则化-Regularization"><a href="#2、正则化-Regularization" class="headerlink" title="2、正则化 Regularization"></a>2、正则化 Regularization</h3><h4 id="2-1、过拟合欠拟合"><a href="#2-1、过拟合欠拟合" class="headerlink" title="2.1、过拟合欠拟合"></a>2.1、过拟合欠拟合</h4><ol>
+<li>欠拟合（under fit）：还没有拟合到位，训练集和测试集的准确率都还没有到达最高，学的还不到位。</li>
+<li>过拟合（over fit）：拟合过度，训练集的准确率升高的同时，测试集的准确率反而降低。学的过度了（走火入魔），做过的卷子都能再次答对（死记硬背），考试碰到新的没见过的题就考不好（不会举一反三）。</li>
+<li>恰到好处（just right）：过拟合前，训练集和测试集准确率都达到巅峰。好比，学习并不需要花费很多时间，理解的很好，考试的时候可以很好的把知识举一反三。</li>
+</ol>
+<p>![]()</p>
+<p>  正则化就是防止过拟合，增加模型的<strong>鲁棒性</strong>，鲁棒是 Robust 的音译，也就是强壮的意思。就像计算机软件在面临攻击、网络过载等情况下能够不死机不崩溃，这就是软件的鲁棒性。鲁棒性调优就是让模型拥有更好的鲁棒性，也就是让模型的泛化能力和推广 能力更加的强大。</p>
+<p>  举例子说明：下面两个式子描述同一条直线那个更好？</p>
+<p>$y = 0.3x_1 + 0.4x_2 + 0.5$</p>
+<p>$y = 3x_1 + 4x_2 + 5$</p>
+<p>  第一个更好，因为下面的公式是上面的十倍，当 w 越小公式的容错的能力就越好。因为把测试数据带入公式中如果测试集原来是 [32, 128] 在带入的时候发生了一些偏差，比如说变成 [30, 120] ，第二个模型结果就会比第一个模型结果的偏差大的多。公式中 $y = W^Tx$ ，当 x 有一点错误，这个错误会通过 w 放大。但是 w 不能太小，当 w 太小时（比如都趋近0），模型就没有意义了，无法应用。想要有一定的容错率又要保证正确率就要由正则项来发挥作用了！</p>
+<p>  所以正则化(鲁棒性调优)的本质就是牺牲模型在训练集上的正确率来提高推广、泛化能力， W 在数值上越小越好，这样能抵抗数值的<strong>扰动</strong>。同时为了保证模型的正确率 W 又不能极小。 故而人们将原来的损失函数加上一个惩罚项，这里面损失函数就是原来固有的损失函数，比如回归的话通常是 MSE，分类的话通常是 cross entropy 交叉熵，然后在加上一部分惩罚项来使得计算出来的模型 W 相对小一些来带来泛化能力。</p>
+<p>  常用的惩罚项有L1 正则项或者 L2 正则项：</p>
+<ul>
+<li>$L_1 = w<em>1 = \sum\limits</em>{i = 1}^nw_i$​ 对应曼哈顿距离</li>
+<li>$L_2 = w<em>2 = \sqrt{\sum\limits</em>{i = 1}^n(w_i)^2}$ 对应欧氏距离</li>
+</ul>
+<p>其实 L1 和 L2 正则的公式数学里面的意义就是范数，代表空间中向量到原点的距离：</p>
+<p>$L_p = X<em>p = \sqrt[p]{\sum\limits</em>{i = 1}^nx_i^p} , X = (x_1,x_2,……x_n)$</p>
+<p>![]()</p>
+<p>  当我们把多元线性回归损失函数加上 L2 正则的时候，就诞生了 Ridge 岭回归。当我们把多元线性回归损失函数加上 L1 正则的时候，就孕育出来了 Lasso 回归。其实 L1 和 L2 正则项惩罚项可以加到任何算法的损失函数上面去提高计算出来模型的泛化能力的。</p>
+<h4 id="2-2、套索回归（Lasso）"><a href="#2-2、套索回归（Lasso）" class="headerlink" title="2.2、套索回归（Lasso）"></a>2.2、套索回归（Lasso）</h4><p>先从线性回归开始，其损失函数如下：</p>
+<p>$J(\theta) = \frac{1}{2}\sum\limits<em>{i = 1}^n(h</em>{\theta}(x^{(i)}) - y^{(i)})^2$</p>
+<p>L1正则化的损失函数，令$J_0 = J(\theta)$：</p>
+<p>$J = J<em>0 + \alpha * \sum\limits</em>{i = 1}^nw_i$</p>
+<p>令 $L<em>1 = \alpha * \sum\limits</em>{i = 1}^nw_i$ ：</p>
+<p>$J = J_0 + L_1$</p>
+<p>  其中 $J_0$ 是原始的损失函数，加号后面的一项是L1正则化项， $\alpha$ 是正则化系数。注意到 L1正则化是权值的绝对值之和。$J$ 是带有绝对值符号的函数，因此 $J$ 是不完全可微的。机器学习的任务就是要通过一些方法（比如梯度下降）求出损失函数的最小值。当我们在原始损失函数 $J_0$ 后面添加L1正则项时，相当于对 $J_0$ 做了一个约束。令$L<em>1 = \alpha * \sum\limits</em>{i = 1}^nw_i$ ，则 $J = J_0 + L_1$ ，此时我们的任务变成在 $L_1$ 约束下求出 $J_0$ 取最小值的解。<strong>考虑二维的情况</strong>，即只有两个权值 $w_1、w_2$ ，此时 $L_1 = w_1 + w_2$。 对于梯度下降法，求解 $J_0$ 过程可以画出等值线，同时 L1 正则化的函数 $L_1$ 也可以在 $w_1、w_2$所在的平面上画出来：</p>
+<p>![]()</p>
+<p>  图中等值线是$J_0$的等值线，是椭圆形。黑色方框是 $L_1$ 函数的图形，$L_1 = w_1 + w_2$ 这个函数画出来，就是一个方框。</p>
+<p>  在图中，当 $J_0$ 等值线与 $L_1$ 图形首次相交的地方就是最优解。上图中 $J_0$ 与 $L_1$ 在 $L_1$ 的一个顶点处相交，这个顶点就是最优解。注意到这个顶点的值是 $(w_1,w_2) = (0,w)$ 。可以直观想象，因为 $L_1$ 函数有很多『突出的角』（二维情况下四个，多维情况下更多）， $J_0$ 与这些角接触的机率会远大于与 $L_1$ 其它部位接触的机率（这是很直觉的想象，突出的角比直线的边离等值线更近写），而在这些角上，会有很多权值等于0（因为角就在坐标轴上），这就是为什么 L1 正则化可以产生稀疏模型（很多权重等于0了），进而可以用于特征选择。</p>
+<p>  而正则化前面的系数 $\alpha$，可以控制 $L_1$ 图形的大小。$\alpha$ 越小，$L_1$ 的图形越大（上图中的黑色方框）；$\alpha$ 越大，$L_1$ 的图形就越小，可以小到黑色方框只超出原点范围一点点，这是最优解的值$(w_1,w_2) = (0,w)$ 中的 w 可以取到很小的值的原因所在。</p>
+<p>代码演示 $\alpha$ 取值大小对黑色方框的尺寸影响：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="comment"># α 的值是：1</span></span><br><span class="line"><span class="comment"># 1 = x + y</span></span><br><span class="line"><span class="comment"># y = 1 -x</span></span><br><span class="line">f = <span class="keyword">lambda</span> x : <span class="number">1</span>- x</span><br><span class="line">x = np.linspace(<span class="number">0</span>,<span class="number">1</span>,<span class="number">100</span>)</span><br><span class="line">plt.axis(<span class="string">&#x27;equal&#x27;</span>)</span><br><span class="line">plt.plot(x, f(x), color = <span class="string">&#x27;green&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># α 的值是：3</span></span><br><span class="line"><span class="comment"># 1 = 3 * x + 3 * y</span></span><br><span class="line"><span class="comment"># y = 1/3 -x</span></span><br><span class="line">f2 = <span class="keyword">lambda</span> x : <span class="number">1</span>/<span class="number">3</span> - x </span><br><span class="line">x2 = np.linspace(<span class="number">0</span>,<span class="number">1</span>/<span class="number">3</span>,<span class="number">100</span>)</span><br><span class="line">plt.plot(x2, f2(x2),color = <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一些列设置</span></span><br><span class="line">plt.xlim(-<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">plt.ylim(-<span class="number">2</span>,<span class="number">2</span>)</span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">&#x27;right&#x27;</span>].set_color(<span class="string">&#x27;None&#x27;</span>)  <span class="comment"># 将图片的右框隐藏</span></span><br><span class="line">ax.spines[<span class="string">&#x27;top&#x27;</span>].set_color(<span class="string">&#x27;None&#x27;</span>)  <span class="comment"># 将图片的上边框隐藏</span></span><br><span class="line">ax.spines[<span class="string">&#x27;bottom&#x27;</span>].set_position((<span class="string">&#x27;data&#x27;</span>, <span class="number">0</span>)) <span class="comment"># x轴出现在y轴的-1 位置</span></span><br><span class="line">ax.spines[<span class="string">&#x27;left&#x27;</span>].set_position((<span class="string">&#x27;data&#x27;</span>, <span class="number">0</span>))</span><br><span class="line">plt.savefig(<span class="string">&#x27;&#x27;</span>,dpi = <span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+<p>![]()</p>
+<p><strong>权重更新规则如下：</strong></p>
+<ol>
+<li>损失函数：</li>
+</ol>
+<p>$J(\theta) = \frac{1}{2}\sum\limits<em>{i = 1}^n(h</em>{\theta}(x^{(i)}) - y^{(i)})^2$</p>
+<p>$L<em>1  =  \alpha * \sum\limits</em>{i = 1}^nw_i$</p>
+<p>$J = J_0 + L_1$</p>
+<ol>
+<li>更新规则：</li>
+</ol>
+<p>$\theta_j^{n + 1} = \theta_j^{n} - \eta * \frac{\partial}{\partial \theta_j}J$</p>
+<p>$\theta_j^{n + 1} = \theta_j^{n} - \eta * \frac{\partial}{\partial \theta_j}(J_0 + L_1)$</p>
+<p>$\frac{\partial}{\partial \theta_j}J<em>0 =\sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)} $</p>
+<p>$\frac{\partial}{\partial \theta_j}L_1 = \alpha * sgn(w_i) $</p>
+<p>其中 $J_0$ 即是线性回归的损失函数，$L_1$ 是添加的正则项。$sgn(w_i)$ 表示符号函数、指示函数，值为：1 或 -1。</p>
+<p>$sgn(w_i) = \begin{cases}1, &amp;w_i &gt; 0\-1,&amp;w_i &lt; 0\end{cases}$</p>
+<p>注意当 $w_i = 0$ 时不可导。</p>
+<p><strong>综上所述</strong>，L1正则化权重更新如下：</p>
+<p>$\theta_j^{n + 1} = \theta<em>j^{n} -\eta\sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)} - \eta<em>\alpha</em> sgn(w_i)$</p>
+<ul>
+<li>Lasso回归和线性回归相比，多了一项：$-\eta <em>\alpha</em> sgn(w_i)$</li>
+<li>$\eta $ 大于零，表示梯度下降学习率</li>
+<li>$\alpha$ 大于零，表示L1正则化系数</li>
+<li>当$w_i$为正时候 $sgn(w_i) = 1$，直接减去 $\eta * \alpha$ （大于0），所以正的 $w_i$ 变小了</li>
+<li>当$w_i$为负时候 $sgn(w_i) = -1$，相当于直接加上 $\eta * \alpha$ （小于0），所以负的 $w_i$​ 变大了，绝对值变小，向0靠近</li>
+</ul>
+<p>有的书本上公式会这样写，其中 $\lambda$ 表示L1正则化系数：</p>
+<p>$\theta_j^{n + 1} = \theta<em>j^{n} -\eta\sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)} - \eta<em>\lambda</em> sgn(w_i)$</p>
+<h4 id="2-3、岭回归（Ridge）"><a href="#2-3、岭回归（Ridge）" class="headerlink" title="2.3、岭回归（Ridge）"></a>2.3、岭回归（Ridge）</h4><p>也是先从线性回归开始，其损失函数如下：</p>
+<p>$J(\theta) = \frac{1}{2}\sum\limits<em>{i = 1}^n(h</em>{\theta}(x^{(i)}) - y^{(i)})^2$</p>
+<p>L2正则化的损失函数（对L2范数，进行了平方运算），令$J_0 = J(\theta)$：</p>
+<p>$J = J<em>0 + \alpha * \sum\limits</em>{i = 1}^n(w_i)^2$</p>
+<p>令 $L<em>2 = \alpha * \sum\limits</em>{i = 1}^n(w_i)^2$ ：</p>
+<p>$J = J_0 + L_2$</p>
+<p>同样可以画出他们在二维平面上的图形，如下：</p>
+<p>![]()</p>
+<p>二维平面下 L2 正则化的函数图形是个圆（绝对值的平方和，是个圆），与方形相比，被磨去了棱角。因此 $J_0$ 与 $L_2$ 相交时使得 $w_1、w_2$ 等于零的机率小了许多（这个也是一个很直观的想象），这就是为什么L2正则化不具有稀疏性的原因，因为不太可能出现多数 w 都为0的情况（这种情况就叫稀疏性）！</p>
+<p><strong>权重更新规则如下：</strong></p>
+<ol>
+<li>损失函数：</li>
+</ol>
+<p>$J(\theta) = \frac{1}{2}\sum\limits<em>{i = 1}^n(h</em>{\theta}(x^{(i)}) - y^{(i)})^2$</p>
+<p>$L<em>2  =  \alpha * \sum\limits</em>{i = 1}^n(w_i)^2$</p>
+<p>$J = J_0 + L_2$</p>
+<ol>
+<li>更新规则：</li>
+</ol>
+<p>$\theta_j^{n + 1} = \theta_j^{n} - \eta * \frac{\partial}{\partial \theta_j}J$</p>
+<p>$\theta_j^{n + 1} = \theta_j^{n} - \eta * \frac{\partial}{\partial \theta_j}(J_0 + L_2)$</p>
+<p>$\frac{\partial}{\partial \theta_j}J<em>0 =\sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)} $</p>
+<p>$\frac{\partial}{\partial \theta_j}L_2 = 2\alpha w_i $</p>
+<p>其中 $J_0$ 即是线性回归的损失函数，$L_2$ 是添加的正则项。</p>
+<p><strong>综上所述</strong>，L2正则化权重更新如下（$2\alpha$ 也是常数项，可以合并到一起用整体 $\alpha$ 替代）：</p>
+<p>$\theta_j^{n + 1} = \theta<em>j^{n}(1-\eta </em>\alpha) -\eta<em> \sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)}$</p>
+<p>其中 $\alpha$ 就是正则化参数，$\eta$ 表示学习率。从上式可以看到，与未添加L2正则化的迭代公式相比，每一次迭代， $\theta_j$ 都要先乘以一个小于1的因子（即 $(1-\eta * \alpha)$ ），从而使得 $\theta_j$ 加速减小，因此总的来看，$\theta$ 相比不加L2正则项的线性回归可以获得更小的值。从而，实现了防止过拟合的效果，增加模型的鲁棒性~</p>
+<p>有的书本上，公式写法可能<strong>不同</strong>：其中 $\lambda$ 表示正则化参数。</p>
+<p>$\theta_j^{n + 1} = \theta<em>j^{n}(1-\eta </em>\lambda) -\eta<em> \sum\limits</em>{i = 1}^{n} (h_{\theta}(x^{(i)}) - y^{(i)} )x_j^{(i)}$</p>
+<h3 id="3、线性回归衍生算法"><a href="#3、线性回归衍生算法" class="headerlink" title="3、线性回归衍生算法"></a>3、线性回归衍生算法</h3><p>  接下来，我们一起学习一下scikit-learn中为我们提供的线性回归衍生算法，根据上面所学的原理，对比线性回归加深理解。</p>
+<h4 id="3-1、Ridge算法使用"><a href="#3-1、Ridge算法使用" class="headerlink" title="3.1、Ridge算法使用"></a>3.1、Ridge算法使用</h4><p>这是scikit-learn官网给出的岭回归的，损失函数公式，注意，它用的矩阵表示，里面用到范数运算。</p>
+<p>$\underset{w}\min X w - y_2^2 + \alpha w_2^2$</p>
+<p>L2正则化和普通线性回归系数对比：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Ridge</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据集X，y</span></span><br><span class="line">X = <span class="number">2</span>*np.random.rand(<span class="number">100</span>, <span class="number">5</span>)</span><br><span class="line">w = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = (<span class="number">5</span>,<span class="number">1</span>))</span><br><span class="line">b = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">1</span>)</span><br><span class="line">y = X.dot(w) + b + np.random.randn(<span class="number">100</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的斜率：&#x27;</span>,w.ravel())</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的截距：&#x27;</span>,b)</span><br><span class="line"></span><br><span class="line">ridge = Ridge(alpha= <span class="number">1</span>, solver=<span class="string">&#x27;sag&#x27;</span>)</span><br><span class="line">ridge.fit(X, y)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;岭回归求解的斜率：&#x27;</span>,ridge.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;岭回归求解的截距：&#x27;</span>,ridge.intercept_)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 线性回归梯度下降方法</span></span><br><span class="line">sgd = SGDRegressor(penalty=<span class="string">&#x27;l2&#x27;</span>,alpha=<span class="number">0</span>,l1_ratio=<span class="number">0</span>)</span><br><span class="line">sgd.fit(X, y.reshape(-<span class="number">1</span>,))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的斜率是：&#x27;</span>,sgd.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的截距是：&#x27;</span>,sgd.intercept_)</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>和没有正则项约束线性回归对比，可知L2正则化，将方程系数进行了缩小</li>
+<li>$\alpha$ 增大求解出来的方程斜率变小</li>
+<li>Ridge回归源码解析：<ul>
+<li>alpha：正则项系数</li>
+<li>fit_intercept：是否计算 $w_0$ 截距项</li>
+<li>normalize：是否做归一化</li>
+<li>max_iter：最大迭代次数</li>
+<li>tol：结果的精确度</li>
+<li>solver：优化算法的选择</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-2、Lasso算法使用"><a href="#3-2、Lasso算法使用" class="headerlink" title="3.2、Lasso算法使用"></a>3.2、Lasso算法使用</h4><p>这是scikit-learn官网给出的套索回归的，损失函数公式，注意，它用的矩阵表示，里面用到范数运算。</p>
+<p>$\underset{w}\min { \frac{1}{2n_{\text{samples}}} X w - y_2 ^ 2 + \alpha w_1}$</p>
+<p>公式中多了一项：$\frac{1}{2n_{samples}}$这是一个常数项，去掉之后，也不会影响损失函数公式计算。在岭回归中，就没有这项。</p>
+<p>L1正则化和普通线性回归系数对比：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> Lasso</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据集X，y</span></span><br><span class="line">X = <span class="number">2</span>*np.random.rand(<span class="number">100</span>, <span class="number">20</span>)</span><br><span class="line">w = np.random.randn(<span class="number">20</span>,<span class="number">1</span>)</span><br><span class="line">b = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">1</span>)</span><br><span class="line">y = X.dot(w) + b + np.random.randn(<span class="number">100</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的斜率：&#x27;</span>,w.ravel())</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的截距：&#x27;</span>,b)</span><br><span class="line"></span><br><span class="line">lasso = Lasso(alpha= <span class="number">0.5</span>)</span><br><span class="line">lasso.fit(X, y)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;套索回归求解的斜率：&#x27;</span>,lasso.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;套索回归求解的截距：&#x27;</span>,lasso.intercept_)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 线性回归梯度下降方法</span></span><br><span class="line">sgd = SGDRegressor(penalty=<span class="string">&#x27;l2&#x27;</span>,alpha=<span class="number">0</span>, l1_ratio=<span class="number">0</span>)</span><br><span class="line">sgd.fit(X, y.reshape(-<span class="number">1</span>,))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的斜率是：&#x27;</span>,sgd.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的截距是：&#x27;</span>,sgd.intercept_)</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>和没有正则项约束线性回归对比，可知L1正则化，将方程系数进行了缩减，部分系数为0，产生稀疏模型</li>
+<li>$\alpha$ 越大，模型稀疏性越强，越多的参数为0</li>
+<li>Lasso回归源码解析：<ul>
+<li>alpha：正则项系数</li>
+<li>fit_intercept：是否计算 $w_0$ 截距项</li>
+<li>normalize：是否做归一化</li>
+<li>precompute：bool 类型，默认值为False，决定是否提前计算Gram矩阵来加速计算</li>
+<li>max_iter：最大迭代次数</li>
+<li>tol：结果的精确度</li>
+<li>warm_start：bool类型，默认值为False。如果为True，那么使⽤用前⼀次训练结果继续训练。否则从头开始训练</li>
+</ul>
+</li>
+</ul>
+<h4 id="3-3、Elastic-Net算法使用"><a href="#3-3、Elastic-Net算法使用" class="headerlink" title="3.3、Elastic-Net算法使用"></a>3.3、Elastic-Net算法使用</h4><p>这是scikit-learn官网给出的弹性网络回归的，损失函数公式，注意，它用的矩阵表示，里面用到范数运算。</p>
+<p>$\underset{w}\min { \frac{1}{2n_{\text{samples}}} X w - y_2 ^ 2 + \alpha \rho w_1 + \frac{\alpha(1-\rho)}{2} w_2 ^ 2}$</p>
+<p>  Elastic-Net 回归，即岭回归和Lasso技术的混合。弹性网络是一种使用 L1， L2 范数作为先验正则项训练的线性回归模型。 这种组合允许学习到一个只有少量参数是非零稀疏的模型，就像 Lasso 一样，但是它仍然保持一些像 Ridge 的正则性质。我们可利用 l1_ratio 参数控制 L1 和 L2 的凸组合。</p>
+<p>  弹性网络在很多特征互相联系（相关性，比如<strong>身高</strong>和<strong>体重</strong>就很有关系）的情况下是非常有用的。Lasso 很可能只随机考虑这些特征中的一个，而弹性网络更倾向于选择两个。</p>
+<p>  在实践中，Lasso 和 Ridge 之间权衡的一个优势是它允许在迭代过程中继承 Ridge 的稳定性。</p>
+<p>弹性网络回归和普通线性回归系数对比：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> ElasticNet</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据集X，y</span></span><br><span class="line">X = <span class="number">2</span>*np.random.rand(<span class="number">100</span>, <span class="number">20</span>)</span><br><span class="line">w = np.random.randn(<span class="number">20</span>,<span class="number">1</span>)</span><br><span class="line">b = np.random.randint(<span class="number">1</span>,<span class="number">10</span>,size = <span class="number">1</span>)</span><br><span class="line">y = X.dot(w) + b + np.random.randn(<span class="number">100</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的斜率：&#x27;</span>,w.ravel())</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;原始方程的截距：&#x27;</span>,b)</span><br><span class="line"></span><br><span class="line">model = ElasticNet(alpha= <span class="number">1</span>, l1_ratio = <span class="number">0.7</span>)</span><br><span class="line">model.fit(X, y)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;弹性网络回归求解的斜率：&#x27;</span>,model.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;弹性网络回归求解的截距：&#x27;</span>,model.intercept_)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 线性回归梯度下降方法</span></span><br><span class="line">sgd = SGDRegressor(penalty=<span class="string">&#x27;l2&#x27;</span>,alpha=<span class="number">0</span>, l1_ratio=<span class="number">0</span>)</span><br><span class="line">sgd.fit(X, y.reshape(-<span class="number">1</span>,))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的斜率是：&#x27;</span>,sgd.coef_)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;随机梯度下降求解的截距是：&#x27;</span>,sgd.intercept_)</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>和没有正则项约束线性回归对比，可知Elastic-Net网络模型，融合了L1正则化L2正则化</li>
+<li>Elastic-Net 回归源码解析：<ul>
+<li>alpha：混合惩罚项的常数</li>
+<li>l1_ratio：弹性网混合参数，0 &lt;= l1_ratio &lt;= 1，对于 l1_ratio = 0，惩罚项是L2正则惩罚。对于 l1_ratio = 1是L1正则惩罚。对于 0</li>
+<li>fit_intercept：是否计算 $w_0$ 截距项</li>
+<li>normalize：是否做归一化</li>
+<li>precompute：bool 类型，默认值为False，决定是否提前计算Gram矩阵来加速计算</li>
+<li>max_iter：最大迭代次数</li>
+<li>tol：结果的精确度</li>
+<li>warm_start：bool类型，默认值为False。如果为True，那么使⽤用前⼀次训练结果继续训练。否则从头开始训练</li>
+</ul>
+</li>
+</ul>
+<h3 id="4、多项式回归"><a href="#4、多项式回归" class="headerlink" title="4、多项式回归"></a>4、多项式回归</h3><h4 id="4-1、多项式回归基本概念"><a href="#4-1、多项式回归基本概念" class="headerlink" title="4.1、多项式回归基本概念"></a>4.1、多项式回归基本概念</h4><p>  升维的目的是为了去解决欠拟合的问题的，也就是为了提高模型的准确率为目的的，因为当维度不够时，说白了就是对于预测结果考虑的因素少的话，肯定不能准确的计算出模型。</p>
+<p>![]()</p>
+<p>  在做升维的时候，最常见的手段就是将已知维度进行相乘（或者自乘）来构建新的维度，如下图所示。普通线性方程，无法拟合规律，必须是多项式，才可以完美拟合曲线规律，图中是二次多项式。</p>
+<p>![]()</p>
+<p>  对于多项式回归来说主要是为了扩展线性回归算法来适应更广泛的数据集，比如我们数据集有两个维度 $x_1、x_2$，那么用多元线性回归公式就是：$\hat{y} = w_0 + w_1x_1 + w_2x_2$，当我们使用二阶多项式升维的时候，数据集就从原来的 $x_1、x_2$扩展成了$x_1、x_2、x_1^2、x_2^2、x_1x_2$ 。因此多元线性回归就得去多计算三个维度所对应的w值：$\hat{y} = w_0 + w_1x_1 + w_2x_2 + w_3x_1^2 + w_4x_2^2 + w_5x_1x_2$ 。</p>
+<p>  此时拟合出来的方程就是曲线，可以解决一些线性回归的欠拟合问题！</p>
+<h4 id="4-2、多项式回归实战1-0"><a href="#4-2、多项式回归实战1-0" class="headerlink" title="4.2、多项式回归实战1.0"></a>4.2、多项式回归实战1.0</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据，并进行可视化</span></span><br><span class="line">X = np.linspace(-<span class="number">1</span>,<span class="number">11</span>,num = <span class="number">100</span>)</span><br><span class="line">y = (X - <span class="number">5</span>)**<span class="number">2</span> + <span class="number">3</span>*X -<span class="number">12</span> + np.random.randn(<span class="number">100</span>)</span><br><span class="line">X = X.reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">plt.scatter(X,y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2、创建预测数据</span></span><br><span class="line">X_test = np.linspace(-<span class="number">2</span>,<span class="number">12</span>,num = <span class="number">200</span>).reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3、不进行升维 + 普通线性回归</span></span><br><span class="line">model_1 = LinearRegression()</span><br><span class="line">model_1.fit(X,y)</span><br><span class="line">y_test_1 = model_1.predict(X_test)</span><br><span class="line">plt.plot(X_test,y_test,color = <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4、多项式升维 + 普通线性回归</span></span><br><span class="line">X = np.concatenate([X,X**<span class="number">2</span>],axis = <span class="number">1</span>)</span><br><span class="line">model_2 = LinearRegression()</span><br><span class="line">model_2.fit(X,y)</span><br><span class="line"><span class="comment"># 5、测试数据处理，并预测</span></span><br><span class="line">X_test = np.concatenate([X_test,X_test**<span class="number">2</span>],axis = <span class="number">1</span>)</span><br><span class="line">y_test_2 = model_2.predict(X_test)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6、数据可视化，切片操作</span></span><br><span class="line">plt.plot(X_test[:,<span class="number">0</span>],y_test_2,color = <span class="string">&#x27;green&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>不进行多项式升维，拟合出来的曲线，是线性的直线，和目标曲线无法匹配</li>
+<li>使用np.concatenate()进行简单的，幂次合并，注意数据合并的方向axis = 1</li>
+<li>数据可视化时，注意切片，因为数据升维后，多了平方这一维</li>
+</ul>
+<p>![]()</p>
+<h4 id="4-3、多项式回归实战2-0"><a href="#4-3、多项式回归实战2-0" class="headerlink" title="4.3、多项式回归实战2.0"></a>4.3、多项式回归实战2.0</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> PolynomialFeatures,StandardScaler</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据，并进行可视化</span></span><br><span class="line">X = np.linspace(-<span class="number">1</span>,<span class="number">11</span>,num = <span class="number">100</span>)</span><br><span class="line">y = (X - <span class="number">5</span>)**<span class="number">2</span> + <span class="number">3</span>*X -<span class="number">12</span> + np.random.randn(<span class="number">100</span>)</span><br><span class="line">X = X.reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">plt.scatter(X,y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2、创建预测数据</span></span><br><span class="line">X_test = np.linspace(-<span class="number">2</span>,<span class="number">12</span>,num = <span class="number">200</span>).reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3、使用PolynomialFeatures进行特征升维</span></span><br><span class="line">poly = PolynomialFeatures()</span><br><span class="line">poly.fit(X,y)</span><br><span class="line">X = poly.transform(X)</span><br><span class="line">s = StandardScaler()</span><br><span class="line">X = s.fit_transform(X)</span><br><span class="line"><span class="comment"># model = SGDRegressor(penalty=&#x27;l2&#x27;,eta0 = 0.0001,max_iter = 10000)</span></span><br><span class="line">model = SGDRegressor(penalty=<span class="string">&#x27;l2&#x27;</span>,eta0 = <span class="number">0.01</span>)</span><br><span class="line">model.fit(X,y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4、预测数据</span></span><br><span class="line">X_test = poly.transform(X_test)</span><br><span class="line">X_test_norm = s.transform(X_test)</span><br><span class="line">y_test = model.predict(X_test_norm)</span><br><span class="line">plt.plot(X_test[:,<span class="number">1</span>],y_test,color = <span class="string">&#x27;green&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>eta0表示学习率，设置合适的学习率，才能拟合成功</li>
+<li>多项式升维，需要对数据进行Z-score归一化处理，效果更佳出色</li>
+<li>SGD随机梯度下降需要调整参数，以使模型适应数据</li>
+</ul>
+<h3 id="5、代码实战天猫双十一销量预测"><a href="#5、代码实战天猫双十一销量预测" class="headerlink" title="5、代码实战天猫双十一销量预测"></a>5、代码实战天猫双十一销量预测</h3><p>  天猫双十一，从2009年开始举办，第一届成交额仅仅0.5亿，后面呈现了爆发式的增长，那么这些增长是否有规律呢？是怎么样的规律，该如何分析呢？我们使用多项式回归一探究竟！</p>
+<p>![]()</p>
+<p>数据可视化，历年天猫双十一销量数据：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">plt.rcParams[<span class="string">&#x27;font.size&#x27;</span>] = <span class="number">18</span></span><br><span class="line">plt.figure(figsize=(<span class="number">9</span>,<span class="number">6</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建数据，年份数据2009 ~ 2019</span></span><br><span class="line">X = np.arange(<span class="number">2009</span>,<span class="number">2020</span>)</span><br><span class="line">y = np.array([<span class="number">0.5</span>,<span class="number">9.36</span>,<span class="number">52</span>,<span class="number">191</span>,<span class="number">350</span>,<span class="number">571</span>,<span class="number">912</span>,<span class="number">1207</span>,<span class="number">1682</span>,<span class="number">2135</span>,<span class="number">2684</span>])</span><br><span class="line">plt.bar(X,y,width = <span class="number">0.5</span>,color = <span class="string">&#x27;green&#x27;</span>)</span><br><span class="line">plt.plot(X,y,color = <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">_ = plt.xticks(ticks = X)</span><br></pre></td></tr></table></figure>
+<p>![]()</p>
+<p>有图可知，在一定时间内，随着经济的发展，天猫双十一销量与年份的关系是多项式关系！假定，销量和年份之间关系是三次幂关系：</p>
+<p>$f(x) = w_1x + w_2x^2 + w_3x^3 + b$</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> SGDRegressor</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> PolynomialFeatures</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler</span><br><span class="line">plt.figure(figsize=(<span class="number">12</span>,<span class="number">9</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、创建数据，年份数据2009 ~ 2019</span></span><br><span class="line">X = np.arange(<span class="number">2009</span>,<span class="number">2020</span>)</span><br><span class="line">y = np.array([<span class="number">0.5</span>,<span class="number">9.36</span>,<span class="number">52</span>,<span class="number">191</span>,<span class="number">350</span>,<span class="number">571</span>,<span class="number">912</span>,<span class="number">1207</span>,<span class="number">1682</span>,<span class="number">2135</span>,<span class="number">2684</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2、年份数据，均值移除，防止某一个特征列数据天然的数值太大而影响结果</span></span><br><span class="line">X = X - X.mean()</span><br><span class="line">X = X.reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3、构建多项式特征，3次幂</span></span><br><span class="line">poly = PolynomialFeatures(degree=<span class="number">3</span>)</span><br><span class="line">X = poly.fit_transform(X)</span><br><span class="line">s = StandardScaler()</span><br><span class="line">X_norm = s.fit_transform(X)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4、创建模型</span></span><br><span class="line">model = SGDRegressor(penalty=<span class="string">&#x27;l2&#x27;</span>,eta0 = <span class="number">0.5</span>,max_iter = <span class="number">5000</span>)</span><br><span class="line">model.fit(X_norm,y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 5、数据预测</span></span><br><span class="line">X_test = np.linspace(-<span class="number">5</span>,<span class="number">6</span>,<span class="number">100</span>).reshape(-<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">X_test = poly.transform(X_test)</span><br><span class="line">X_test_norm = s.transform(X_test)</span><br><span class="line">y_test = model.predict(X_test_norm)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 6、数据可视化</span></span><br><span class="line">plt.plot(X_test[:,<span class="number">1</span>],y_test,color = <span class="string">&#x27;green&#x27;</span>)</span><br><span class="line">plt.bar(X[:,<span class="number">1</span>],y)</span><br><span class="line">plt.bar(<span class="number">6</span>,y_test[-<span class="number">1</span>],color = <span class="string">&#x27;red&#x27;</span>)</span><br><span class="line">plt.ylim(<span class="number">0</span>,<span class="number">4096</span>)</span><br><span class="line">plt.text(<span class="number">6</span>,y_test[-<span class="number">1</span>] + <span class="number">100</span>,<span class="built_in">round</span>(y_test[-<span class="number">1</span>],<span class="number">1</span>),ha = <span class="string">&#x27;center&#x27;</span>)</span><br><span class="line">_ = plt.xticks(np.arange(-<span class="number">5</span>,<span class="number">7</span>),np.arange(<span class="number">2009</span>,<span class="number">2021</span>))</span><br></pre></td></tr></table></figure>
+<p>![]()</p>
+<p><strong>结论：</strong></p>
+<ul>
+<li>数据预处理，均值移除。如果特征<strong>基准值和分散度</strong>不同在某些算法（例如回归算法，KNN等）上可能会大大影响了模型的预测能力。通过均值移除，大大增强数据的<strong>离散化</strong>程度。</li>
+<li>多项式升维，需要对数据进行Z-score归一化处理，效果更佳出色</li>
+<li>SGD随机梯度下降需要调整参数，以使模型适应多项式数据</li>
+<li>从2020年开始，天猫双十一统计的成交额改变了规则为11.1日~11.11日的成交数据（之前的数据为双十一当天的数据），2020年成交额为<strong>4980</strong>亿元</li>
+<li>可以，经济发展有其客观规律，前11年高速发展（曲线基本可以反应销售规律），到2020年是一个转折点</li>
+</ul>
+<h3 id="6、代码实战中国人寿保费预测"><a href="#6、代码实战中国人寿保费预测" class="headerlink" title="6、代码实战中国人寿保费预测"></a>6、代码实战中国人寿保费预测</h3><h4 id="6-1、数据加载与介绍"><a href="#6-1、数据加载与介绍" class="headerlink" title="6.1、数据加载与介绍"></a>6.1、数据加载与介绍</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line">data = pd.read_excel(<span class="string">&#x27;./中国人寿.xlsx&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(data.shape)</span><br><span class="line">data.head()</span><br></pre></td></tr></table></figure>
+<p>数据介绍：</p>
+<ul>
+<li>共计1338条保险数据，每条数据7个属性</li>
+<li>最后一列charges是保费</li>
+<li>前面6列是特征，分别为：年龄、性别、体重指数、小孩数量、是否抽烟、所在地区</li>
+</ul>
+<h4 id="6-2、EDA数据探索"><a href="#6-2、EDA数据探索" class="headerlink" title="6.2、EDA数据探索"></a>6.2、EDA数据探索</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns</span><br><span class="line"><span class="comment"># 性别对保费影响</span></span><br><span class="line">sns.kdeplot(data[<span class="string">&#x27;charges&#x27;</span>],shade = <span class="literal">True</span>,hue = data[<span class="string">&#x27;sex&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 地区对保费影响</span></span><br><span class="line">sns.kdeplot(data[<span class="string">&#x27;charges&#x27;</span>],shade = <span class="literal">True</span>,hue = data[<span class="string">&#x27;region&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 吸烟对保费影响</span></span><br><span class="line">sns.kdeplot(data[<span class="string">&#x27;charges&#x27;</span>],shade = <span class="literal">True</span>,hue = data[<span class="string">&#x27;smoker&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 孩子数量对保费影响</span></span><br><span class="line">sns.kdeplot(data[<span class="string">&#x27;charges&#x27;</span>],shade = <span class="literal">True</span>,hue = data[<span class="string">&#x27;children&#x27;</span>],palette=<span class="string">&#x27;Set1&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>总结：</p>
+<ul>
+<li>不同性别对保费影响不大，不同性别的保费的概率分布曲线基本重合，因此这个特征无足轻重，可以删除</li>
+<li>地区同理</li>
+<li>吸烟与否对保费的概率分布曲线差别很大，整体来说不吸烟更加健康，那么保费就低，这个特征很重要</li>
+<li>家庭孩子数量对保费有一定影响</li>
+</ul>
+<h4 id="6-3、特征工程"><a href="#6-3、特征工程" class="headerlink" title="6.3、特征工程"></a>6.3、特征工程</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">data = data.drop([<span class="string">&#x27;region&#x27;</span>, <span class="string">&#x27;sex&#x27;</span>], axis=<span class="number">1</span>)</span><br><span class="line">data.head() <span class="comment"># 删除不重要特征</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 体重指数，离散化转换，体重两种情况：标准、肥胖</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">convert</span>(<span class="params">df,bmi</span>):</span><br><span class="line">    df[<span class="string">&#x27;bmi&#x27;</span>] = <span class="string">&#x27;fat&#x27;</span> <span class="keyword">if</span> df[<span class="string">&#x27;bmi&#x27;</span>] &gt;= bmi <span class="keyword">else</span> <span class="string">&#x27;standard&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> df</span><br><span class="line">data = data.apply(convert, axis = <span class="number">1</span>, args=(<span class="number">30</span>,))</span><br><span class="line">data.head()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 特征提取，离散型数据转换为数值型数据</span></span><br><span class="line">data = pd.get_dummies(data)</span><br><span class="line">data.head()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 特征和目标值抽取</span></span><br><span class="line">X = data.drop(<span class="string">&#x27;charges&#x27;</span>, axis=<span class="number">1</span>) <span class="comment"># 训练数据</span></span><br><span class="line">y = data[<span class="string">&#x27;charges&#x27;</span>] <span class="comment"># 目标值</span></span><br><span class="line">X.head()</span><br></pre></td></tr></table></figure>
+<h4 id="6-4、特征升维"><a href="#6-4、特征升维" class="headerlink" title="6.4、特征升维"></a>6.4、特征升维</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> ElasticNet</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error,mean_squared_log_error</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据拆分</span></span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> PolynomialFeatures</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 特征升维</span></span><br><span class="line">poly = PolynomialFeatures(degree= <span class="number">2</span>, include_bias = <span class="literal">False</span>)</span><br><span class="line">X_train_poly = poly.fit_transform(X_train)</span><br><span class="line">X_test_poly = poly.fit_transform(X_test)</span><br></pre></td></tr></table></figure>
+<h4 id="6-5、模型训练与评估"><a href="#6-5、模型训练与评估" class="headerlink" title="6.5、模型训练与评估"></a>6.5、模型训练与评估</h4><p>普通线性回归：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">model_1 = LinearRegression()</span><br><span class="line">model_1.fit(X_train_poly, y_train)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据得分：&#x27;</span>,model_1.score(X_train_poly,y_train))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;预测数据得分：&#x27;</span>,model_1.score(X_test_poly,y_test))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;训练数据均方误差：&#x27;</span>,np.sqrt(mean_squared_error(y_train,model_1.predict(X_train_poly))))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据均方误差：&#x27;</span>,np.sqrt(mean_squared_error(y_test,model_1.predict(X_test_poly))))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;训练数据对数误差：&#x27;</span>,np.sqrt(mean_squared_log_error(y_train,model_1.predict(X_train_poly))))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据对数误差：&#x27;</span>,np.sqrt(mean_squared_log_error(y_test,model_1.predict(X_test_poly))))</span><br></pre></td></tr></table></figure>
+<p>弹性网络回归：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">model_2 = ElasticNet(alpha = <span class="number">0.3</span>,l1_ratio = <span class="number">0.5</span>,max_iter = <span class="number">50000</span>)</span><br><span class="line">model_2.fit(X_train_poly,y_train)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据得分：&#x27;</span>,model_2.score(X_train_poly,y_train))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;预测数据得分：&#x27;</span>,model_2.score(X_test_poly,y_test))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;训练数据均方误差为：&#x27;</span>,np.sqrt(mean_squared_error(y_train,model_2.predict(X_train_poly))))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据均方误差为：&#x27;</span>,np.sqrt(mean_squared_error(y_test,model_2.predict(X_test_poly))))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;训练数据对数误差为：&#x27;</span>,np.sqrt(mean_squared_log_error(y_train,model_2.predict(X_train_poly))))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;测试数据对数误差为：&#x27;</span>,np.sqrt(mean_squared_log_error(y_test,model_2.predict(X_test_poly))))</span><br></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>进行EDA数据探索，可以查看无关紧要特征</li>
+<li>进行特征工程：删除无用特征、特征离散化、特征提取。这对机器学习都至关重要</li>
+<li>对于简单的数据（特征比较少）进行线性回归，一般需要进行特征升维</li>
+<li>选择不同的算法，进行训练和评估，从中筛选优秀算法</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://molittle-git.github.io">molittle</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://molittle-git.github.io/posts/2d61ce16.html">http://molittle-git.github.io/posts/2d61ce16.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://molittle-git.github.io" target="_blank">molittle</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI/">AI</a></div><div class="post-share"><div class="social-share" data-image="/img/123.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/33b8c865.html" title="SPFA"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/123.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">SPFA</div></div><div class="info-2"><div class="info-item-1">给定一张$n$个点m条边的有向图，该图可以有自环与重边。 你需要判断从 1 号点出发，图中是否存在负权回路，存在输出 Yes；不存在输出...</div></div></div></a><a class="pagination-related" href="/posts/3c50d4b7.html" title="梯度下降"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/123.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">梯度下降</div></div><div class="info-2"><div class="info-item-1">梯度下降线性回归预测房价 数据加载 数据介绍 数据拆分 数据建模 数据预测 数据评估  1、无约束最优化问题1.1、无约束最优化  无约束最优化问题（unconstrained...</div></div></div></a></nav><p>相关文章功能暂时不可用</p></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">molittle</div><div class="author-info-description">MyBlog</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/molittle-git"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon faa-parent animated-hover" href="https://github.com/molittle-git" target="_blank" title="Github"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-github"></use></svg></a><a class="social-icon faa-parent animated-hover" href="https://wx.mail.qq.com/list/readtemplate?name=proxy_spwd.html&amp;type=indepent-password-login&amp;account=3466954759&amp;redirect_url=%2Fhome%2Findex%3Fsid%3DzQdUMoyIbFMupTJnAM5FMAAA&amp;loginfrom=qqconnect&amp;sid=zQdUMoyIbFMupTJnAM5FMAAA&amp;" target="_blank" title="Email"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-youxiang"></use></svg></a><a class="social-icon faa-parent animated-hover" href="/atom.xml" target="_blank" title="RSS"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-RSS"></use></svg></a><a class="social-icon faa-parent animated-hover" href="https://space.bilibili.com/1572041910" target="_blank" title="BiliBili"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-bilibili-nh"></use></svg></a><a class="social-icon faa-parent animated-hover" href="tencent://Message/?Uin=2268025923&amp;amp;websiteName=local.edu.com:8888=&amp;amp;Menu=yes" target="_blank" title="QQ"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-QQ"></use></svg></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A2%AF%E5%BA%A6%E4%B8%8B%E9%99%8D%E4%BC%98%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">梯度下降优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%BD%92%E4%B8%80%E5%8C%96-Normalization"><span class="toc-number">1.1.</span> <span class="toc-text">1、归一化 Normalization</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1%E3%80%81%E5%BD%92%E4%B8%80%E5%8C%96%E7%9B%AE%E7%9A%84"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1、归一化目的</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2%E3%80%81%E5%BD%92%E4%B8%80%E5%8C%96%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2、归一化本质</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3%E3%80%81%E6%9C%80%E5%A4%A7%E5%80%BC%E6%9C%80%E5%B0%8F%E5%80%BC%E5%BD%92%E4%B8%80%E5%8C%96"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3、最大值最小值归一化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4%E3%80%810-%E5%9D%87%E5%80%BC%E6%A0%87%E5%87%86%E5%8C%96"><span class="toc-number">1.1.4.</span> <span class="toc-text">1.4、0-均值标准化</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%AD%A3%E5%88%99%E5%8C%96-Regularization"><span class="toc-number">1.2.</span> <span class="toc-text">2、正则化 Regularization</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1%E3%80%81%E8%BF%87%E6%8B%9F%E5%90%88%E6%AC%A0%E6%8B%9F%E5%90%88"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1、过拟合欠拟合</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2%E3%80%81%E5%A5%97%E7%B4%A2%E5%9B%9E%E5%BD%92%EF%BC%88Lasso%EF%BC%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2、套索回归（Lasso）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3%E3%80%81%E5%B2%AD%E5%9B%9E%E5%BD%92%EF%BC%88Ridge%EF%BC%89"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3、岭回归（Ridge）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E8%A1%8D%E7%94%9F%E7%AE%97%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">3、线性回归衍生算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1%E3%80%81Ridge%E7%AE%97%E6%B3%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1、Ridge算法使用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2%E3%80%81Lasso%E7%AE%97%E6%B3%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2、Lasso算法使用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-3%E3%80%81Elastic-Net%E7%AE%97%E6%B3%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3、Elastic-Net算法使用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%A4%9A%E9%A1%B9%E5%BC%8F%E5%9B%9E%E5%BD%92"><span class="toc-number">1.4.</span> <span class="toc-text">4、多项式回归</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1%E3%80%81%E5%A4%9A%E9%A1%B9%E5%BC%8F%E5%9B%9E%E5%BD%92%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.4.1.</span> <span class="toc-text">4.1、多项式回归基本概念</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2%E3%80%81%E5%A4%9A%E9%A1%B9%E5%BC%8F%E5%9B%9E%E5%BD%92%E5%AE%9E%E6%88%981-0"><span class="toc-number">1.4.2.</span> <span class="toc-text">4.2、多项式回归实战1.0</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3%E3%80%81%E5%A4%9A%E9%A1%B9%E5%BC%8F%E5%9B%9E%E5%BD%92%E5%AE%9E%E6%88%982-0"><span class="toc-number">1.4.3.</span> <span class="toc-text">4.3、多项式回归实战2.0</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%88%98%E5%A4%A9%E7%8C%AB%E5%8F%8C%E5%8D%81%E4%B8%80%E9%94%80%E9%87%8F%E9%A2%84%E6%B5%8B"><span class="toc-number">1.5.</span> <span class="toc-text">5、代码实战天猫双十一销量预测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%88%98%E4%B8%AD%E5%9B%BD%E4%BA%BA%E5%AF%BF%E4%BF%9D%E8%B4%B9%E9%A2%84%E6%B5%8B"><span class="toc-number">1.6.</span> <span class="toc-text">6、代码实战中国人寿保费预测</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1%E3%80%81%E6%95%B0%E6%8D%AE%E5%8A%A0%E8%BD%BD%E4%B8%8E%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.6.1.</span> <span class="toc-text">6.1、数据加载与介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2%E3%80%81EDA%E6%95%B0%E6%8D%AE%E6%8E%A2%E7%B4%A2"><span class="toc-number">1.6.2.</span> <span class="toc-text">6.2、EDA数据探索</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-3%E3%80%81%E7%89%B9%E5%BE%81%E5%B7%A5%E7%A8%8B"><span class="toc-number">1.6.3.</span> <span class="toc-text">6.3、特征工程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-4%E3%80%81%E7%89%B9%E5%BE%81%E5%8D%87%E7%BB%B4"><span class="toc-number">1.6.4.</span> <span class="toc-text">6.4、特征升维</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-5%E3%80%81%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E4%B8%8E%E8%AF%84%E4%BC%B0"><span class="toc-number">1.6.5.</span> <span class="toc-text">6.5、模型训练与评估</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/"><span class="card-category-list-name">program</span><span class="card-category-list-count">16</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E4%B8%80%E4%BA%9B%E9%A2%98%E8%A7%A3/"><span class="card-category-list-name">一些题解</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">机器学习</span><span class="card-category-list-count">5</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98%E8%B7%AF%E7%BA%BF/"><span class="card-category-list-name">算法刷题路线</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/"><span class="card-category-list-name">算法模板</span><span class="card-category-list-count">9</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/uncategorized/"><span class="card-category-list-name">uncategorized</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/Numpy/" style="font-size: 1.1em; color: #999">Numpy</a> <a href="/tags/%E6%8E%92%E5%BA%8F/" style="font-size: 1.1em; color: #999">排序</a> <a href="/tags/spfa/" style="font-size: 1.1em; color: #999">spfa</a> <a href="/tags/%E4%BA%8C%E5%88%86/" style="font-size: 1.3em; color: #99a1ac">二分</a> <a href="/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF/" style="font-size: 1.1em; color: #999">最短路</a> <a href="/tags/AI/" style="font-size: 1.5em; color: #99a9bf">AI</a> <a href="/tags/%E5%B7%AE%E5%88%86/" style="font-size: 1.1em; color: #999">差分</a> <a href="/tags/%E6%95%B0%E5%AD%A6/" style="font-size: 1.1em; color: #999">数学</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 1.1em; color: #999">前缀和</a> <a href="/tags/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/" style="font-size: 1.1em; color: #999">树状数组</a> <a href="/tags/Floyd/" style="font-size: 1.1em; color: #999">Floyd</a></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By molittle</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div><script src="/js/runtime.js"></script><link rel="stylesheet" href="/css/runtime/runtime.css"/></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="4879584972" data-server="netease" data-type="playlist"   data-order="list" data-fixed="true" data-preload="auto" data-autoplay="false" data-mutex="true" ></div><script async src="//at.alicdn.com/t/c/font_4902343_uyeqwzz0p0r.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show","#web_bg(style=getBgPath(theme.background))",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      const usePjax = true
+      false 
+        ? (usePjax ? pjax.loadUrl('/404.html') : window.location.href = '/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})()</script><div class="app-refresh" id="app-refresh" style="position: fixed;top: -2.2rem;left: 0;right: 0;z-index: 99999;padding: 0 1rem;font-size: 15px;height: 2.2rem;transition: all 0.3s ease;"><div class="app-refresh-wrap" style=" display: flex;color: #fff;height: 100%;align-items: center;justify-content: center;"><label>✨ 有新文章啦！ 👉</label><a href="javascript:void(0)" onclick="location.reload()"><span style="color: #fff;text-decoration: underline;cursor: pointer;">🍗点击食用🍔</span></a></div></div><script>if ('serviceWorker' in navigator) {
+if (navigator.serviceWorker.controller) {
+navigator.serviceWorker.addEventListener('controllerchange', function() {
+showNotification()
+})
+}
+window.addEventListener('load', function() {
+navigator.serviceWorker.register('/sw.js')
+})
+}
+function showNotification() {
+if (GLOBAL_CONFIG.Snackbar) {
+var snackbarBg =
+document.documentElement.getAttribute('data-theme') === 'light' ?
+GLOBAL_CONFIG.Snackbar.bgLight :
+GLOBAL_CONFIG.Snackbar.bgDark
+var snackbarPos = GLOBAL_CONFIG.Snackbar.position
+Snackbar.show({
+text: '✨ 有新文章啦！ 👉',
+backgroundColor: snackbarBg,
+duration: 500000,
+pos: snackbarPos,
+actionText: '🍗点击食用🍔',
+actionTextColor: '#fff',
+onActionClick: function(e) {
+location.reload()
+},
+})
+} else {
+var showBg =
+document.documentElement.getAttribute('data-theme') === 'light' ?
+'#3b70fc' :
+'#1f1f1f'
+var cssText = `top: 0; background: ${showBg};`
+document.getElementById('app-refresh').style.cssText = cssText
+}
+}</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script>
+    // 全局变量声明区域
+    var fdata = {
+      apiurl: 'https://hexo-friendcircle-api-ai9d4hwad-anzhiyu-c.vercel.app/api',
+      initnumber: 20, //【可选】页面初始化展示文章数量
+      stepnumber: 10, //【可选】每次加载增加的篇数
+      error_img: 'https://npm.elemecdn.com/akilar-candyassets/image/404.gif' //【可选，头像图片加载失败时的默认头像】
+    }
+    //存入本地存储
+    localStorage.setItem("fdatalist",JSON.stringify(fdata))
+    </script>
+    <script defer src="https://npm.elemecdn.com/hexo-filter-fcircle/assets/js/fetch.min.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><div id="ghbdages" style="overflow:hidden;max-height:90px;height:auto;text-align:center;margin-top:10px"><div class="swiper-wrapper"><div class="swiper-slide"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" title="博客框架为Hexo_v5.4.0"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" title="主题版本Butterfly_v4.2.2"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a><a class="github-badge" target="_blank" href="https://www.jsdelivr.com/" style="margin-inline:5px" title="本站使用JsDelivr为静态资源提供CDN加速"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&amp;logo=jsDelivr" alt=""/></a></div><div class="swiper-slide"><a class="github-badge" target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index" style="margin-inline:5px" title="本站已在鲁进行备案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/e1d492.svg" alt=""/></a><a class="github-badge" target="_blank" href="https://github.com/" style="margin-inline:5px" title="本站项目由Github托管"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&amp;logo=GitHub" alt=""/></a><a class="github-badge" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="margin-inline:5px" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&amp;logo=Claris" alt=""/></a></div></div></div><style>a.github-badge:hover:before {display:none}</style>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/js/runtime.js"></script><script defer src="https://unpkg.zhimg.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://unpkg.zhimg.com/hexo-butterfly-footer-beautify/lib/swiperbdage_init.min.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '30');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('article-sort-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__slideInRight');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow_init.js"></script><script async src="/js/ali_font.js"></script><!-- hexo injector body_end end --><script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/koharu.model.json"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7}});</script></body></html>
