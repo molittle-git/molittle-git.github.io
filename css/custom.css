@@ -18,7 +18,6 @@
     font-family: ZhuZiAYuanJWD;
     font-size: 3em !important;
   }
-
   a.blog-slider__title,
   a.categoryBar-list-link,
   h1.post-title {
@@ -26,7 +25,87 @@
   }
   article {
     max-width: 500px; /* 按需调整宽度，控制文章条整体长度 */
+    margin-left: auto; /* 添加这一行，让文章内容靠右显示 */
   }
+  article .article-title {
+    font-size: 18px; /* 适当缩小标题字体大小 */
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap; /* 标题过长时省略显示 */
+  }
+
+  a.blog-slider__title,
+  a.categoryBar-list-link,
+  h1.post-title {
+    font-family: ZhuZiAYuanJWD;
+  }
+/* 文章容器样式 */
+.post-body {
+    max-width: 800px; /* 设置最大宽度 */
+    margin: 0 auto; /* 水平居中 */
+    padding: 20px; /* 添加内边距 */
+    display: flex; /* 使用 Flexbox 布局 */
+    flex-direction: column; /* 垂直排列子元素 */
+    align-items: center; /* 水平居中子元素 */
+}
+
+/* 文章标题样式 */
+.post-title {
+    text-align: center; /* 居中对齐标题 */
+}
+
+/* 文章内容样式 */
+.post-content {
+    text-align: justify; /* 两端对齐文本 */
+}
+/* 文章内容居中显示 */
+.post-body {
+    max-width: 800px; /* 根据需要调整最大宽度 */
+    margin: 0 auto; /* 水平居中 */
+    padding: 20px; /* 添加内边距 */
+}
+
+/* 调整文章与目录的间隔 */
+.post-body,
+.toc {
+    margin-bottom: 20px; /* 根据需要调整间隔 */
+}
+/* Remove any default margins or padding that might be causing the gap */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Ensure the article container is centered and takes full width */
+#article-container {
+    max-width: 800px; /* Adjust this value as needed */
+    margin: 0 auto; /* Centers the article */
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Remove any extra spacing around the article */
+
+
+/* Adjust the table of contents if necessary */
+#toc {
+    margin: 0 auto; /* Centers the TOC */
+    max-width: 800px; /* Match the article width */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Ensure the post content is properly aligned */
+div#post {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
   article .article-title {
     font-size: 18px; /* 适当缩小标题字体大小 */
     max-width: 100%;
@@ -37,7 +116,7 @@
   article .article-entry {
     width: 600px; /* 缩短文章条目宽度，可按需调整 */
     float: left; /* 使其固定在左侧 */
-    margin-right: 20px; /* 与右侧元素间隔一定距离 */
+    margin-right: 10px; /* 与右侧元素间隔一定距离 */
   }
   article .article-excerpt {
     font-size: 14px; /* 缩小摘要字体大小 */
@@ -183,9 +262,6 @@
     background: #121212 !important;
   }
   
-  [data-theme="dark"] div#category {
-    background: transparent !important;
-  }
   /* 页脚透明 */
   #footer {
     background: transparent !important;
@@ -594,13 +670,4 @@ code.hljs {
   /* prettylights-syntax-markup-deleted */
   color: #ffdcd7;
   background-color: #67060c
-}
-.hljs-char.escape_,
-.hljs-link,
-.hljs-params,
-.hljs-property,
-.hljs-punctuation,
-.hljs-tag {
-  /* purposely ignored */
-  
 }
