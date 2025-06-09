@@ -428,217 +428,6 @@ import numpy as np  # 导入类库 numpydata = np.loadtxt(&#x27;./iris.csv&#x27;
       </tags>
   </entry>
   <entry>
-    <title>pandas数据分析库</title>
-    <url>/posts/a67c1f02.html</url>
-    <content><![CDATA[
-
-pandas数据分析库
-第一部分 课程介绍
-
-Python在数据处理和准备方面一直做得很好，但在数据分析和建模方面就差一些。pandas帮助填补了这一空白，使您能够在Python中执行整个数据分析工作流程，而不必切换到更特定于领域的语言，如R。
-与出色的 jupyter工具包和其他库相结合，Python中用于进行数据分析的环境在性能、生产率和协作能力方面都是卓越的。
-pandas是 Python 的核心数据分析支持库，提供了快速、灵活、明确的数据结构，旨在简单、直观地处理关系型、标记型数据。pandas是Python进行数据分析的必备高级工具。
-pandas的主要数据结构是 **Series(**一维数据)与 DataFrame (二维数据)，这两种数据结构足以处理金融、统计、社会科学、工程等领域里的大多数案例
-处理数据一般分为几个阶段：数据整理与清洗、数据分析与建模、数据可视化与制表，Pandas 是处理数据的理想工具。
-pip install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-第二部分 数据结构
-第一节 Series
-用列表生成 Series时，Pandas 默认自动生成整数索引，也可以指定索引
-l = [0,1,7,9,np.NAN,None,1024,512]# 无论是numpy中的NAN还是Python中的None在pandas中都以缺失数据NaN对待s1 = pd.Series(data = l)  # pandas自动添加索引s2 = pd.Series(data = l,index = list(&#x27;abcdefhi&#x27;),dtype=&#x27;float32&#x27;) # 指定行索引# 传入字典创建，key行索引s3 = pd.Series(data = &#123;&#x27;a&#x27;:99,&#x27;b&#x27;:137,&#x27;c&#x27;:149&#125;,name = &#x27;Python_score&#x27;) display(s1,s2,s3)
-第二节 DataFrame
-DataFrame是由多种类型的列构成的二维标签数据结构，类似于 Excel 、SQL 表，或 Series 对象构成的字典。
-import numpy as npimport pandas as pd# index 作为行索引，字典中的key作为列索引，创建了3*3的DataFrame表格二维数组df1 = pd.DataFrame(data = &#123;&#x27;Python&#x27;:[99,107,122],&#x27;Math&#x27;:[111,137,88],&#x27;En&#x27;:[68,108,43]&#125;,# key作为列索引                   index = [&#x27;张三&#x27;,&#x27;李四&#x27;,&#x27;Michael&#x27;]) # 行索引df2 = pd.DataFrame(data = np.random.randint(0,151,size = (5,3)),                   index = [&#x27;Danial&#x27;,&#x27;Brandon&#x27;,&#x27;softpo&#x27;,&#x27;Ella&#x27;,&#x27;Cindy&#x27;],# 行索引                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引
-第三部分 数据查看
-
-查看DataFrame的常用属性和DataFrame的概览和统计信息
-
-import numpy as npimport pandas as pd# 创建 shape(150,3)的二维标签数组结构DataFramedf = pd.DataFrame(data = np.random.randint(0,151,size = (150,3)),                   index = None,# 行索引默认                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引# 查看其属性、概览和统计信息df.head(10) # 显示头部10行，默认5个df.tail(10) # 显示末尾10行，默认5个df.shape # 查看形状，行数和列数df.dtypes # 查看数据类型df.index # 行索引df.columns # 列索引df.values # 对象值，二维ndarray数组df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值df.info() # 查看列索引、数据类型、非空计数和内存信息
-第四部分 数据输入与输出
-第一节 csv
-import numpy as npimport pandas as pddf = DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])# 保存到当前路径下，文件命名是：salary.csv。csv逗号分割值文件格式df.to_csv(&#x27;./salary.csv&#x27;,          sep = &#x27;;&#x27;, # 文本分隔符，默认是逗号          header = True,# 是否保存列索引          index = True) # 是否保存行索引，保存行索引，文件被加载时，默认行索引会作为一列# 加载pd.read_csv(&#x27;./salary.csv&#x27;,            sep = &#x27;;&#x27;,# 默认是逗号            header = [0],#指定列索引            index_col=0) # 指定行索引pd.read_table(&#x27;./salary.csv&#x27;, # 和read_csv类似，读取限定分隔符的文本文件            sep = &#x27;;&#x27;,            header = [0],#指定列索引            index_col=1) # 指定行索引,IT作为行索引
-第二节 Excel
-pip install xlrd -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install xlwt -i https://pypi.tuna.tsinghua.edu.cn/simple
-import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：salary.xlsdf1.to_excel(&#x27;./salary.xls&#x27;,            sheet_name = &#x27;salary&#x27;,# Excel中工作表的名字            header = True,# 是否保存列索引            index = False) # 是否保存行索引，保存行索引pd.read_excel(&#x27;./salary.xls&#x27;,              sheet_name=0,# 读取哪一个Excel中工作表，默认第一个              header = 0,# 使用第一行数据作为列索引              names = list(&#x27;ABCDE&#x27;),# 替换行索引              index_col=1)# 指定行索引，B作为行索引# 一个Excel文件中保存多个工作表with pd.ExcelWriter(&#x27;./data.xlsx&#x27;) as writer:    df1.to_excel(writer,sheet_name=&#x27;salary&#x27;,index = False)    df2.to_excel(writer,sheet_name=&#x27;score&#x27;,index = False)pd.read_excel(&#x27;./data.xlsx&#x27;,              sheet_name=&#x27;salary&#x27;) # 读取Excel中指定名字的工作表 
-第三节 SQL
-pip install sqlalchemy -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install pymysql -i https://pypi.tuna.tsinghua.edu.cn/simple
-数据库引擎配置
-import pandas as pd# SQLAlchemy是Python编程语言下的一款开源软件。提供了SQL工具包及对象关系映射（ORM）工具from sqlalchemy import create_enginedf = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 数据库连接conn = create_engine(&#x27;mysql+pymysql://root:12345678@localhost/pandas?charset=UTF8MB4&#x27;)# 保存到数据库df.to_sql(&#x27;score&#x27;,#数据库中表名          conn,# 数据库连接          if_exists=&#x27;append&#x27;)#如果表名存在，追加数据# 从数据库中加载pd.read_sql(&#x27;select * from score limit 10&#x27;, # sql查询语句            conn, # 数据库连接            index_col=&#x27;Python&#x27;) # 指定行索引名
-第四节 HDF5
-pip install tables -i https://pypi.tuna.tsinghua.edu.cn/simple
-HDF5是一个独特的技术套件，可以管理非常大和复杂的数据收集。
-HDF5，可以存储不同类型数据的文件格式，后缀通常是.h5，它的结构是层次性的。
-一个HDF5文件可以被看作是一个组包含了各类不同的数据集。
-对于HDF5文件中的数据存储，有两个核心概念：group 和 dataset
-dataset 代表数据集，一个文件当中可以存放不同种类的数据集，这些数据集如何管理，就用到了group
-最直观的理解，可以参考我们的文件管理系统，不同的文件位于不同的目录下。
-目录就是HDF5中的group, 描述了数据集dataset的分类信息，通过group 有效的将多种dataset 进行管理和区分；文件就是HDF5中的dataset, 表示的是具体的数据。
-import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：data.h5df1.to_hdf(&#x27;./data.h5&#x27;,key=&#x27;salary&#x27;) # 保存数据的key，标记df2.to_hdf(&#x27;./data.h5&#x27;,key = &#x27;score&#x27;)pd.read_hdf(&#x27;./data.h5&#x27;,            key = &#x27;salary&#x27;)#获取指定的标记、key的数据
-第五部分 数据选取
-第一节 字段数据
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df[&#x27;Python&#x27;] # 获取单列，Seriesdf.Python # 获取单列，Seriesdf[[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 获取多列，DataFramedf[3:15] # 行切片
-第二节 标签选择
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.loc[[&#x27;A&#x27;,&#x27;C&#x27;,&#x27;D&#x27;,&#x27;F&#x27;]] # 选取指定行标签数据。df.loc[&#x27;A&#x27;:&#x27;E&#x27;,[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 根据行标签切片，选取指定列标签的数据df.loc[:,[&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;]] # :默认保留所有行df.loc[&#x27;E&#x27;::2,&#x27;Python&#x27;:&#x27;Tensorflow&#x27;] # 行切片从标签E开始每2个中取一个，列标签进行切片df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] # 选取标量值
-第三节 位置选择
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4] # 用整数位置选择。df.iloc[2:8,0:2] # 用整数切片，类似NumPydf.iloc[[1,3,5],[0,2,1]] # 整数列表按位置切片df.iloc[1:3,:] # 行切片df.iloc[:,:2] # 列切片df.iloc[0,2] # 选取标量值
-第四节 boolean索引
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目cond1 = df.Python &gt; 100 #  判断Python分数是否大于100，返回值是boolean类型的Seriesdf[cond1] # 返回Python分数大于100分的用户所有考试科目数据cond2 = (df.Python &gt; 50) &amp; (df[&#x27;Keras&#x27;] &gt; 50) # &amp;与运算df[cond2] # 返回Python和Keras同时大于50分的用户的所有考试科目数据df[df &gt; 50]# 选择DataFrame中满足条件的值，如果满足返回值，不然返回空数据NaNdf[df.index.isin([&#x27;A&#x27;,&#x27;C&#x27;,&#x27;F&#x27;])] # isin判断是否在数组中，返回也是boolean类型值
-第五节 赋值操作
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目s = pd.Series(data = np.random.randint(0,150,size = 9),index=list(&#x27;BCDEFGHIJ&#x27;),name = &#x27;PyTorch&#x27;)df[&#x27;PyTorch&#x27;] = s # 增加一列，DataFrame行索引自动对齐df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] = 256 # 按标签赋值df.iloc[3,2] = 512 # 按位置赋值df.loc[:,&#x27;Python&#x27;] = np.array([128]*10) # 按NumPy数组进行赋值df[df &gt;= 128] = -df # 按照where条件进行赋值，大于等于128变成原来的负数，否则不变df
-第六部分 数据集成
-pandas 提供了多种将 Series、DataFrame 对象组合在一起的功能
-第一节 concat数据串联
-import pandas as pdimport numpy as npdf1 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df2 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;KLMNOPQRST&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df3 = pd.DataFrame(data = np.random.randint(0,150,size = (10,2)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns=[&#x27;PyTorch&#x27;,&#x27;Paddle&#x27;])pd.concat([df1,df2],axis = 0) # df1和df2行串联，df2的行追加df2行后面df1.append(df2) # 在df1后面追加df2pd.concat([df1,df3],axis = 1) # df1和df2列串联，df2的列追加到df1列后面
-第二节 插入
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])df.insert(loc = 1,column=&#x27;Pytorch&#x27;,value=1024) # 插入列df# 对行的操作，使用追加append，默认在最后面，无法指定位置# 如果想要在指定位置插入行：切割-添加-合并
-第三节 Join SQL风格合并
-数据集的合并（merge）或连接（join）运算是通过一个或者多个键将数据链接起来的。这些运算是关系型数据库的核心操作。pandas的merge函数是数据集进行join运算的主要切入点。
-import pandas as pdimport numpy as np# 表一中记录的是name和体重信息df1 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Ella&#x27;],&#x27;weight&#x27;:[70,55,75,65]&#125;)# 表二中记录的是name和身高信息df2 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)df3 = pd.DataFrame(data = &#123;&#x27;名字&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)# 根据共同的name将俩表的数据，进行合并pd.merge(df1,df2,         how = &#x27;inner&#x27;,# 内合并代表两对象交集         on = &#x27;name&#x27;)pd.merge(df1,df3,         how = &#x27;outer&#x27;,# 全外连接，两对象并集         left_on = &#x27;name&#x27;,# 左边DataFrame使用列标签 name进行合并         right_on = &#x27;名字&#x27;)# 右边DataFrame使用列标签 名字进行合并# 创建10名学生的考试成绩df4 = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                   index = list(&#x27;ABCDEFHIJK&#x27;),                   columns=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])# 计算每位学生各科平均分，转换成DataFramescore_mean = pd.DataFrame(df4.mean(axis = 1).round(1),columns=[&#x27;平均分&#x27;])# 将平均分和df3使用merge进行合并，它俩有共同的行索引pd.merge(left = df4,right = score_mean,         left_index=True,# 左边DataFrame使用行索引进行合并         right_index=True)# 右边的DataFrame使用行索引进行合并
-第七部分 数据清洗
-import numpy as npimport pandas as pddf = pd.DataFrame(data = &#123;&#x27;color&#x27;:[&#x27;red&#x27;,&#x27;blue&#x27;,&#x27;red&#x27;,&#x27;green&#x27;,&#x27;blue&#x27;,None,&#x27;red&#x27;],                          &#x27;price&#x27;:[10,20,10,15,20,0,np.NaN]&#125;)# 1、重复数据过滤df.duplicated() # 判断是否存在重复数据df.drop_duplicates() # 删除重复数据# 2、空数据过滤df.isnull() # 判断是否存在空数据，存在返回True，否则返回Falsedf.dropna(how = &#x27;any&#x27;) # 删除空数据df.fillna(value=1111) # 填充空数据# 3、指定行或者列过滤del df[&#x27;color&#x27;] # 直接删除某列df.drop(labels = [&#x27;price&#x27;],axis = 1)# 删除指定列df.drop(labels = [0,1,5],axis = 0) # 删除指定行# 4、函数filter使用df = pd.DataFrame(np.array(([3,7,1], [2, 8, 256])),                  index=[&#x27;dog&#x27;, &#x27;cat&#x27;],                  columns=[&#x27;China&#x27;, &#x27;America&#x27;, &#x27;France&#x27;])df.filter(items=[&#x27;China&#x27;, &#x27;France&#x27;])# 根据正则表达式删选列标签df.filter(regex=&#x27;a$&#x27;, axis=1)# 选择行中包含ogdf.filter(like=&#x27;og&#x27;, axis=0)# 5、异常值过滤df2 = pd.DataFrame(data = np.random.randn(10000,3)) # 正态分布数据# 3σ过滤异常值，σ即是标准差cond = (df2 &gt; 3*df2.std()).any(axis = 1)index = df2[cond].index # 不满足条件的行索引df2.drop(labels=index,axis = 0) # 根据行索引，进行数据删除
-第八部分 数据转换
-第一节 轴和元素替换
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据#1、重命名轴索引df.rename(index = &#123;&#x27;A&#x27;:&#x27;AA&#x27;,&#x27;B&#x27;:&#x27;BB&#x27;&#125;,columns = &#123;&#x27;Python&#x27;:&#x27;人工智能&#x27;&#125;) # 2、替换值df.replace(3,1024) #将3替换为1024df.replace([0,7],2048) # 将0和7替换为2048df.replace(&#123;0:512,np.nan:998&#125;) # 根据字典键值对进行替换df.replace(&#123;&#x27;Python&#x27;:2&#125;,-1024) # 将Python这一列中等于2的，替换为-1024
-第二节 map Series元素改变
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、map批量元素改变，Series专有df[&#x27;Keras&#x27;].map(&#123;1:&#x27;Hello&#x27;,5:&#x27;World&#x27;,7:&#x27;AI&#x27;&#125;) # 字典映射df[&#x27;Python&#x27;].map(lambda x:True if x &gt;=5 else False) # 隐式函数映射def convert(x): # 显示函数映射    if x%3 == 0:        return True    elif x%3 == 1:        return Falsedf[&#x27;Tensorflow&#x27;].map(convert)
-第三节 apply元素改变。既支持 Series，也支持 DataFrame
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、apply 应用方法数据转换，通用# Series，其中x是Series中元素df[&#x27;Keras&#x27;].apply(lambda x:True if x &gt;5 else False) # DataFrame，其中的x是DataFrame中列或者行，是Seriesdf.apply(lambda x : x.median(),axis = 0) # 列的中位数def convert(x): # 自定义方法    return (x.mean().round(1),x.count())df.apply(convert,axis = 1) # 行平均值，计数# 2、applymap DataFrame专有df.applymap(lambda x : x + 100) # 计算DataFrame中每个元素
-第四节 transform变形金刚
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、一列执行多项计算df[&#x27;Python&#x27;].transform([np.sqrt,np.exp]) # Series处理def convert(x):    if x.mean() &gt; 5:        x *= 10    else:        x *= -10    return x# 2、多列执行不同计算df.transform(&#123;&#x27;Python&#x27;:convert,&#x27;Tensorflow&#x27;:np.max,&#x27;Keras&#x27;:np.min&#125;) # DataFrame处理
-第五节 重排随机抽样哑变量
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])ran = np.random.permutation(10) # 随机重排df.take(ran) # 重排DataFramedf.take(np.random.randint(0,10,size = 15)) # 随机抽样# 哑变量，独热编码，1表示有，0表示没有df = pd.DataFrame(&#123;&#x27;key&#x27;:[&#x27;b&#x27;,&#x27;b&#x27;,&#x27;a&#x27;,&#x27;c&#x27;,&#x27;a&#x27;,&#x27;b&#x27;]&#125;)pd.get_dummies(df,prefix=&#x27;&#x27;,prefix_sep=&#x27;&#x27;)
-第九部分 数据重塑
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.T # 转置df2 = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                   index = pd.MultiIndex.from_product([list(&#x27;ABCDEFHIJK&#x27;),[&#x27;期中&#x27;,&#x27;期末&#x27;]]),#多层索引                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df2.unstack(level = -1) # 行旋转成列，level指定哪一层，进行变换df2.stack() # 列旋转成行df2.stack().unstack(level = 1) # 行列互换# 多层索引DataFrame数学计算df2.mean() # 各学科平均分df2.mean(level=0) # 各学科，每个人期中期末平均分df2.mean(level = 1) # 各学科，期中期末所有人平均分
-第十部分 数学和统计方法
-pandas对象拥有一组常用的数学和统计方法。它们属于汇总统计，对Series汇总计算获取mean、max值或者对DataFrame行、列汇总计算返回一个Series。
-第一节 简单统计指标
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                  index = list(&#x27;ABCDEFHIJKLMNOPQRSTU&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、简单统计指标df.count() # 非NA值的数量df.max(axis = 0) #轴0最大值，即每一列最大值df.min() #默认计算轴0最小值df.median() # 中位数df.sum() # 求和df.mean(axis = 1) #轴1平均值，即每一行的平均值df.quantile(q = [0.2,0.4,0.8]) # 分位数df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值
-第二节 索引标签、位置获取
-# 2、索引位置df[&#x27;Python&#x27;].argmin() # 计算最小值位置df[&#x27;Keras&#x27;].argmax() # 最大值位置df.idxmax() # 最大值索引标签df.idxmin() # 最小值索引标签
-第三节 更多统计指标
-# 3、更多统计指标df[&#x27;Python&#x27;].value_counts() # 统计元素出现次数df[&#x27;Keras&#x27;].unique() # 去重df.cumsum() # 累加df.cumprod() # 累乘df.std() # 标准差df.var() # 方差df.cummin() # 累计最小值df.cummax() # 累计最大值df.diff() # 计算差分df.pct_change() # 计算百分比变化
-第四节 高级统计指标
-# 4、高级统计指标df.cov() # 属性的协方差df[&#x27;Python&#x27;].cov(df[&#x27;Keras&#x27;]) # Python和Keras的协方差df.corr() # 所有属性相关性系数df.corrwith(df[&#x27;Tensorflow&#x27;]) # 单一属性相关性系数
-协方差：Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1Cov(X,Y) = \\frac{\\sum\\limits\_1^n(X\_i - \\overline{X})(Y\_i - \\overline{Y})}{n-1}Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1
-相关性系数：r(X,Y) = \\frac{Cov(X,Y)}{\\sqrt{Var\[X\]Var\[Y\]}}
-第十一部分 数据排序
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,30,size = (30,3)),                  index = list(&#x27;qwertyuioijhgfcasdcvbnerfghjcf&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Pytorch&#x27;])# 1、索引列名排序df.sort_index(axis = 0,ascending=True) # 按索引排序，降序df.sort_index(axis = 1,ascending=False) #按列名排序，升序# 2、属性值排序df.sort_values(by = [&#x27;Python&#x27;]) #按Python属性值排序df.sort_values(by = [&#x27;Python&#x27;,&#x27;Keras&#x27;])#先按Python，再按Keras排序# 3、返回属性n大或者n小的值df.nlargest(10,columns=&#x27;Keras&#x27;) # 根据属性Keras排序,返回最大10个数据df.nsmallest(5,columns=&#x27;Python&#x27;) # 根据属性Python排序，返回最小5个数据
-第十二部分 分箱操作
-分箱操作就是将连续数据转换为分类对应物的过程。比如将连续的身高数据划分为：矮中高。
-分箱操作分为等距分箱和等频分箱。
-分箱操作也叫面元划分或者离散化。
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,150,size = (100,3)),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、等宽分箱pd.cut(df.Python,bins = 3)# 指定宽度分箱pd.cut(df.Keras,#分箱数据       bins = [0,60,90,120,150],#分箱断点       right = False,# 左闭右开       labels=[&#x27;不及格&#x27;,&#x27;中等&#x27;,&#x27;良好&#x27;,&#x27;优秀&#x27;])# 分箱后分类# 2、等频分箱pd.qcut(df.Python,q = 4,# 4等分        labels=[&#x27;差&#x27;,&#x27;中&#x27;,&#x27;良&#x27;,&#x27;优&#x27;]) # 分箱后分类
-第十三部分 分组聚合
-第一节 分组
-import numpy as npimport pandas as pd# 准备数据df = pd.DataFrame(data = &#123;&#x27;sex&#x27;:np.random.randint(0,2,size = 300), # 0男，1女                          &#x27;class&#x27;:np.random.randint(1,9,size = 300),#1~8八个班                          &#x27;Python&#x27;:np.random.randint(0,151,size = 300),#Python成绩                          &#x27;Keras&#x27;:np.random.randint(0,151,size =300),#Keras成绩                          &#x27;Tensorflow&#x27;:np.random.randint(0,151,size=300),                          &#x27;Java&#x27;:np.random.randint(0,151,size = 300),                          &#x27;C++&#x27;:np.random.randint(0,151,size = 300)&#125;)df[&#x27;sex&#x27;] = df[&#x27;sex&#x27;].map(&#123;0:&#x27;男&#x27;,1:&#x27;女&#x27;&#125;) # 将0，1映射成男女# 1、分组-&gt;可迭代对象# 1.1 先分组再获取数据g = df.groupby(by = &#x27;sex&#x27;)[[&#x27;Python&#x27;,&#x27;Java&#x27;]] # 单分组for name,data in g:    print(&#x27;组名：&#x27;,name)    print(&#x27;数据：&#x27;,data)df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;]] # 多分组# 1.2 对一列值进行分组df[&#x27;Python&#x27;].groupby(df[&#x27;class&#x27;]) # 单分组df[&#x27;Keras&#x27;].groupby([df[&#x27;class&#x27;],df[&#x27;sex&#x27;]]) # 多分组# 1.3 按数据类型分组df.groupby(df.dtypes,axis = 1)# 1.4 通过字典进行分组m = &#123;&#x27;sex&#x27;:&#x27;category&#x27;,&#x27;class&#x27;:&#x27;category&#x27;,&#x27;Python&#x27;:&#x27;IT&#x27;,&#x27;Keras&#x27;:&#x27;IT&#x27;,&#x27;Tensorflow&#x27;:&#x27;IT&#x27;,&#x27;Java&#x27;:&#x27;IT&#x27;,&#x27;C++&#x27;:&#x27;IT&#x27;&#125;for name,data in df.groupby(m,axis = 1):    print(&#x27;组名&#x27;,name)    print(&#x27;数据&#x27;,data)
-第二节 分组聚合
-# 2、分组直接调用函数进行聚合# 按照性别分组，其他列均值聚合df.groupby(by = &#x27;sex&#x27;).mean().round(1) # 保留1位小数# 按照班级和性别进行分组，Python、Keras的最大值聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].max()# 按照班级和性别进行分组，计数聚合。统计每个班，男女人数df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).size()# 基本描述性统计聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).describe()
-第三节 分组聚合apply、transform
-# 3、分组后调用apply，transform封装单一函数计算# 返回分组结果df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].apply(np.mean).round(1)def normalization(x):    return (x - x.min())/(x.max() - x.min()) # 最大值最小值归一化# 返回全数据，返回DataFrame.shape和原DataFrame.shape一样。df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;]].transform(normalization).round(3)
-第四节 分组聚合agg
-# 4、agg 多中统计汇总操作# 分组后调用agg应用多种统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]].agg([np.max,np.min,pd.Series.count])# 分组后不同属性应用多种不同统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].agg(&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max),(&#x27;最小值&#x27;,np.min)],                                                          &#x27;Keras&#x27;:[(&#x27;计数&#x27;,pd.Series.count),(&#x27;中位数&#x27;,np.median)]&#125;)
-第五节 透视表pivot_table
-# 5、透视表# 透视表也是一种分组聚合运算def count(x):    return len(x)df.pivot_table(values=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;],# 要透视分组的值               index=[&#x27;class&#x27;,&#x27;sex&#x27;], # 分组透视指标               aggfunc=&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max)], # 聚合运算                        &#x27;Keras&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;中位数&#x27;,np.median)],                        &#x27;Tensorflow&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;平均值&#x27;,np.mean),(&#x27;计数&#x27;,count)]&#125;)
-第十四部分 时间序列
-第一节 时间戳操作
-# 1、创建方法pd.Timestamp(&#x27;2020-8-24 12&#x27;)# 时刻数据pd.Period(&#x27;2020-8-24&#x27;,freq = &#x27;M&#x27;) # 时期数据index = pd.date_range(&#x27;2020.08.24&#x27;,periods=5,freq = &#x27;M&#x27;) # 批量时刻数据pd.period_range(&#x27;2020.08.24&#x27;,periods=5,freq=&#x27;M&#x27;) # 批量时期数据ts = pd.Series(np.random.randint(0,10,size = 5),index = index) # 时间戳索引Series# 2、转换方法pd.to_datetime([&#x27;2020.08.24&#x27;,&#x27;2020-08-24&#x27;,&#x27;24/08/2020&#x27;,&#x27;2020/8/24&#x27;])pd.to_datetime([1598582232],unit=&#x27;s&#x27;)dt = pd.to_datetime([1598582420401],unit = &#x27;ms&#x27;) # 世界标准时间dt + pd.DateOffset(hours = 8) # 东八区时间dt + pd.DateOffset(days = 100) # 100天后日期
-第二节 时间戳索引
-index = pd.date_range(&quot;2020-8-24&quot;, periods=200, freq=&quot;D&quot;)ts = pd.Series(range(len(index)), index=index)# str类型索引ts[&#x27;2020-08-30&#x27;] # 日期访问数据ts[&#x27;2020-08-24&#x27;:&#x27;2020-09-3&#x27;] # 日期切片ts[&#x27;2020-08&#x27;] # 传入年月ts[&#x27;2020&#x27;] # 传入年# 时间戳索引ts[pd.Timestamp(&#x27;2020-08-30&#x27;)]ts[pd.Timestamp(&#x27;2020-08-24&#x27;):pd.Timestamp(&#x27;2020-08-30&#x27;)] # 切片ts[pd.date_range(&#x27;2020-08-24&#x27;,periods=10,freq=&#x27;D&#x27;)]# 时间戳索引属性ts.index.year # 获取年ts.index.dayofweek # 获取星期几ts.index.weekofyear # 一年中第几个星期几
-第三节 时间序列常用方法
-在做时间序列相关的工作时，经常要对时间做一些移动/滞后、频率转换、采样等相关操作，我们来看下这些操作如何使用
-index = pd.date_range(&#x27;8/1/2020&#x27;, periods=365, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randint(0, 500, len(index)), index=index)# 1、移动ts.shift(periods = 2) #  数据后移 ts.shift(periods = -2) # 数据前移# 日期移动ts.shift(periods = 2,freq = pd.tseries.offsets.Day()) # 天移动ts.tshift(periods = 1,freq = pd.tseries.offsets.MonthOffset()) #月移动# 2、频率转换ts.asfreq(pd.tseries.offsets.Week()) # 天变周ts.asfreq(pd.tseries.offsets.MonthEnd()) # 天变月ts.asfreq(pd.tseries.offsets.Hour(),fill_value = 0) #天变小时，又少变多，fill_value为填充值# 3、重采样# resample 表示根据日期维度进行数据聚合，可以按照分钟、小时、工作日、周、月、年等来作为日期维度ts.resample(&#x27;2W&#x27;).sum() # 以2周为单位进行汇总ts.resample(&#x27;3M&#x27;).sum().cumsum() # 以季度为单位进行汇总# 4、DataFrame重采样d = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],          &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50],          &#x27;week_starting&#x27;:pd.date_range(&#x27;24/08/2020&#x27;,periods=8,freq=&#x27;W&#x27;)&#125;)df1 = pd.DataFrame(d)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).apply(np.sum)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).agg(&#123;&#x27;price&#x27;:np.mean,&#x27;volume&#x27;:np.sum&#125;)days = pd.date_range(&#x27;1/8/2020&#x27;, periods=4, freq=&#x27;D&#x27;)data2 = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],           &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50]&#125;)df2 = pd.DataFrame(data2,                   index=pd.MultiIndex.from_product([days,[&#x27;morning&#x27;,&#x27;afternoon&#x27;]]))df2.resample(&#x27;D&#x27;, level=0).sum()
-第四节 时区表示
-index = pd.date_range(&#x27;8/1/2012 00:00&#x27;, periods=5, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randn(len(index)), index)import pytzpytz.common_timezones # 常用时区# 时区表示ts = ts.tz_localize(tz=&#x27;UTC&#x27;)# 转换成其它时区ts.tz_convert(tz = &#x27;Asia/Shanghai&#x27;)
-第十五部分 数据可视化
-pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple
-import numpy as npimport pandas as pd# 1、线形图df1 = pd.DataFrame(data = np.random.randn(1000,4),                  index = pd.date_range(start = &#x27;27/6/2012&#x27;,periods=1000),                  columns=list(&#x27;ABCD&#x27;))df1.cumsum().plot()# 2、条形图df2 = pd.DataFrame(data = np.random.rand(10,4),                   columns = list(&#x27;ABCD&#x27;))df2.plot.bar(stacked = True) # stacked 是否堆叠# 3、饼图df3 = pd.DataFrame(data = np.random.rand(4,2),                   index = list(&#x27;ABCD&#x27;),                   columns=[&#x27;One&#x27;,&#x27;Two&#x27;])df3.plot.pie(subplots = True,figsize = (8,8))# 4、散点图df4 = pd.DataFrame(np.random.rand(50, 4), columns=list(&#x27;ABCD&#x27;))df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;B&#x27;) # A和B关系绘制# 在一张图中绘制AC散点图，同时绘制BD散点图ax = df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;C&#x27;, color=&#x27;DarkBlue&#x27;, label=&#x27;Group 1&#x27;);df4.plot.scatter(x=&#x27;B&#x27;, y=&#x27;D&#x27;, color=&#x27;DarkGreen&#x27;, label=&#x27;Group 2&#x27;, ax=ax)# 气泡图，散点有大小之分df4.plot.scatter(x=&#x27;A&#x27;,y=&#x27;B&#x27;,s = df4[&#x27;C&#x27;]*200)# 5、面积图df5 = pd.DataFrame(data = np.random.rand(10, 4),                    columns=list(&#x27;ABCD&#x27;))df5.plot.area(stacked = True);# stacked 是否堆叠# 6、箱式图df6 = pd.DataFrame(data = np.random.rand(10, 5),                    columns=list(&#x27;ABCDE&#x27;))df6.plot.box()# 7、直方图df7 = pd.DataFrame(&#123;&#x27;A&#x27;: np.random.randn(1000) + 1, &#x27;B&#x27;: np.random.randn(1000),                    &#x27;C&#x27;: np.random.randn(1000) - 1&#125;)df7.plot.hist(alpha=0.5) #带透明度直方图df7.plot.hist(stacked = True)# 堆叠图df7.hist(figsize = (8,8)) # 子视图绘制
-第十六部分 实战-数据分析师招聘数据分析
-第一节 分析目标
-
-各城市对数据分析岗位的需求情况
-不同细分领域对数据分析岗的需求情况
-数据分析岗位的薪资状况
-工作经验与薪水的关系
-公司都要求什么掌握什么技能
-岗位的学历要求高吗
-不同规模的企业对工资经验的要求以及提供的薪资水平
-
-第二节 数据加载
-import pandas as pdimport numpy as npjob = pd.read_csv(&#x27;./job.csv&#x27;)job.drop_duplicates(inplace = True) # 删除重复数据
-第三节 数据清洗
-
-
-过滤非数据分析的岗位
-# 数据分析相应的岗位数量cond = job[&quot;positionName&quot;].str.contains(&quot;数据分析&quot;)  # 职位名中含有数据分析字眼的# 筛选出我们想要的字段，并剔除positionNamejob = job[cond]job.reset_index(inplace=True) # 行索引 重置job
-
-
-数据中的薪水是一个区间，这里用薪水区间的均值作为相应职位的薪水
-# 处理过程#1、将salary中的字符串均小写化（因为存在8k-16k和8K-16K）#2、运用正则表达式提取出薪资区间#3、将提取出来的数字转化为int型#4、取区间的平均值job[&quot;salary&quot;] = job[&quot;salary&quot;].str.lower()\               .str.extract(r&#x27;(\d+)[k]-(\d+)k&#x27;)\               .applymap(lambda x:int(x))\               .mean(axis=1)
-
-
-从job_detail中提取出技能要求 将技能分为以下几类 Python SQL Tableau Excel SPSS/SAS 处理方式： 如果job_detail中含有上述五类，则赋值为1，不含有则为0
-
-
-job[&quot;job_detail&quot;] = job[&quot;job_detail&quot;].str.lower().fillna(&quot;&quot;)  #将字符串小写化，并将缺失值赋值为空字符串
-job[&quot;Python&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('python' in x) else 0)
-job[&quot;SQL&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('sql' in x) or ('hive' in x)  else 0)
-job[&quot;Tableau&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'tableau' in x  else 0)
-job[&quot;Excel&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'excel' in x  else 0)
-job['SPSS/SAS'] = job['job_detail'].map(lambda x:1 if ('spss' in x) or ('sas' in x) else 0)
-    *   处理行业信息        在行业信息中有多个标签，对其进行处理，筛选最显著的行业标签。        ```python    def clean_industry(industry):        industry = industry.split(&quot;,&quot;)        if industry[0]==&quot;移动互联网&quot; and len(industry)&gt;1:            return industry[1]        else:            return industry[0]    job[&quot;industryField&quot;] = job.industryField.map(clean_industry)
-
-
-
-
-数据分析师职位的数据预处理基本完成，后续使用matplotlib进行数据可视化分析。
-
-
-pandas库的亮点
-
-一个快速、高效的DataFrame对象，用于数据操作和综合索引；
-用于在内存数据结构和不同格式之间读写数据的工具：CSV和文本文件、Microsoft Excel、SQL数据库和快速HDF 5格式；
-智能数据对齐和丢失数据的综合处理：在计算中获得基于标签的自动对齐，并轻松地将凌乱的数据操作为有序的形式；
-数据集的灵活调整和旋转；
-基于智能标签的切片、花式索引和大型数据集的子集；
-可以从数据结构中插入和删除列，以实现大小可变；
-通过在强大的引擎中聚合或转换数据，允许对数据集进行拆分应用组合操作;
-数据集的高性能合并和连接；
-层次轴索引提供了在低维数据结构中处理高维数据的直观方法；
-时间序列-功能：日期范围生成和频率转换、移动窗口统计、移动窗口线性回归、日期转换和滞后。甚至在不丢失数据的情况下创建特定领域的时间偏移和加入时间序列；
-对性能进行了高度优化，用Cython或C编写了关键代码路径。
-Python与pandas在广泛的学术和商业领域中使用，包括金融，神经科学，经济学，统计学，广告，网络分析，等等
-学到这里，体会一会pandas库的亮点，如果对哪些还不熟悉，请对之前知识点再次进行复习。
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Dijkstra</title>
-    <url>/posts/9c98f56c.html</url>
-    <content><![CDATA[Dijkstra 最小花费
-题目描述
-在 n 个人中，某些人的银行账号之间可以互相转账。这些人之间转账的手续费各不相同。给定这些人之间转账时需要从转账金额里扣除百分之几的手续费，请问 A 最少需要多少钱使得转账后 B 收到 100 元。
-输入格式
-第一行输入两个正整数 n,m，分别表示总人数和可以互相转账的人的对数。以下 m 行每行输入三个正整数 x,y,z，表示标号为 x 的人和标号为 y 的人之间互相转账需要扣除 z% 的手续费 ( z&lt;100 )。最后一行输入两个正整数 A,B。数据保证 A 与 B 之间可以直接或间接地转账。**
-输出格式
-输出 A 使得 B 到账 100 元最少需要的总费用。 精确到小数点后 8 位。
-数据范围
-1≤n≤2000, m≤105
-import java.util.*;public class Main&#123;    static int N=2010;    static int M=100010;    static int INF=0x3f3f3f3f;    static int n,m,idx;    static int A,B;    static int []h=new int[N],e=new int[M*2];    static int []ne=new int[M*2];    static double []w=new double[M*2];    static double []dist=new double[N];    static boolean[]st=new boolean[N];    public static void add(int a,int b,double c)&#123;        e[idx]=b;        w[idx]=c;        ne[idx]=h[a];        h[a]=idx++;    &#125;    public static double dj()&#123;        Arrays.fill(dist,INF);        dist[A]=100;        PriorityQueue&lt;PII&gt;q=new PriorityQueue&lt;&gt;();        q.offer(new PII(A,100));        while(q.size()!=0)&#123;            PII t=q.poll();            int num=t.num;            double distence=t.distence;            if(st[num])continue;            st[num]=true;            for(int i=h[num];i!=-1;i=ne[i])&#123;                int j=e[i];                if(dist[j]&gt;distence/w[i])&#123;                    dist[j]=distence/w[i];                    q.offer(new PII(j,dist[j]));                &#125;            &#125;        &#125;        return dist[B];    &#125;    public static void main(String[]args)&#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        m=scan.nextInt();        Arrays.fill(h,-1);        while(m--&gt;0)&#123;            int a=scan.nextInt();            int b=scan.nextInt();            int c=scan.nextInt();            double w=(1-(double)c/100);            add(a,b,w);            add(b,a,w);        &#125;        A=scan.nextInt();        B=scan.nextInt();        double t=dj();        System.out.printf(&quot;%.8f&quot;,t);    &#125;&#125;class PII implements Comparable&lt;PII&gt;&#123;    int num;    double distence;    public PII(int num,double distence)&#123;        this.num=num;        this.distence=distence;    &#125;    public int compareTo(PII o)&#123;        return Double.compare(distence,o.distence);    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>最短路</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>多元线性回归</title>
     <url>/posts/7d0d429b.html</url>
     <content><![CDATA[[toc]
@@ -987,6 +776,234 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
       </tags>
   </entry>
   <entry>
+    <title>二分</title>
+    <url>/posts/9947c71c.html</url>
+    <content><![CDATA[最小值最大化
+import java.util.*;public class Main&#123;    static int N=100010;    static int[]h=new int[N];    static int[]w=new int[N];    static int n,k;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        k=scan.nextInt();        h=new int[n];        w=new int[n];        for(int i=0;i&lt;n;i++) &#123;            h[i]=scan.nextInt();            w[i]=scan.nextInt();        &#125;        int l=1,r=(int)1e5+10;        while(l&lt;r) &#123;            int mid=(r+l+1)/2;            if(check(mid))l=mid;            else r=mid-1;        &#125;        System.out.println(l);&#125;    static boolean check(int x) &#123;        long res=0;        for(int i=0;i&lt;n;i++) &#123;        res+=(h[i]/x)*(w[i]/x);        &#125;        if(res&gt;=k) &#123;            return true;        &#125;        return false;    &#125;&#125;
+最大值最小化
+题目：共n个月,给出每个月的开销.将n个月划分成m个时间段,求m个时间段中开销最大的时间段的最小开销值。
+#include&lt;bits/stdc++.h&gt;using namespace std;int n,m;vector&lt;int&gt;a;int check(int M)&#123;    int ct=0,now=0;    for(int i=0;i&lt;n;i++)&#123;        if(a[i]&gt;M) return 0;        if(now+a[i]&gt;M)&#123;            ct++;            now=0;            &#125;            now+=a[i];    &#125;    return ct&lt;m;&#125;int main()&#123;    cin&gt;&gt;n&gt;&gt;m;    a.resize(n);    int R=0,L=0;    for(int i=0;i&lt;n;i++)&#123;        cin&gt;&gt;a[i];        R+=a[i];        L=max(L,a[i]);    &#125;    R++;        while(L&lt;R)&#123;        int M=(L+R)/2;        if(check(M)) R=M;        else L=M+1;    &#125;    cout&lt;&lt;L&lt;&lt;endl;    return 0;&#125;
+//更安全的求最大值最小化import java.util.Arrays;import java.util.Scanner;public class Main &#123;    static  int N=100010,n,k,t;    static  long a[]=new long[N];    public  static  boolean check(int m)&#123;        long arr[]=new long[m+5];        long s[]=new long[m+5];        long s_pow[]=new long[m+5];        for(int i=1;i&lt;=m;i++) arr[i]=a[i];        Arrays.sort(arr,1,m+1);        for(int i=1;i&lt;=m;i++)&#123;            s[i]=s[i-1]+arr[i];            s_pow[i]=s_pow[i-1]+(arr[i]*arr[i]);        &#125;        for(int i=k;i&lt;=m;i++)&#123;            long s1=s_pow[i]-s_pow[i-k];            long s2=s[i]-s[i-k];            double avg=s2*1.00/k;//把他给的方差公式 可以优化 成这个 提醒平方差公式            double res=(s1-2*avg*s2+k*avg*avg)/k;            if(res&lt;t) return  true;        &#125;        return  false;    &#125;    public static void main(String[] args) &#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        k=sc.nextInt();        t=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextLong();        &#125;        int l=k,r=n;        int res=-1;        while (l&lt;=r)&#123;            int mid=(l+r)&gt;&gt;1;            if(check(mid))&#123;                r=mid-1;                res=mid;            &#125;else&#123;                l=mid+1;            &#125;        &#125;        System.out.println(res);    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>二分</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>pandas数据分析库</title>
+    <url>/posts/a67c1f02.html</url>
+    <content><![CDATA[
+
+pandas数据分析库
+第一部分 课程介绍
+
+Python在数据处理和准备方面一直做得很好，但在数据分析和建模方面就差一些。pandas帮助填补了这一空白，使您能够在Python中执行整个数据分析工作流程，而不必切换到更特定于领域的语言，如R。
+与出色的 jupyter工具包和其他库相结合，Python中用于进行数据分析的环境在性能、生产率和协作能力方面都是卓越的。
+pandas是 Python 的核心数据分析支持库，提供了快速、灵活、明确的数据结构，旨在简单、直观地处理关系型、标记型数据。pandas是Python进行数据分析的必备高级工具。
+pandas的主要数据结构是 **Series(**一维数据)与 DataFrame (二维数据)，这两种数据结构足以处理金融、统计、社会科学、工程等领域里的大多数案例
+处理数据一般分为几个阶段：数据整理与清洗、数据分析与建模、数据可视化与制表，Pandas 是处理数据的理想工具。
+pip install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+第二部分 数据结构
+第一节 Series
+用列表生成 Series时，Pandas 默认自动生成整数索引，也可以指定索引
+l = [0,1,7,9,np.NAN,None,1024,512]# 无论是numpy中的NAN还是Python中的None在pandas中都以缺失数据NaN对待s1 = pd.Series(data = l)  # pandas自动添加索引s2 = pd.Series(data = l,index = list(&#x27;abcdefhi&#x27;),dtype=&#x27;float32&#x27;) # 指定行索引# 传入字典创建，key行索引s3 = pd.Series(data = &#123;&#x27;a&#x27;:99,&#x27;b&#x27;:137,&#x27;c&#x27;:149&#125;,name = &#x27;Python_score&#x27;) display(s1,s2,s3)
+第二节 DataFrame
+DataFrame是由多种类型的列构成的二维标签数据结构，类似于 Excel 、SQL 表，或 Series 对象构成的字典。
+import numpy as npimport pandas as pd# index 作为行索引，字典中的key作为列索引，创建了3*3的DataFrame表格二维数组df1 = pd.DataFrame(data = &#123;&#x27;Python&#x27;:[99,107,122],&#x27;Math&#x27;:[111,137,88],&#x27;En&#x27;:[68,108,43]&#125;,# key作为列索引                   index = [&#x27;张三&#x27;,&#x27;李四&#x27;,&#x27;Michael&#x27;]) # 行索引df2 = pd.DataFrame(data = np.random.randint(0,151,size = (5,3)),                   index = [&#x27;Danial&#x27;,&#x27;Brandon&#x27;,&#x27;softpo&#x27;,&#x27;Ella&#x27;,&#x27;Cindy&#x27;],# 行索引                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引
+第三部分 数据查看
+
+查看DataFrame的常用属性和DataFrame的概览和统计信息
+
+import numpy as npimport pandas as pd# 创建 shape(150,3)的二维标签数组结构DataFramedf = pd.DataFrame(data = np.random.randint(0,151,size = (150,3)),                   index = None,# 行索引默认                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引# 查看其属性、概览和统计信息df.head(10) # 显示头部10行，默认5个df.tail(10) # 显示末尾10行，默认5个df.shape # 查看形状，行数和列数df.dtypes # 查看数据类型df.index # 行索引df.columns # 列索引df.values # 对象值，二维ndarray数组df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值df.info() # 查看列索引、数据类型、非空计数和内存信息
+第四部分 数据输入与输出
+第一节 csv
+import numpy as npimport pandas as pddf = DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])# 保存到当前路径下，文件命名是：salary.csv。csv逗号分割值文件格式df.to_csv(&#x27;./salary.csv&#x27;,          sep = &#x27;;&#x27;, # 文本分隔符，默认是逗号          header = True,# 是否保存列索引          index = True) # 是否保存行索引，保存行索引，文件被加载时，默认行索引会作为一列# 加载pd.read_csv(&#x27;./salary.csv&#x27;,            sep = &#x27;;&#x27;,# 默认是逗号            header = [0],#指定列索引            index_col=0) # 指定行索引pd.read_table(&#x27;./salary.csv&#x27;, # 和read_csv类似，读取限定分隔符的文本文件            sep = &#x27;;&#x27;,            header = [0],#指定列索引            index_col=1) # 指定行索引,IT作为行索引
+第二节 Excel
+pip install xlrd -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install xlwt -i https://pypi.tuna.tsinghua.edu.cn/simple
+import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：salary.xlsdf1.to_excel(&#x27;./salary.xls&#x27;,            sheet_name = &#x27;salary&#x27;,# Excel中工作表的名字            header = True,# 是否保存列索引            index = False) # 是否保存行索引，保存行索引pd.read_excel(&#x27;./salary.xls&#x27;,              sheet_name=0,# 读取哪一个Excel中工作表，默认第一个              header = 0,# 使用第一行数据作为列索引              names = list(&#x27;ABCDE&#x27;),# 替换行索引              index_col=1)# 指定行索引，B作为行索引# 一个Excel文件中保存多个工作表with pd.ExcelWriter(&#x27;./data.xlsx&#x27;) as writer:    df1.to_excel(writer,sheet_name=&#x27;salary&#x27;,index = False)    df2.to_excel(writer,sheet_name=&#x27;score&#x27;,index = False)pd.read_excel(&#x27;./data.xlsx&#x27;,              sheet_name=&#x27;salary&#x27;) # 读取Excel中指定名字的工作表 
+第三节 SQL
+pip install sqlalchemy -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pymysql -i https://pypi.tuna.tsinghua.edu.cn/simple
+数据库引擎配置
+import pandas as pd# SQLAlchemy是Python编程语言下的一款开源软件。提供了SQL工具包及对象关系映射（ORM）工具from sqlalchemy import create_enginedf = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 数据库连接conn = create_engine(&#x27;mysql+pymysql://root:12345678@localhost/pandas?charset=UTF8MB4&#x27;)# 保存到数据库df.to_sql(&#x27;score&#x27;,#数据库中表名          conn,# 数据库连接          if_exists=&#x27;append&#x27;)#如果表名存在，追加数据# 从数据库中加载pd.read_sql(&#x27;select * from score limit 10&#x27;, # sql查询语句            conn, # 数据库连接            index_col=&#x27;Python&#x27;) # 指定行索引名
+第四节 HDF5
+pip install tables -i https://pypi.tuna.tsinghua.edu.cn/simple
+HDF5是一个独特的技术套件，可以管理非常大和复杂的数据收集。
+HDF5，可以存储不同类型数据的文件格式，后缀通常是.h5，它的结构是层次性的。
+一个HDF5文件可以被看作是一个组包含了各类不同的数据集。
+对于HDF5文件中的数据存储，有两个核心概念：group 和 dataset
+dataset 代表数据集，一个文件当中可以存放不同种类的数据集，这些数据集如何管理，就用到了group
+最直观的理解，可以参考我们的文件管理系统，不同的文件位于不同的目录下。
+目录就是HDF5中的group, 描述了数据集dataset的分类信息，通过group 有效的将多种dataset 进行管理和区分；文件就是HDF5中的dataset, 表示的是具体的数据。
+import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：data.h5df1.to_hdf(&#x27;./data.h5&#x27;,key=&#x27;salary&#x27;) # 保存数据的key，标记df2.to_hdf(&#x27;./data.h5&#x27;,key = &#x27;score&#x27;)pd.read_hdf(&#x27;./data.h5&#x27;,            key = &#x27;salary&#x27;)#获取指定的标记、key的数据
+第五部分 数据选取
+第一节 字段数据
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df[&#x27;Python&#x27;] # 获取单列，Seriesdf.Python # 获取单列，Seriesdf[[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 获取多列，DataFramedf[3:15] # 行切片
+第二节 标签选择
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.loc[[&#x27;A&#x27;,&#x27;C&#x27;,&#x27;D&#x27;,&#x27;F&#x27;]] # 选取指定行标签数据。df.loc[&#x27;A&#x27;:&#x27;E&#x27;,[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 根据行标签切片，选取指定列标签的数据df.loc[:,[&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;]] # :默认保留所有行df.loc[&#x27;E&#x27;::2,&#x27;Python&#x27;:&#x27;Tensorflow&#x27;] # 行切片从标签E开始每2个中取一个，列标签进行切片df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] # 选取标量值
+第三节 位置选择
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4] # 用整数位置选择。df.iloc[2:8,0:2] # 用整数切片，类似NumPydf.iloc[[1,3,5],[0,2,1]] # 整数列表按位置切片df.iloc[1:3,:] # 行切片df.iloc[:,:2] # 列切片df.iloc[0,2] # 选取标量值
+第四节 boolean索引
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目cond1 = df.Python &gt; 100 #  判断Python分数是否大于100，返回值是boolean类型的Seriesdf[cond1] # 返回Python分数大于100分的用户所有考试科目数据cond2 = (df.Python &gt; 50) &amp; (df[&#x27;Keras&#x27;] &gt; 50) # &amp;与运算df[cond2] # 返回Python和Keras同时大于50分的用户的所有考试科目数据df[df &gt; 50]# 选择DataFrame中满足条件的值，如果满足返回值，不然返回空数据NaNdf[df.index.isin([&#x27;A&#x27;,&#x27;C&#x27;,&#x27;F&#x27;])] # isin判断是否在数组中，返回也是boolean类型值
+第五节 赋值操作
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目s = pd.Series(data = np.random.randint(0,150,size = 9),index=list(&#x27;BCDEFGHIJ&#x27;),name = &#x27;PyTorch&#x27;)df[&#x27;PyTorch&#x27;] = s # 增加一列，DataFrame行索引自动对齐df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] = 256 # 按标签赋值df.iloc[3,2] = 512 # 按位置赋值df.loc[:,&#x27;Python&#x27;] = np.array([128]*10) # 按NumPy数组进行赋值df[df &gt;= 128] = -df # 按照where条件进行赋值，大于等于128变成原来的负数，否则不变df
+第六部分 数据集成
+pandas 提供了多种将 Series、DataFrame 对象组合在一起的功能
+第一节 concat数据串联
+import pandas as pdimport numpy as npdf1 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df2 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;KLMNOPQRST&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df3 = pd.DataFrame(data = np.random.randint(0,150,size = (10,2)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns=[&#x27;PyTorch&#x27;,&#x27;Paddle&#x27;])pd.concat([df1,df2],axis = 0) # df1和df2行串联，df2的行追加df2行后面df1.append(df2) # 在df1后面追加df2pd.concat([df1,df3],axis = 1) # df1和df2列串联，df2的列追加到df1列后面
+第二节 插入
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])df.insert(loc = 1,column=&#x27;Pytorch&#x27;,value=1024) # 插入列df# 对行的操作，使用追加append，默认在最后面，无法指定位置# 如果想要在指定位置插入行：切割-添加-合并
+第三节 Join SQL风格合并
+数据集的合并（merge）或连接（join）运算是通过一个或者多个键将数据链接起来的。这些运算是关系型数据库的核心操作。pandas的merge函数是数据集进行join运算的主要切入点。
+import pandas as pdimport numpy as np# 表一中记录的是name和体重信息df1 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Ella&#x27;],&#x27;weight&#x27;:[70,55,75,65]&#125;)# 表二中记录的是name和身高信息df2 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)df3 = pd.DataFrame(data = &#123;&#x27;名字&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)# 根据共同的name将俩表的数据，进行合并pd.merge(df1,df2,         how = &#x27;inner&#x27;,# 内合并代表两对象交集         on = &#x27;name&#x27;)pd.merge(df1,df3,         how = &#x27;outer&#x27;,# 全外连接，两对象并集         left_on = &#x27;name&#x27;,# 左边DataFrame使用列标签 name进行合并         right_on = &#x27;名字&#x27;)# 右边DataFrame使用列标签 名字进行合并# 创建10名学生的考试成绩df4 = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                   index = list(&#x27;ABCDEFHIJK&#x27;),                   columns=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])# 计算每位学生各科平均分，转换成DataFramescore_mean = pd.DataFrame(df4.mean(axis = 1).round(1),columns=[&#x27;平均分&#x27;])# 将平均分和df3使用merge进行合并，它俩有共同的行索引pd.merge(left = df4,right = score_mean,         left_index=True,# 左边DataFrame使用行索引进行合并         right_index=True)# 右边的DataFrame使用行索引进行合并
+第七部分 数据清洗
+import numpy as npimport pandas as pddf = pd.DataFrame(data = &#123;&#x27;color&#x27;:[&#x27;red&#x27;,&#x27;blue&#x27;,&#x27;red&#x27;,&#x27;green&#x27;,&#x27;blue&#x27;,None,&#x27;red&#x27;],                          &#x27;price&#x27;:[10,20,10,15,20,0,np.NaN]&#125;)# 1、重复数据过滤df.duplicated() # 判断是否存在重复数据df.drop_duplicates() # 删除重复数据# 2、空数据过滤df.isnull() # 判断是否存在空数据，存在返回True，否则返回Falsedf.dropna(how = &#x27;any&#x27;) # 删除空数据df.fillna(value=1111) # 填充空数据# 3、指定行或者列过滤del df[&#x27;color&#x27;] # 直接删除某列df.drop(labels = [&#x27;price&#x27;],axis = 1)# 删除指定列df.drop(labels = [0,1,5],axis = 0) # 删除指定行# 4、函数filter使用df = pd.DataFrame(np.array(([3,7,1], [2, 8, 256])),                  index=[&#x27;dog&#x27;, &#x27;cat&#x27;],                  columns=[&#x27;China&#x27;, &#x27;America&#x27;, &#x27;France&#x27;])df.filter(items=[&#x27;China&#x27;, &#x27;France&#x27;])# 根据正则表达式删选列标签df.filter(regex=&#x27;a$&#x27;, axis=1)# 选择行中包含ogdf.filter(like=&#x27;og&#x27;, axis=0)# 5、异常值过滤df2 = pd.DataFrame(data = np.random.randn(10000,3)) # 正态分布数据# 3σ过滤异常值，σ即是标准差cond = (df2 &gt; 3*df2.std()).any(axis = 1)index = df2[cond].index # 不满足条件的行索引df2.drop(labels=index,axis = 0) # 根据行索引，进行数据删除
+第八部分 数据转换
+第一节 轴和元素替换
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据#1、重命名轴索引df.rename(index = &#123;&#x27;A&#x27;:&#x27;AA&#x27;,&#x27;B&#x27;:&#x27;BB&#x27;&#125;,columns = &#123;&#x27;Python&#x27;:&#x27;人工智能&#x27;&#125;) # 2、替换值df.replace(3,1024) #将3替换为1024df.replace([0,7],2048) # 将0和7替换为2048df.replace(&#123;0:512,np.nan:998&#125;) # 根据字典键值对进行替换df.replace(&#123;&#x27;Python&#x27;:2&#125;,-1024) # 将Python这一列中等于2的，替换为-1024
+第二节 map Series元素改变
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、map批量元素改变，Series专有df[&#x27;Keras&#x27;].map(&#123;1:&#x27;Hello&#x27;,5:&#x27;World&#x27;,7:&#x27;AI&#x27;&#125;) # 字典映射df[&#x27;Python&#x27;].map(lambda x:True if x &gt;=5 else False) # 隐式函数映射def convert(x): # 显示函数映射    if x%3 == 0:        return True    elif x%3 == 1:        return Falsedf[&#x27;Tensorflow&#x27;].map(convert)
+第三节 apply元素改变。既支持 Series，也支持 DataFrame
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、apply 应用方法数据转换，通用# Series，其中x是Series中元素df[&#x27;Keras&#x27;].apply(lambda x:True if x &gt;5 else False) # DataFrame，其中的x是DataFrame中列或者行，是Seriesdf.apply(lambda x : x.median(),axis = 0) # 列的中位数def convert(x): # 自定义方法    return (x.mean().round(1),x.count())df.apply(convert,axis = 1) # 行平均值，计数# 2、applymap DataFrame专有df.applymap(lambda x : x + 100) # 计算DataFrame中每个元素
+第四节 transform变形金刚
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、一列执行多项计算df[&#x27;Python&#x27;].transform([np.sqrt,np.exp]) # Series处理def convert(x):    if x.mean() &gt; 5:        x *= 10    else:        x *= -10    return x# 2、多列执行不同计算df.transform(&#123;&#x27;Python&#x27;:convert,&#x27;Tensorflow&#x27;:np.max,&#x27;Keras&#x27;:np.min&#125;) # DataFrame处理
+第五节 重排随机抽样哑变量
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])ran = np.random.permutation(10) # 随机重排df.take(ran) # 重排DataFramedf.take(np.random.randint(0,10,size = 15)) # 随机抽样# 哑变量，独热编码，1表示有，0表示没有df = pd.DataFrame(&#123;&#x27;key&#x27;:[&#x27;b&#x27;,&#x27;b&#x27;,&#x27;a&#x27;,&#x27;c&#x27;,&#x27;a&#x27;,&#x27;b&#x27;]&#125;)pd.get_dummies(df,prefix=&#x27;&#x27;,prefix_sep=&#x27;&#x27;)
+第九部分 数据重塑
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.T # 转置df2 = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                   index = pd.MultiIndex.from_product([list(&#x27;ABCDEFHIJK&#x27;),[&#x27;期中&#x27;,&#x27;期末&#x27;]]),#多层索引                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df2.unstack(level = -1) # 行旋转成列，level指定哪一层，进行变换df2.stack() # 列旋转成行df2.stack().unstack(level = 1) # 行列互换# 多层索引DataFrame数学计算df2.mean() # 各学科平均分df2.mean(level=0) # 各学科，每个人期中期末平均分df2.mean(level = 1) # 各学科，期中期末所有人平均分
+第十部分 数学和统计方法
+pandas对象拥有一组常用的数学和统计方法。它们属于汇总统计，对Series汇总计算获取mean、max值或者对DataFrame行、列汇总计算返回一个Series。
+第一节 简单统计指标
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                  index = list(&#x27;ABCDEFHIJKLMNOPQRSTU&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、简单统计指标df.count() # 非NA值的数量df.max(axis = 0) #轴0最大值，即每一列最大值df.min() #默认计算轴0最小值df.median() # 中位数df.sum() # 求和df.mean(axis = 1) #轴1平均值，即每一行的平均值df.quantile(q = [0.2,0.4,0.8]) # 分位数df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值
+第二节 索引标签、位置获取
+# 2、索引位置df[&#x27;Python&#x27;].argmin() # 计算最小值位置df[&#x27;Keras&#x27;].argmax() # 最大值位置df.idxmax() # 最大值索引标签df.idxmin() # 最小值索引标签
+第三节 更多统计指标
+# 3、更多统计指标df[&#x27;Python&#x27;].value_counts() # 统计元素出现次数df[&#x27;Keras&#x27;].unique() # 去重df.cumsum() # 累加df.cumprod() # 累乘df.std() # 标准差df.var() # 方差df.cummin() # 累计最小值df.cummax() # 累计最大值df.diff() # 计算差分df.pct_change() # 计算百分比变化
+第四节 高级统计指标
+# 4、高级统计指标df.cov() # 属性的协方差df[&#x27;Python&#x27;].cov(df[&#x27;Keras&#x27;]) # Python和Keras的协方差df.corr() # 所有属性相关性系数df.corrwith(df[&#x27;Tensorflow&#x27;]) # 单一属性相关性系数
+协方差：Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1Cov(X,Y) = \\frac{\\sum\\limits\_1^n(X\_i - \\overline{X})(Y\_i - \\overline{Y})}{n-1}Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1
+相关性系数：r(X,Y) = \\frac{Cov(X,Y)}{\\sqrt{Var\[X\]Var\[Y\]}}
+第十一部分 数据排序
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,30,size = (30,3)),                  index = list(&#x27;qwertyuioijhgfcasdcvbnerfghjcf&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Pytorch&#x27;])# 1、索引列名排序df.sort_index(axis = 0,ascending=True) # 按索引排序，降序df.sort_index(axis = 1,ascending=False) #按列名排序，升序# 2、属性值排序df.sort_values(by = [&#x27;Python&#x27;]) #按Python属性值排序df.sort_values(by = [&#x27;Python&#x27;,&#x27;Keras&#x27;])#先按Python，再按Keras排序# 3、返回属性n大或者n小的值df.nlargest(10,columns=&#x27;Keras&#x27;) # 根据属性Keras排序,返回最大10个数据df.nsmallest(5,columns=&#x27;Python&#x27;) # 根据属性Python排序，返回最小5个数据
+第十二部分 分箱操作
+分箱操作就是将连续数据转换为分类对应物的过程。比如将连续的身高数据划分为：矮中高。
+分箱操作分为等距分箱和等频分箱。
+分箱操作也叫面元划分或者离散化。
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,150,size = (100,3)),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、等宽分箱pd.cut(df.Python,bins = 3)# 指定宽度分箱pd.cut(df.Keras,#分箱数据       bins = [0,60,90,120,150],#分箱断点       right = False,# 左闭右开       labels=[&#x27;不及格&#x27;,&#x27;中等&#x27;,&#x27;良好&#x27;,&#x27;优秀&#x27;])# 分箱后分类# 2、等频分箱pd.qcut(df.Python,q = 4,# 4等分        labels=[&#x27;差&#x27;,&#x27;中&#x27;,&#x27;良&#x27;,&#x27;优&#x27;]) # 分箱后分类
+第十三部分 分组聚合
+第一节 分组
+import numpy as npimport pandas as pd# 准备数据df = pd.DataFrame(data = &#123;&#x27;sex&#x27;:np.random.randint(0,2,size = 300), # 0男，1女                          &#x27;class&#x27;:np.random.randint(1,9,size = 300),#1~8八个班                          &#x27;Python&#x27;:np.random.randint(0,151,size = 300),#Python成绩                          &#x27;Keras&#x27;:np.random.randint(0,151,size =300),#Keras成绩                          &#x27;Tensorflow&#x27;:np.random.randint(0,151,size=300),                          &#x27;Java&#x27;:np.random.randint(0,151,size = 300),                          &#x27;C++&#x27;:np.random.randint(0,151,size = 300)&#125;)df[&#x27;sex&#x27;] = df[&#x27;sex&#x27;].map(&#123;0:&#x27;男&#x27;,1:&#x27;女&#x27;&#125;) # 将0，1映射成男女# 1、分组-&gt;可迭代对象# 1.1 先分组再获取数据g = df.groupby(by = &#x27;sex&#x27;)[[&#x27;Python&#x27;,&#x27;Java&#x27;]] # 单分组for name,data in g:    print(&#x27;组名：&#x27;,name)    print(&#x27;数据：&#x27;,data)df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;]] # 多分组# 1.2 对一列值进行分组df[&#x27;Python&#x27;].groupby(df[&#x27;class&#x27;]) # 单分组df[&#x27;Keras&#x27;].groupby([df[&#x27;class&#x27;],df[&#x27;sex&#x27;]]) # 多分组# 1.3 按数据类型分组df.groupby(df.dtypes,axis = 1)# 1.4 通过字典进行分组m = &#123;&#x27;sex&#x27;:&#x27;category&#x27;,&#x27;class&#x27;:&#x27;category&#x27;,&#x27;Python&#x27;:&#x27;IT&#x27;,&#x27;Keras&#x27;:&#x27;IT&#x27;,&#x27;Tensorflow&#x27;:&#x27;IT&#x27;,&#x27;Java&#x27;:&#x27;IT&#x27;,&#x27;C++&#x27;:&#x27;IT&#x27;&#125;for name,data in df.groupby(m,axis = 1):    print(&#x27;组名&#x27;,name)    print(&#x27;数据&#x27;,data)
+第二节 分组聚合
+# 2、分组直接调用函数进行聚合# 按照性别分组，其他列均值聚合df.groupby(by = &#x27;sex&#x27;).mean().round(1) # 保留1位小数# 按照班级和性别进行分组，Python、Keras的最大值聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].max()# 按照班级和性别进行分组，计数聚合。统计每个班，男女人数df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).size()# 基本描述性统计聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).describe()
+第三节 分组聚合apply、transform
+# 3、分组后调用apply，transform封装单一函数计算# 返回分组结果df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].apply(np.mean).round(1)def normalization(x):    return (x - x.min())/(x.max() - x.min()) # 最大值最小值归一化# 返回全数据，返回DataFrame.shape和原DataFrame.shape一样。df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;]].transform(normalization).round(3)
+第四节 分组聚合agg
+# 4、agg 多中统计汇总操作# 分组后调用agg应用多种统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]].agg([np.max,np.min,pd.Series.count])# 分组后不同属性应用多种不同统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].agg(&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max),(&#x27;最小值&#x27;,np.min)],                                                          &#x27;Keras&#x27;:[(&#x27;计数&#x27;,pd.Series.count),(&#x27;中位数&#x27;,np.median)]&#125;)
+第五节 透视表pivot_table
+# 5、透视表# 透视表也是一种分组聚合运算def count(x):    return len(x)df.pivot_table(values=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;],# 要透视分组的值               index=[&#x27;class&#x27;,&#x27;sex&#x27;], # 分组透视指标               aggfunc=&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max)], # 聚合运算                        &#x27;Keras&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;中位数&#x27;,np.median)],                        &#x27;Tensorflow&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;平均值&#x27;,np.mean),(&#x27;计数&#x27;,count)]&#125;)
+第十四部分 时间序列
+第一节 时间戳操作
+# 1、创建方法pd.Timestamp(&#x27;2020-8-24 12&#x27;)# 时刻数据pd.Period(&#x27;2020-8-24&#x27;,freq = &#x27;M&#x27;) # 时期数据index = pd.date_range(&#x27;2020.08.24&#x27;,periods=5,freq = &#x27;M&#x27;) # 批量时刻数据pd.period_range(&#x27;2020.08.24&#x27;,periods=5,freq=&#x27;M&#x27;) # 批量时期数据ts = pd.Series(np.random.randint(0,10,size = 5),index = index) # 时间戳索引Series# 2、转换方法pd.to_datetime([&#x27;2020.08.24&#x27;,&#x27;2020-08-24&#x27;,&#x27;24/08/2020&#x27;,&#x27;2020/8/24&#x27;])pd.to_datetime([1598582232],unit=&#x27;s&#x27;)dt = pd.to_datetime([1598582420401],unit = &#x27;ms&#x27;) # 世界标准时间dt + pd.DateOffset(hours = 8) # 东八区时间dt + pd.DateOffset(days = 100) # 100天后日期
+第二节 时间戳索引
+index = pd.date_range(&quot;2020-8-24&quot;, periods=200, freq=&quot;D&quot;)ts = pd.Series(range(len(index)), index=index)# str类型索引ts[&#x27;2020-08-30&#x27;] # 日期访问数据ts[&#x27;2020-08-24&#x27;:&#x27;2020-09-3&#x27;] # 日期切片ts[&#x27;2020-08&#x27;] # 传入年月ts[&#x27;2020&#x27;] # 传入年# 时间戳索引ts[pd.Timestamp(&#x27;2020-08-30&#x27;)]ts[pd.Timestamp(&#x27;2020-08-24&#x27;):pd.Timestamp(&#x27;2020-08-30&#x27;)] # 切片ts[pd.date_range(&#x27;2020-08-24&#x27;,periods=10,freq=&#x27;D&#x27;)]# 时间戳索引属性ts.index.year # 获取年ts.index.dayofweek # 获取星期几ts.index.weekofyear # 一年中第几个星期几
+第三节 时间序列常用方法
+在做时间序列相关的工作时，经常要对时间做一些移动/滞后、频率转换、采样等相关操作，我们来看下这些操作如何使用
+index = pd.date_range(&#x27;8/1/2020&#x27;, periods=365, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randint(0, 500, len(index)), index=index)# 1、移动ts.shift(periods = 2) #  数据后移 ts.shift(periods = -2) # 数据前移# 日期移动ts.shift(periods = 2,freq = pd.tseries.offsets.Day()) # 天移动ts.tshift(periods = 1,freq = pd.tseries.offsets.MonthOffset()) #月移动# 2、频率转换ts.asfreq(pd.tseries.offsets.Week()) # 天变周ts.asfreq(pd.tseries.offsets.MonthEnd()) # 天变月ts.asfreq(pd.tseries.offsets.Hour(),fill_value = 0) #天变小时，又少变多，fill_value为填充值# 3、重采样# resample 表示根据日期维度进行数据聚合，可以按照分钟、小时、工作日、周、月、年等来作为日期维度ts.resample(&#x27;2W&#x27;).sum() # 以2周为单位进行汇总ts.resample(&#x27;3M&#x27;).sum().cumsum() # 以季度为单位进行汇总# 4、DataFrame重采样d = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],          &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50],          &#x27;week_starting&#x27;:pd.date_range(&#x27;24/08/2020&#x27;,periods=8,freq=&#x27;W&#x27;)&#125;)df1 = pd.DataFrame(d)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).apply(np.sum)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).agg(&#123;&#x27;price&#x27;:np.mean,&#x27;volume&#x27;:np.sum&#125;)days = pd.date_range(&#x27;1/8/2020&#x27;, periods=4, freq=&#x27;D&#x27;)data2 = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],           &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50]&#125;)df2 = pd.DataFrame(data2,                   index=pd.MultiIndex.from_product([days,[&#x27;morning&#x27;,&#x27;afternoon&#x27;]]))df2.resample(&#x27;D&#x27;, level=0).sum()
+第四节 时区表示
+index = pd.date_range(&#x27;8/1/2012 00:00&#x27;, periods=5, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randn(len(index)), index)import pytzpytz.common_timezones # 常用时区# 时区表示ts = ts.tz_localize(tz=&#x27;UTC&#x27;)# 转换成其它时区ts.tz_convert(tz = &#x27;Asia/Shanghai&#x27;)
+第十五部分 数据可视化
+pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple
+import numpy as npimport pandas as pd# 1、线形图df1 = pd.DataFrame(data = np.random.randn(1000,4),                  index = pd.date_range(start = &#x27;27/6/2012&#x27;,periods=1000),                  columns=list(&#x27;ABCD&#x27;))df1.cumsum().plot()# 2、条形图df2 = pd.DataFrame(data = np.random.rand(10,4),                   columns = list(&#x27;ABCD&#x27;))df2.plot.bar(stacked = True) # stacked 是否堆叠# 3、饼图df3 = pd.DataFrame(data = np.random.rand(4,2),                   index = list(&#x27;ABCD&#x27;),                   columns=[&#x27;One&#x27;,&#x27;Two&#x27;])df3.plot.pie(subplots = True,figsize = (8,8))# 4、散点图df4 = pd.DataFrame(np.random.rand(50, 4), columns=list(&#x27;ABCD&#x27;))df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;B&#x27;) # A和B关系绘制# 在一张图中绘制AC散点图，同时绘制BD散点图ax = df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;C&#x27;, color=&#x27;DarkBlue&#x27;, label=&#x27;Group 1&#x27;);df4.plot.scatter(x=&#x27;B&#x27;, y=&#x27;D&#x27;, color=&#x27;DarkGreen&#x27;, label=&#x27;Group 2&#x27;, ax=ax)# 气泡图，散点有大小之分df4.plot.scatter(x=&#x27;A&#x27;,y=&#x27;B&#x27;,s = df4[&#x27;C&#x27;]*200)# 5、面积图df5 = pd.DataFrame(data = np.random.rand(10, 4),                    columns=list(&#x27;ABCD&#x27;))df5.plot.area(stacked = True);# stacked 是否堆叠# 6、箱式图df6 = pd.DataFrame(data = np.random.rand(10, 5),                    columns=list(&#x27;ABCDE&#x27;))df6.plot.box()# 7、直方图df7 = pd.DataFrame(&#123;&#x27;A&#x27;: np.random.randn(1000) + 1, &#x27;B&#x27;: np.random.randn(1000),                    &#x27;C&#x27;: np.random.randn(1000) - 1&#125;)df7.plot.hist(alpha=0.5) #带透明度直方图df7.plot.hist(stacked = True)# 堆叠图df7.hist(figsize = (8,8)) # 子视图绘制
+第十六部分 实战-数据分析师招聘数据分析
+第一节 分析目标
+
+各城市对数据分析岗位的需求情况
+不同细分领域对数据分析岗的需求情况
+数据分析岗位的薪资状况
+工作经验与薪水的关系
+公司都要求什么掌握什么技能
+岗位的学历要求高吗
+不同规模的企业对工资经验的要求以及提供的薪资水平
+
+第二节 数据加载
+import pandas as pdimport numpy as npjob = pd.read_csv(&#x27;./job.csv&#x27;)job.drop_duplicates(inplace = True) # 删除重复数据
+第三节 数据清洗
+
+
+过滤非数据分析的岗位
+# 数据分析相应的岗位数量cond = job[&quot;positionName&quot;].str.contains(&quot;数据分析&quot;)  # 职位名中含有数据分析字眼的# 筛选出我们想要的字段，并剔除positionNamejob = job[cond]job.reset_index(inplace=True) # 行索引 重置job
+
+
+数据中的薪水是一个区间，这里用薪水区间的均值作为相应职位的薪水
+# 处理过程#1、将salary中的字符串均小写化（因为存在8k-16k和8K-16K）#2、运用正则表达式提取出薪资区间#3、将提取出来的数字转化为int型#4、取区间的平均值job[&quot;salary&quot;] = job[&quot;salary&quot;].str.lower()\               .str.extract(r&#x27;(\d+)[k]-(\d+)k&#x27;)\               .applymap(lambda x:int(x))\               .mean(axis=1)
+
+
+从job_detail中提取出技能要求 将技能分为以下几类 Python SQL Tableau Excel SPSS/SAS 处理方式： 如果job_detail中含有上述五类，则赋值为1，不含有则为0
+
+
+job[&quot;job_detail&quot;] = job[&quot;job_detail&quot;].str.lower().fillna(&quot;&quot;)  #将字符串小写化，并将缺失值赋值为空字符串
+job[&quot;Python&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('python' in x) else 0)
+job[&quot;SQL&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('sql' in x) or ('hive' in x)  else 0)
+job[&quot;Tableau&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'tableau' in x  else 0)
+job[&quot;Excel&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'excel' in x  else 0)
+job['SPSS/SAS'] = job['job_detail'].map(lambda x:1 if ('spss' in x) or ('sas' in x) else 0)
+    *   处理行业信息        在行业信息中有多个标签，对其进行处理，筛选最显著的行业标签。        ```python    def clean_industry(industry):        industry = industry.split(&quot;,&quot;)        if industry[0]==&quot;移动互联网&quot; and len(industry)&gt;1:            return industry[1]        else:            return industry[0]    job[&quot;industryField&quot;] = job.industryField.map(clean_industry)
+
+
+
+
+数据分析师职位的数据预处理基本完成，后续使用matplotlib进行数据可视化分析。
+
+
+pandas库的亮点
+
+一个快速、高效的DataFrame对象，用于数据操作和综合索引；
+用于在内存数据结构和不同格式之间读写数据的工具：CSV和文本文件、Microsoft Excel、SQL数据库和快速HDF 5格式；
+智能数据对齐和丢失数据的综合处理：在计算中获得基于标签的自动对齐，并轻松地将凌乱的数据操作为有序的形式；
+数据集的灵活调整和旋转；
+基于智能标签的切片、花式索引和大型数据集的子集；
+可以从数据结构中插入和删除列，以实现大小可变；
+通过在强大的引擎中聚合或转换数据，允许对数据集进行拆分应用组合操作;
+数据集的高性能合并和连接；
+层次轴索引提供了在低维数据结构中处理高维数据的直观方法；
+时间序列-功能：日期范围生成和频率转换、移动窗口统计、移动窗口线性回归、日期转换和滞后。甚至在不丢失数据的情况下创建特定领域的时间偏移和加入时间序列；
+对性能进行了高度优化，用Cython或C编写了关键代码路径。
+Python与pandas在广泛的学术和商业领域中使用，包括金融，神经科学，经济学，统计学，广告，网络分析，等等
+学到这里，体会一会pandas库的亮点，如果对哪些还不熟悉，请对之前知识点再次进行复习。
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Dijkstra</title>
+    <url>/posts/9c98f56c.html</url>
+    <content><![CDATA[Dijkstra 最小花费
+题目描述
+在 n 个人中，某些人的银行账号之间可以互相转账。这些人之间转账的手续费各不相同。给定这些人之间转账时需要从转账金额里扣除百分之几的手续费，请问 A 最少需要多少钱使得转账后 B 收到 100 元。
+输入格式
+第一行输入两个正整数 n,m，分别表示总人数和可以互相转账的人的对数。以下 m 行每行输入三个正整数 x,y,z，表示标号为 x 的人和标号为 y 的人之间互相转账需要扣除 z% 的手续费 ( z&lt;100 )。最后一行输入两个正整数 A,B。数据保证 A 与 B 之间可以直接或间接地转账。**
+输出格式
+输出 A 使得 B 到账 100 元最少需要的总费用。 精确到小数点后 8 位。
+数据范围
+1≤n≤2000, m≤105
+import java.util.*;public class Main&#123;    static int N=2010;    static int M=100010;    static int INF=0x3f3f3f3f;    static int n,m,idx;    static int A,B;    static int []h=new int[N],e=new int[M*2];    static int []ne=new int[M*2];    static double []w=new double[M*2];    static double []dist=new double[N];    static boolean[]st=new boolean[N];    public static void add(int a,int b,double c)&#123;        e[idx]=b;        w[idx]=c;        ne[idx]=h[a];        h[a]=idx++;    &#125;    public static double dj()&#123;        Arrays.fill(dist,INF);        dist[A]=100;        PriorityQueue&lt;PII&gt;q=new PriorityQueue&lt;&gt;();        q.offer(new PII(A,100));        while(q.size()!=0)&#123;            PII t=q.poll();            int num=t.num;            double distence=t.distence;            if(st[num])continue;            st[num]=true;            for(int i=h[num];i!=-1;i=ne[i])&#123;                int j=e[i];                if(dist[j]&gt;distence/w[i])&#123;                    dist[j]=distence/w[i];                    q.offer(new PII(j,dist[j]));                &#125;            &#125;        &#125;        return dist[B];    &#125;    public static void main(String[]args)&#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        m=scan.nextInt();        Arrays.fill(h,-1);        while(m--&gt;0)&#123;            int a=scan.nextInt();            int b=scan.nextInt();            int c=scan.nextInt();            double w=(1-(double)c/100);            add(a,b,w);            add(b,a,w);        &#125;        A=scan.nextInt();        B=scan.nextInt();        double t=dj();        System.out.printf(&quot;%.8f&quot;,t);    &#125;&#125;class PII implements Comparable&lt;PII&gt;&#123;    int num;    double distence;    public PII(int num,double distence)&#123;        this.num=num;        this.distence=distence;    &#125;    public int compareTo(PII o)&#123;        return Double.compare(distence,o.distence);    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>最短路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
     <url>/posts/4a17b156.html</url>
     <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
@@ -1004,23 +1021,6 @@ Deploy to remote sites
 $ hexo deploy
 More info: Deployment
 ]]></content>
-  </entry>
-  <entry>
-    <title>二分</title>
-    <url>/posts/9947c71c.html</url>
-    <content><![CDATA[最小值最大化
-import java.util.*;public class Main&#123;    static int N=100010;    static int[]h=new int[N];    static int[]w=new int[N];    static int n,k;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        k=scan.nextInt();        h=new int[n];        w=new int[n];        for(int i=0;i&lt;n;i++) &#123;            h[i]=scan.nextInt();            w[i]=scan.nextInt();        &#125;        int l=1,r=(int)1e5+10;        while(l&lt;r) &#123;            int mid=(r+l+1)/2;            if(check(mid))l=mid;            else r=mid-1;        &#125;        System.out.println(l);&#125;    static boolean check(int x) &#123;        long res=0;        for(int i=0;i&lt;n;i++) &#123;        res+=(h[i]/x)*(w[i]/x);        &#125;        if(res&gt;=k) &#123;            return true;        &#125;        return false;    &#125;&#125;
-最大值最小化
-题目：共n个月,给出每个月的开销.将n个月划分成m个时间段,求m个时间段中开销最大的时间段的最小开销值。
-#include&lt;bits/stdc++.h&gt;using namespace std;int n,m;vector&lt;int&gt;a;int check(int M)&#123;    int ct=0,now=0;    for(int i=0;i&lt;n;i++)&#123;        if(a[i]&gt;M) return 0;        if(now+a[i]&gt;M)&#123;            ct++;            now=0;            &#125;            now+=a[i];    &#125;    return ct&lt;m;&#125;int main()&#123;    cin&gt;&gt;n&gt;&gt;m;    a.resize(n);    int R=0,L=0;    for(int i=0;i&lt;n;i++)&#123;        cin&gt;&gt;a[i];        R+=a[i];        L=max(L,a[i]);    &#125;    R++;        while(L&lt;R)&#123;        int M=(L+R)/2;        if(check(M)) R=M;        else L=M+1;    &#125;    cout&lt;&lt;L&lt;&lt;endl;    return 0;&#125;
-//更安全的求最大值最小化import java.util.Arrays;import java.util.Scanner;public class Main &#123;    static  int N=100010,n,k,t;    static  long a[]=new long[N];    public  static  boolean check(int m)&#123;        long arr[]=new long[m+5];        long s[]=new long[m+5];        long s_pow[]=new long[m+5];        for(int i=1;i&lt;=m;i++) arr[i]=a[i];        Arrays.sort(arr,1,m+1);        for(int i=1;i&lt;=m;i++)&#123;            s[i]=s[i-1]+arr[i];            s_pow[i]=s_pow[i-1]+(arr[i]*arr[i]);        &#125;        for(int i=k;i&lt;=m;i++)&#123;            long s1=s_pow[i]-s_pow[i-k];            long s2=s[i]-s[i-k];            double avg=s2*1.00/k;//把他给的方差公式 可以优化 成这个 提醒平方差公式            double res=(s1-2*avg*s2+k*avg*avg)/k;            if(res&lt;t) return  true;        &#125;        return  false;    &#125;    public static void main(String[] args) &#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        k=sc.nextInt();        t=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextLong();        &#125;        int l=k,r=n;        int res=-1;        while (l&lt;=r)&#123;            int mid=(l+r)&gt;&gt;1;            if(check(mid))&#123;                r=mid-1;                res=mid;            &#125;else&#123;                l=mid+1;            &#125;        &#125;        System.out.println(res);    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>二分</tag>
-      </tags>
   </entry>
   <entry>
     <title>Floyd</title>
@@ -1095,6 +1095,19 @@ import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123; 
       </tags>
   </entry>
   <entry>
+    <title>排序和二分</title>
+    <url>/posts/c5627fcb.html</url>
+    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>二分</tag>
+        <tag>排序</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Leetcode刷题路线</title>
     <url>/posts/5f473243.html</url>
     <content><![CDATA[推荐链接：力扣刷题攻略路线
@@ -1118,45 +1131,6 @@ import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123; 
         <category>program</category>
         <category>算法刷题路线</category>
       </categories>
-  </entry>
-  <entry>
-    <title>排序和二分</title>
-    <url>/posts/c5627fcb.html</url>
-    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>二分</tag>
-        <tag>排序</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>数学</title>
-    <url>/posts/fe7e69f4.html</url>
-    <content><![CDATA[筛质数
-
-埃式筛
-
-const int N=10001;int primes[N],cnt=0;bool st[N];void get_p(int n)&#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=i+i;j&lt;=n;j+=i)&#123;                st[j]=true;        &#125;    &#125;&#125;
-
-线性筛
-
-const int N=10001;int primes[N],cnt=0;bool st[N];void get_prime(int n) &#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=0;primes[j]&lt;=n/i;j++)&#123;            st[primes[j]*i]=true;            if(i%primes[j]==0)break;        &#125;    &#125;&#125;
-费马逆元
-import java.util.*;public class Main &#123;    static long MOD = (long)1e9 + 7;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        int q = sc.nextInt();        int maxN = 0;        int[] nList = new int[q];        int[] mList = new int[q];        // 读取所有查询并找到最大的 n        for (int i = 0; i &lt; q; i++) &#123;            int n = sc.nextInt();            int m = sc.nextInt();            nList[i] = n;            mList[i] = m;            if (n &gt; maxN) &#123;                maxN = n;            &#125;        &#125;        // 预处理阶乘和逆元        long[] factorial = new long[maxN + 1];        long[] inverse = new long[maxN + 1];        factorial[0] = 1;        for (int i = 1; i &lt;= maxN; i++) &#123;            factorial[i] = (factorial[i - 1] * i) % MOD;        &#125;        // 使用费马小定理计算逆元        inverse[maxN] = fastPower(factorial[maxN], MOD - 2, MOD);        for (int i = maxN - 1; i &gt;= 0; i--) &#123;            inverse[i] = (inverse[i + 1] * (i + 1)) % MOD;        &#125;        // 处理每个查询        for (int i = 0; i &lt; q; i++) &#123;            int n = nList[i];            int m = mList[i];            if (m &lt; 0  m &gt; n) &#123;                System.out.println(0);                continue;            &#125;            long ans = (factorial[n] * inverse[m] % MOD) * inverse[n - m] % MOD;            System.out.println(ans);        &#125;        sc.close();    &#125;    // 快速幂算法    public static long fastPower(long base, long exponent, long mod) &#123;        long result = 1;        base %= mod;        while (exponent &gt; 0) &#123;            if ((exponent &amp; 1) == 1) &#123;                result = (result * base) % mod;            &#125;            base = (base * base) % mod;            exponent &gt;&gt;= 1;        &#125;        return result;    &#125;&#125;
-快速幂
-public class Main &#123;    public static void main(String[] args) &#123;        Solution solution = new Solution();        // 测试用例 1: 正指数        double result1 = solution.myPow(2.0, 10);        System.out.println(&quot;2^10 = &quot; + result1); // 输出: 1024.0        // 测试用例 2: 负指数        double result2 = solution.myPow(2.0, -2);        System.out.println(&quot;2^-2 = &quot; + result2); // 输出: 0.25        // 测试用例 3: 零指数        double result3 = solution.myPow(5.0, 0);        System.out.println(&quot;5^0 = &quot; + result3); // 输出: 1.0        // 测试用例 4: 边界条件 (0^0)        double result4 = solution.myPow(0.0, 0);        System.out.println(&quot;0^0 = &quot; + result4); // 输出: 1.0        // 测试用例 5: 整数溢出测试 (Integer.MIN_VALUE)        double result5 = solution.myPow(2.0, Integer.MIN_VALUE);        System.out.println(&quot;2^&quot; + Integer.MIN_VALUE + &quot; = &quot; + result5); // 输出一个非常小的数    &#125;&#125;class Solution &#123;    public double myPow(double x, int n) &#123;        long N = n; // 将指数转换为 long 类型以避免溢出        if (N &lt; 0) &#123;            x = 1 / x; // 处理负指数            N = -N;    // 将指数转为正数        &#125;        return powIterative(x, N);    &#125;    // 迭代实现快速幂    private double powIterative(double x, long n) &#123;        double result = 1.0; // 初始化结果        while (n &gt; 0) &#123;            if (n % 2 == 1) &#123; // 如果指数是奇数                result *= x;  // 将当前的 x 乘到结果中            &#125;            x *= x; // 平方 x            n /= 2; // 将指数减半        &#125;        return result;    &#125;&#125;
-欧几里得和欧拉
-import java.util.Scanner;public class Main&#123;    static int mod=9901; // 定义模数，用于结果取模    public static void main(String[] args)&#123;        Scanner scan=new Scanner(System.in);        int A=scan.nextInt(),B=scan.nextInt(); // 输入A和B        int res=1; // 初始化结果为1，用于累积各质因数等比和的乘积                // 质因数分解A，从2开始试除        for(int i=2;i*i&lt;=A;i++)&#123;            if(A%i==0)&#123;                int s=0; // 记录当前质因数i的指数                while(A%i==0)&#123;                    A/=i; // 除去所有i因子                    s++;                &#125;                // 计算i^(s*B)的等比和，并累积到结果中                res=res*sum(i,s*B+1)%mod; // s*B+1项（0次方到s*B次方）            &#125;        &#125;        // 处理剩余的质因数（当A是质数时）        if(A&gt;1)res=res*sum(A,B+1)%mod; // 指数为1*B，项数为B+1        if(A==0)res=0; // 特判A=0的情况，结果直接为0        System.out.println(res);    &#125;        // 快速幂算法：计算a^k % mod    public static int quic(int a,int k)&#123;        int res=1;        a%=mod; // 先取模，防止溢出        while(k&gt;0)&#123;            if((k&amp;1)==1)&#123; // 如果当前二进制位为1，乘入结果                res=(res*a)%mod;            &#125;            a=(a*a)%mod; // a自乘，相当于计算下一位的权值            k&gt;&gt;=1; // 右移一位，处理下一位二进制        &#125;        return res;    &#125;        // 分治法计算等比数列和：1 + p + p^2 + ... + p^(k-1)    public static int sum(int p,int k)&#123;        if(k==1)return 1; // 边界条件，只有1项        if(k%2==0)&#123; // 当k为偶数时，拆分成两部分            // sum(p,k) = (1 + p^(k/2)) * sum(p, k/2)            return ((1+quic(p,k/2))*sum(p,k/2))%mod;        &#125; else &#123; // 当k为奇数时，拆分为前k-1项和最后一项            // sum(p,k) = sum(p,k-1) + p^(k-1)            return (sum(p,k-1)+quic(p,k-1))%mod;        &#125;    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>数学</tag>
-      </tags>
   </entry>
   <entry>
     <title>math</title>
@@ -1205,53 +1179,29 @@ import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public 
       </categories>
   </entry>
   <entry>
-    <title>SPFA</title>
-    <url>/posts/33b8c865.html</url>
-    <content><![CDATA[给定一张nnn个点m条边的有向图，该图可以有自环与重边。
-你需要判断从 1 号点出发，图中是否存在负权回路，存在输出 Yes；不存在输出 No。
-import java.util.*;import java.io.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;    static int N=2010;    static int M=(int)1e4+10;    static long INF=0x3f3f3f3f3f3f3f3fL;    static int[]h=new int[N];    static long[]dist=new long[N];    static int[]e=new int[M*2],ne=new int[M*2];    static int[]w=new int[M*2];    static int[]cnt=new int[M*2];    static boolean[]st=new boolean[N];    static int idx,n,m;    static void add(int a,int b,int c)&#123;      e[idx]=b;      w[idx]=c;      ne[idx]=h[a];      h[a]=idx++;    &#125;    static boolean spfa()&#123;      Arrays.fill(st,false);      Arrays.fill(dist,INF);      dist[1]=0;      Queue&lt;Integer&gt;q=new LinkedList&lt;&gt;();      st[1]=true;      q.offer(1);      while(!q.isEmpty())&#123;        int t=q.poll();        st[t]=false;        for(int i=h[t];i!=-1;i=ne[i])&#123;          int j=e[i];          if(dist[j]&gt;dist[t]+w[i])&#123;            dist[j]=dist[t]+w[i];            cnt[j]=cnt[t]+1;            if(cnt[j]&gt;=n)return true;            if(!st[j])&#123;              q.offer(j);              st[j]=true;            &#125;          &#125;        &#125;      &#125;      return false;    &#125;    static BufferedReader in=new BufferedReader(new InputStreamReader(System.in));    public static void main(String[] args) throws IOException&#123;        Arrays.fill(h,-1);        String[]ss=in.readLine().split(&quot; &quot;);        n=Integer.parseInt(ss[0]);        m=Integer.parseInt(ss[1]);        for(int i=1;i&lt;=m;i++)&#123;          String[]s=in.readLine().split(&quot; &quot;);          int a=Integer.parseInt(s[0]);          int b=Integer.parseInt(s[1]);          int c=Integer.parseInt(s[2]);          add(a,b,c);        &#125;        if(spfa())System.out.println(&quot;Yes&quot;);        else System.out.println(&quot;No&quot;);    &#125;&#125;]]></content>
+    <title>数学</title>
+    <url>/posts/fe7e69f4.html</url>
+    <content><![CDATA[筛质数
+
+埃式筛
+
+const int N=10001;int primes[N],cnt=0;bool st[N];void get_p(int n)&#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=i+i;j&lt;=n;j+=i)&#123;                st[j]=true;        &#125;    &#125;&#125;
+
+线性筛
+
+const int N=10001;int primes[N],cnt=0;bool st[N];void get_prime(int n) &#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=0;primes[j]&lt;=n/i;j++)&#123;            st[primes[j]*i]=true;            if(i%primes[j]==0)break;        &#125;    &#125;&#125;
+费马逆元
+import java.util.*;public class Main &#123;    static long MOD = (long)1e9 + 7;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        int q = sc.nextInt();        int maxN = 0;        int[] nList = new int[q];        int[] mList = new int[q];        // 读取所有查询并找到最大的 n        for (int i = 0; i &lt; q; i++) &#123;            int n = sc.nextInt();            int m = sc.nextInt();            nList[i] = n;            mList[i] = m;            if (n &gt; maxN) &#123;                maxN = n;            &#125;        &#125;        // 预处理阶乘和逆元        long[] factorial = new long[maxN + 1];        long[] inverse = new long[maxN + 1];        factorial[0] = 1;        for (int i = 1; i &lt;= maxN; i++) &#123;            factorial[i] = (factorial[i - 1] * i) % MOD;        &#125;        // 使用费马小定理计算逆元        inverse[maxN] = fastPower(factorial[maxN], MOD - 2, MOD);        for (int i = maxN - 1; i &gt;= 0; i--) &#123;            inverse[i] = (inverse[i + 1] * (i + 1)) % MOD;        &#125;        // 处理每个查询        for (int i = 0; i &lt; q; i++) &#123;            int n = nList[i];            int m = mList[i];            if (m &lt; 0  m &gt; n) &#123;                System.out.println(0);                continue;            &#125;            long ans = (factorial[n] * inverse[m] % MOD) * inverse[n - m] % MOD;            System.out.println(ans);        &#125;        sc.close();    &#125;    // 快速幂算法    public static long fastPower(long base, long exponent, long mod) &#123;        long result = 1;        base %= mod;        while (exponent &gt; 0) &#123;            if ((exponent &amp; 1) == 1) &#123;                result = (result * base) % mod;            &#125;            base = (base * base) % mod;            exponent &gt;&gt;= 1;        &#125;        return result;    &#125;&#125;
+快速幂
+public class Main &#123;    public static void main(String[] args) &#123;        Solution solution = new Solution();        // 测试用例 1: 正指数        double result1 = solution.myPow(2.0, 10);        System.out.println(&quot;2^10 = &quot; + result1); // 输出: 1024.0        // 测试用例 2: 负指数        double result2 = solution.myPow(2.0, -2);        System.out.println(&quot;2^-2 = &quot; + result2); // 输出: 0.25        // 测试用例 3: 零指数        double result3 = solution.myPow(5.0, 0);        System.out.println(&quot;5^0 = &quot; + result3); // 输出: 1.0        // 测试用例 4: 边界条件 (0^0)        double result4 = solution.myPow(0.0, 0);        System.out.println(&quot;0^0 = &quot; + result4); // 输出: 1.0        // 测试用例 5: 整数溢出测试 (Integer.MIN_VALUE)        double result5 = solution.myPow(2.0, Integer.MIN_VALUE);        System.out.println(&quot;2^&quot; + Integer.MIN_VALUE + &quot; = &quot; + result5); // 输出一个非常小的数    &#125;&#125;class Solution &#123;    public double myPow(double x, int n) &#123;        long N = n; // 将指数转换为 long 类型以避免溢出        if (N &lt; 0) &#123;            x = 1 / x; // 处理负指数            N = -N;    // 将指数转为正数        &#125;        return powIterative(x, N);    &#125;    // 迭代实现快速幂    private double powIterative(double x, long n) &#123;        double result = 1.0; // 初始化结果        while (n &gt; 0) &#123;            if (n % 2 == 1) &#123; // 如果指数是奇数                result *= x;  // 将当前的 x 乘到结果中            &#125;            x *= x; // 平方 x            n /= 2; // 将指数减半        &#125;        return result;    &#125;&#125;
+欧几里得和欧拉
+import java.util.Scanner;public class Main&#123;    static int mod=9901; // 定义模数，用于结果取模    public static void main(String[] args)&#123;        Scanner scan=new Scanner(System.in);        int A=scan.nextInt(),B=scan.nextInt(); // 输入A和B        int res=1; // 初始化结果为1，用于累积各质因数等比和的乘积                // 质因数分解A，从2开始试除        for(int i=2;i*i&lt;=A;i++)&#123;            if(A%i==0)&#123;                int s=0; // 记录当前质因数i的指数                while(A%i==0)&#123;                    A/=i; // 除去所有i因子                    s++;                &#125;                // 计算i^(s*B)的等比和，并累积到结果中                res=res*sum(i,s*B+1)%mod; // s*B+1项（0次方到s*B次方）            &#125;        &#125;        // 处理剩余的质因数（当A是质数时）        if(A&gt;1)res=res*sum(A,B+1)%mod; // 指数为1*B，项数为B+1        if(A==0)res=0; // 特判A=0的情况，结果直接为0        System.out.println(res);    &#125;        // 快速幂算法：计算a^k % mod    public static int quic(int a,int k)&#123;        int res=1;        a%=mod; // 先取模，防止溢出        while(k&gt;0)&#123;            if((k&amp;1)==1)&#123; // 如果当前二进制位为1，乘入结果                res=(res*a)%mod;            &#125;            a=(a*a)%mod; // a自乘，相当于计算下一位的权值            k&gt;&gt;=1; // 右移一位，处理下一位二进制        &#125;        return res;    &#125;        // 分治法计算等比数列和：1 + p + p^2 + ... + p^(k-1)    public static int sum(int p,int k)&#123;        if(k==1)return 1; // 边界条件，只有1项        if(k%2==0)&#123; // 当k为偶数时，拆分成两部分            // sum(p,k) = (1 + p^(k/2)) * sum(p, k/2)            return ((1+quic(p,k/2))*sum(p,k/2))%mod;        &#125; else &#123; // 当k为奇数时，拆分为前k-1项和最后一项            // sum(p,k) = sum(p,k-1) + p^(k-1)            return (sum(p,k-1)+quic(p,k-1))%mod;        &#125;    &#125;&#125;]]></content>
       <categories>
         <category>program</category>
         <category>算法模板</category>
       </categories>
       <tags>
-        <tag>spfa</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>蓝桥杯-高塔</title>
-    <url>/posts/a38c4cc3.html</url>
-    <content><![CDATA[问题描述 小蓝正在玩一个攀登高塔的游戏。高塔的层数是无限的，但游戏最多只有 n n 回合。
-小蓝一开始拥有 m m 点能量，在每个回合都有一个值 A i A i ​ 表示小蓝的角色状态。小蓝每回合可以选择消费任意点能量 C i C i ​ （最低消费 1 1 点，没有上限），他在这回合将最多可以向上攀爬 A i ⋅ C i A i ​ ⋅C i ​ 层。实际攀爬的层数取决于小蓝自己在这回合的表现，不过最差也会向上爬一层。
-当某回合小蓝的能量点数耗尽，那么在完成这个回合后，游戏结束。 n n 回合结束后，不管能量还有没有剩余，游戏都会直接结束。
-给出小蓝每回合的 A i A i ​ 和自己一开始的能量点数 m m。小蓝想知道有多少种不同的可能出现的游玩过程。如果小蓝在两种游玩过程中的任一对应回合花费的能量点数不同或该回合结束时所处层数不同，那么这两种游玩过程就被视为不同。
-输入格式 输入的第一行包含两个整数 n n, m m，用一个空格分隔。
-第二行包含 n n 个整数 A i A i ​ ，相邻整数之间使用一个空格分隔，表示小蓝每回合的状态值。
-输出格式 输出一行包含一个整数表示给定条件下不同游玩过程的数量。由于答案可能很大，你只需要输出答案对 998244353 998244353 取模的结果。
-样例输入 9 15 3 2 5 7 1 4 6 8 3 copy 样例输出 392149233 copy 评测用例规模与约定 对于 40 40% 的评测用例， n ≤ 300 n≤300， m ≤ 500 m≤500；
-对于所有评测用例， 1 ≤ n ≤ 2 × 1 0 5 1≤n≤2×10 5 ， n ≤ m ≤ 1 0 18 n≤m≤10 18 ， 1 ≤ A i ≤ 1 0 9 1≤A i ​ ≤10 9 。
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>一些题解</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>树状数组</title>
-    <url>/posts/59a0de58.html</url>
-    <content><![CDATA[树状数组
-import java.util.*;public class ttree &#123;    static int n,s;    static int []a;    static long res=0;    static List&lt;Integer&gt;[]g;    static int[]tr;    static void modify(int i,int val) &#123;        while(i&lt;=n) &#123;            tr[i]+=val;            i+=i&amp;-i;        &#125;    &#125;    static int query(int i) &#123;        int sum=0;        while(i&gt;0) &#123;            sum+=tr[i];            i-=i&amp;-i;        &#125;        return sum;    &#125;    static int sum(int i) &#123;        return query(n)-query(i);    &#125;    static void dfs(int u,int fa) &#123;        modify(a[u],1);        for(int v:g[u]) &#123;            if(v!=fa) &#123;                dfs(v,u);            &#125;        &#125;        for(int k=2;k*a[u]&lt;=n;k++) &#123;            int t=k*a[u];            res-=query(t)-query(t-1);        &#125;        res+=sum(a[u]);        modify(a[u], -1);    &#125;//  static void dfs(int u, int p) &#123;//      int before = t0.query(a[u] - 1); // 进入 u 前，&lt;a[u] 的节点数//      t0.add(a[u], 1); // 记录 u//      for (int v : g[u]) &#123;//          if (v != p) &#123;//              dfs(v, u); // 递归处理子节点//          &#125;//      &#125;//      int after = t0.query(a[u] - 1); // 当前 &lt;a[u] 的节点数（包括子树）//      res += (after - before); // 新增的 &lt;a[u] 的节点（即 u 的子节点中满足条件的）//      t0.add(a[u], -1); // 回溯//  &#125;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        s=scan.nextInt();        a=new int[n+1];        g=new ArrayList[n+1];        tr=new int[n+1];        Arrays.fill(tr,0);        for(int i=1;i&lt;=n;i++) &#123;            a[i]=scan.nextInt();            g[i]=new ArrayList&lt;&gt;();        &#125;        for(int i=0;i&lt;n-1;i++) &#123;            int u=scan.nextInt();            int v=scan.nextInt();            g[u].add(v);            g[v].add(u);        &#125;        dfs(s,-1);        System.out.println(res);    &#125;&#125;
-楼兰壁画
-树状数组
-import java.util.*;import java.io.*;class Tree &#123;    int[] tree;    int N;    public Tree(int N) &#123;        this.N = N;        tree = new int[N + 1];    &#125;    public int lowBit(int i) &#123;        return i &amp; -i;    &#125;    public void add(int i, int val) &#123;        while (i &lt;= N) &#123;            tree[i] += val;            i += lowBit(i);        &#125;    &#125;    public int query(int i) &#123;        int res = 0;        while (i &gt; 0) &#123;            res += tree[i];            i -= lowBit(i);        &#125;        return res;    &#125;    public int sum(int i) &#123;        return query(N) - query(i);    &#125;&#125;public class Main &#123;    static int N = (int) 2e5 + 10;    static int n;    static int[] a = new int[N];    static int[] up = new int[N];    static int[] down = new int[N];    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n = sc.nextInt();        for (int i = 1; i &lt;= n; i++) &#123;            a[i] = sc.nextInt();        &#125;        Tree tree0 = new Tree(N);        for (int i = 1; i &lt;= n; i++) &#123;            int y = a[i];            up[i] = tree0.sum(y); // 右边比当前元素大的数的个数            down[i] = tree0.query(y - 1); // 左边比当前元素小的数的个数            tree0.add(y, 1);        &#125;        Arrays.fill(tree0.tree, 0); // 清空树状数组        long res1 = 0, res2 = 0;        for (int i = n; i &gt;= 1; i--) &#123;            int y = a[i];            res1 += up[i] * (long) tree0.sum(y); // 右边比当前元素大的数的个数乘以左边比当前元素大的数的个数            res2 += down[i] * (long) tree0.query(y - 1); // 左边比当前元素小的数的个数乘以右边比当前元素小的数的个数            tree0.add(y, 1);        &#125;        System.out.println(res1 + &quot; &quot; + res2);    &#125;&#125;
-一个树状数组问题
-import java.io.*;import java.util.*;class Tree&#123;    long[]tree;    int N;    public Tree(int N)&#123;        this.N=N;        tree=new long[N+1];    &#125;    public int lowBit(int i)&#123;        return i&amp;-i;    &#125;    public void add(int i,int v)&#123;        while(i&lt;=N)&#123;        tree[i]+=v;        i+=lowBit(i);        &#125;    &#125;    public long query(int i)&#123;        long res=0;        while(i&gt;0)&#123;        res+=tree[i];        i-=lowBit(i);        &#125;        return res;    &#125;    public long sum(int i)&#123;        return query(N)-query(i);    &#125;&#125;public class Main&#123;    static int N=(int)1e5+10;    static int []a=new int[N];    static int n,m;    public static void main(String[] args)&#123;        Scanner sc=new Scanner(System.in);        Tree tree0 = new Tree(N);        n=sc.nextInt();        m=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextInt();            tree0.add(i,a[i]-a[i-1]);        &#125;        for(int i=0;i&lt;m;i++)&#123;            String s=sc.next();            if(s.equals(&quot;Q&quot;))&#123;                int x=sc.nextInt();                System.out.println(tree0.query(x));            &#125;else&#123;                int l=sc.nextInt();                int r=sc.nextInt();                int d=sc.nextInt();                tree0.add(l,d);                tree0.add(r+1,-d);            &#125;        &#125;    &#125; &#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>树状数组</tag>
+        <tag>数学</tag>
       </tags>
   </entry>
   <entry>
@@ -1272,6 +1222,20 @@ import java.util.Scanner;// 1:无需package// 2: 类名必须Main, 不可修改p
       <tags>
         <tag>前缀和</tag>
         <tag>差分</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SPFA</title>
+    <url>/posts/33b8c865.html</url>
+    <content><![CDATA[给定一张nnn个点m条边的有向图，该图可以有自环与重边。
+你需要判断从 1 号点出发，图中是否存在负权回路，存在输出 Yes；不存在输出 No。
+import java.util.*;import java.io.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;    static int N=2010;    static int M=(int)1e4+10;    static long INF=0x3f3f3f3f3f3f3f3fL;    static int[]h=new int[N];    static long[]dist=new long[N];    static int[]e=new int[M*2],ne=new int[M*2];    static int[]w=new int[M*2];    static int[]cnt=new int[M*2];    static boolean[]st=new boolean[N];    static int idx,n,m;    static void add(int a,int b,int c)&#123;      e[idx]=b;      w[idx]=c;      ne[idx]=h[a];      h[a]=idx++;    &#125;    static boolean spfa()&#123;      Arrays.fill(st,false);      Arrays.fill(dist,INF);      dist[1]=0;      Queue&lt;Integer&gt;q=new LinkedList&lt;&gt;();      st[1]=true;      q.offer(1);      while(!q.isEmpty())&#123;        int t=q.poll();        st[t]=false;        for(int i=h[t];i!=-1;i=ne[i])&#123;          int j=e[i];          if(dist[j]&gt;dist[t]+w[i])&#123;            dist[j]=dist[t]+w[i];            cnt[j]=cnt[t]+1;            if(cnt[j]&gt;=n)return true;            if(!st[j])&#123;              q.offer(j);              st[j]=true;            &#125;          &#125;        &#125;      &#125;      return false;    &#125;    static BufferedReader in=new BufferedReader(new InputStreamReader(System.in));    public static void main(String[] args) throws IOException&#123;        Arrays.fill(h,-1);        String[]ss=in.readLine().split(&quot; &quot;);        n=Integer.parseInt(ss[0]);        m=Integer.parseInt(ss[1]);        for(int i=1;i&lt;=m;i++)&#123;          String[]s=in.readLine().split(&quot; &quot;);          int a=Integer.parseInt(s[0]);          int b=Integer.parseInt(s[1]);          int c=Integer.parseInt(s[2]);          add(a,b,c);        &#125;        if(spfa())System.out.println(&quot;Yes&quot;);        else System.out.println(&quot;No&quot;);    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>spfa</tag>
       </tags>
   </entry>
   <entry>
@@ -1552,6 +1516,42 @@ import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.ran
       <tags>
         <tag>AI</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>树状数组</title>
+    <url>/posts/59a0de58.html</url>
+    <content><![CDATA[树状数组
+import java.util.*;public class ttree &#123;    static int n,s;    static int []a;    static long res=0;    static List&lt;Integer&gt;[]g;    static int[]tr;    static void modify(int i,int val) &#123;        while(i&lt;=n) &#123;            tr[i]+=val;            i+=i&amp;-i;        &#125;    &#125;    static int query(int i) &#123;        int sum=0;        while(i&gt;0) &#123;            sum+=tr[i];            i-=i&amp;-i;        &#125;        return sum;    &#125;    static int sum(int i) &#123;        return query(n)-query(i);    &#125;    static void dfs(int u,int fa) &#123;        modify(a[u],1);        for(int v:g[u]) &#123;            if(v!=fa) &#123;                dfs(v,u);            &#125;        &#125;        for(int k=2;k*a[u]&lt;=n;k++) &#123;            int t=k*a[u];            res-=query(t)-query(t-1);        &#125;        res+=sum(a[u]);        modify(a[u], -1);    &#125;//  static void dfs(int u, int p) &#123;//      int before = t0.query(a[u] - 1); // 进入 u 前，&lt;a[u] 的节点数//      t0.add(a[u], 1); // 记录 u//      for (int v : g[u]) &#123;//          if (v != p) &#123;//              dfs(v, u); // 递归处理子节点//          &#125;//      &#125;//      int after = t0.query(a[u] - 1); // 当前 &lt;a[u] 的节点数（包括子树）//      res += (after - before); // 新增的 &lt;a[u] 的节点（即 u 的子节点中满足条件的）//      t0.add(a[u], -1); // 回溯//  &#125;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        s=scan.nextInt();        a=new int[n+1];        g=new ArrayList[n+1];        tr=new int[n+1];        Arrays.fill(tr,0);        for(int i=1;i&lt;=n;i++) &#123;            a[i]=scan.nextInt();            g[i]=new ArrayList&lt;&gt;();        &#125;        for(int i=0;i&lt;n-1;i++) &#123;            int u=scan.nextInt();            int v=scan.nextInt();            g[u].add(v);            g[v].add(u);        &#125;        dfs(s,-1);        System.out.println(res);    &#125;&#125;
+楼兰壁画
+树状数组
+import java.util.*;import java.io.*;class Tree &#123;    int[] tree;    int N;    public Tree(int N) &#123;        this.N = N;        tree = new int[N + 1];    &#125;    public int lowBit(int i) &#123;        return i &amp; -i;    &#125;    public void add(int i, int val) &#123;        while (i &lt;= N) &#123;            tree[i] += val;            i += lowBit(i);        &#125;    &#125;    public int query(int i) &#123;        int res = 0;        while (i &gt; 0) &#123;            res += tree[i];            i -= lowBit(i);        &#125;        return res;    &#125;    public int sum(int i) &#123;        return query(N) - query(i);    &#125;&#125;public class Main &#123;    static int N = (int) 2e5 + 10;    static int n;    static int[] a = new int[N];    static int[] up = new int[N];    static int[] down = new int[N];    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n = sc.nextInt();        for (int i = 1; i &lt;= n; i++) &#123;            a[i] = sc.nextInt();        &#125;        Tree tree0 = new Tree(N);        for (int i = 1; i &lt;= n; i++) &#123;            int y = a[i];            up[i] = tree0.sum(y); // 右边比当前元素大的数的个数            down[i] = tree0.query(y - 1); // 左边比当前元素小的数的个数            tree0.add(y, 1);        &#125;        Arrays.fill(tree0.tree, 0); // 清空树状数组        long res1 = 0, res2 = 0;        for (int i = n; i &gt;= 1; i--) &#123;            int y = a[i];            res1 += up[i] * (long) tree0.sum(y); // 右边比当前元素大的数的个数乘以左边比当前元素大的数的个数            res2 += down[i] * (long) tree0.query(y - 1); // 左边比当前元素小的数的个数乘以右边比当前元素小的数的个数            tree0.add(y, 1);        &#125;        System.out.println(res1 + &quot; &quot; + res2);    &#125;&#125;
+一个树状数组问题
+import java.io.*;import java.util.*;class Tree&#123;    long[]tree;    int N;    public Tree(int N)&#123;        this.N=N;        tree=new long[N+1];    &#125;    public int lowBit(int i)&#123;        return i&amp;-i;    &#125;    public void add(int i,int v)&#123;        while(i&lt;=N)&#123;        tree[i]+=v;        i+=lowBit(i);        &#125;    &#125;    public long query(int i)&#123;        long res=0;        while(i&gt;0)&#123;        res+=tree[i];        i-=lowBit(i);        &#125;        return res;    &#125;    public long sum(int i)&#123;        return query(N)-query(i);    &#125;&#125;public class Main&#123;    static int N=(int)1e5+10;    static int []a=new int[N];    static int n,m;    public static void main(String[] args)&#123;        Scanner sc=new Scanner(System.in);        Tree tree0 = new Tree(N);        n=sc.nextInt();        m=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextInt();            tree0.add(i,a[i]-a[i-1]);        &#125;        for(int i=0;i&lt;m;i++)&#123;            String s=sc.next();            if(s.equals(&quot;Q&quot;))&#123;                int x=sc.nextInt();                System.out.println(tree0.query(x));            &#125;else&#123;                int l=sc.nextInt();                int r=sc.nextInt();                int d=sc.nextInt();                tree0.add(l,d);                tree0.add(r+1,-d);            &#125;        &#125;    &#125; &#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>树状数组</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>蓝桥杯-高塔</title>
+    <url>/posts/a38c4cc3.html</url>
+    <content><![CDATA[问题描述 小蓝正在玩一个攀登高塔的游戏。高塔的层数是无限的，但游戏最多只有 n n 回合。
+小蓝一开始拥有 m m 点能量，在每个回合都有一个值 A i A i ​ 表示小蓝的角色状态。小蓝每回合可以选择消费任意点能量 C i C i ​ （最低消费 1 1 点，没有上限），他在这回合将最多可以向上攀爬 A i ⋅ C i A i ​ ⋅C i ​ 层。实际攀爬的层数取决于小蓝自己在这回合的表现，不过最差也会向上爬一层。
+当某回合小蓝的能量点数耗尽，那么在完成这个回合后，游戏结束。 n n 回合结束后，不管能量还有没有剩余，游戏都会直接结束。
+给出小蓝每回合的 A i A i ​ 和自己一开始的能量点数 m m。小蓝想知道有多少种不同的可能出现的游玩过程。如果小蓝在两种游玩过程中的任一对应回合花费的能量点数不同或该回合结束时所处层数不同，那么这两种游玩过程就被视为不同。
+输入格式 输入的第一行包含两个整数 n n, m m，用一个空格分隔。
+第二行包含 n n 个整数 A i A i ​ ，相邻整数之间使用一个空格分隔，表示小蓝每回合的状态值。
+输出格式 输出一行包含一个整数表示给定条件下不同游玩过程的数量。由于答案可能很大，你只需要输出答案对 998244353 998244353 取模的结果。
+样例输入 9 15 3 2 5 7 1 4 6 8 3 copy 样例输出 392149233 copy 评测用例规模与约定 对于 40 40% 的评测用例， n ≤ 300 n≤300， m ≤ 500 m≤500；
+对于所有评测用例， 1 ≤ n ≤ 2 × 1 0 5 1≤n≤2×10 5 ， n ≤ m ≤ 1 0 18 n≤m≤10 18 ， 1 ≤ A i ≤ 1 0 9 1≤A i ​ ≤10 9 。
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>一些题解</category>
+      </categories>
   </entry>
   <entry>
     <title>梯度下降优化</title>
@@ -1878,79 +1878,6 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
       </tags>
   </entry>
   <entry>
-    <title>杂谈笔记</title>
-    <url>/posts/5f473243.html</url>
-    <content><![CDATA[之前一些函数名笔记
-一些matlab函数名；
-可能python也适合用
-矩阵运算操作求矩阵的转置 (A)'；
-求矩阵的逆 inv(A)；
-求矩阵的模det(A)；
-2.数运算操作e的次方 exp(A)指数函数；
-exp(x) 以e为底数 ；对数函数 log(x) 自然对数，即以e为底数的对数；
-log10(x) 常用对数，即以10为底数的对数； log2(x) 以2为底数的x的对数；
-开方函数 sqrt(x) 表示x的算术平方根； 绝对值函数 abs(x) 表示实数的绝对值以及复数的模；
-三角函数（自变量的单位为弧度）
-sin(x) 正弦函数 ；cos(x) 余弦函数； tan(x) 正切函数 ；cot(x) 余切函数 ；sec(x) 正割函数 ；csc(x) 余割函数；
-反三角函数 asin(x) 反正弦函数； acos(x) 反余弦函数 ；atan(x) 反正切函数 ；acot(x) 反余切函数 ；asec(x) 反正割函数； acsc(x) 反余割函数；
-双曲函数 sinh(x) 双曲正弦函数； cosh(x) 双曲余弦函数； tanh(x) 双曲正切函数； coth(x) 双曲余切函数； sech(x) 双曲正割函数 ；csch(x) 双曲余割函数； 反双曲函数 asinh(x) 反双曲正弦函数； acosh(x) 反双曲余弦函数； atanh(x) 反双曲正切函数； acoth(x) 反双曲余切函数 ；asech(x) 反双曲正割函数； acsch(x) 反双曲余割函数 ；
-求角度函数 atan2(y,x) 以坐标原点为顶点，x轴正半轴为始边，从原点到点（x，y）的射线为终边的角，其单位为弧度；
-数论函数 gcd(a,b) 两个整数的最大公约数 ；lcm(a,b) 两个整数的最小公倍数 ；
-排列组合函数 factorial(n) 阶乘函数，表示n的阶乘；
-复数函数 real(z) 实部函数；imag(z) 虚部函数 ；abs(z) 求复数z的模； angle(z) 求复数z的辐角；conj(z) 求复数z的共轭复数 ；
-求整函数与截尾函数 ceil(x) 表示大于或等于实数x的最小整数 ；
-floor(x) 表示小于或等于实数x的最大整数；
-round(x) 最接近x的整数；
-最大、最小函数 max([a，b，c，．．．])
-求最大数 ；min([a，b，c，．．])
-求最小数 ；符号函数 sign(x)
-一些简短的算法笔记
-n第k位数字：n&gt;&gt;k&amp;1
-返回n的最后一位1：lowbit(n) = n &amp; -n
-C++的nth_element函数，cin.tie(0)或者ios::sync_with_stdio(false);
-KMP扩展：BM算法;Sunday算法。
-并查集按秩合并
-Arrays.fill(arr,-1);C++memset();memcopy
-c++reference
-Character.isDigit(‘c’)—false
-需要注意的是 在windows中按一下回车键 一共有两个字符 “\n\r” 而read()只能读取一个字符，所以如要要用read来达到吸收回车的目的，需要用两个read(); 如果用readLine()的话会将&quot;\n\r&quot;全部吸收 ， 所以只需要一个readLine()来吸收回车.
-readLine()用回车来进行下一步操作//cin.sval;只适合吸收非数字字符，不吸收空格。
-int num2 = Integer.parseInt(str);
-String ss = String.valueOf(n);
-数字字符串用BufferedReader
-//字符串转化字符数组过程中从下表零开始
-并查集按秩合并
-cin.nextToken();
-String st=cin.sval;
-str=st.toCharArray();
-int res = Integer.MAX_VALUE;
-g[i][j] = Integer.parseInt(String.valueOf(s.charAt(j)));
-in.readLine();
-g[i][j] = s.charAt(j) - '0';
-
-
-
-浮点数
-//double a;
-//String str=String.format(&quot;%.2f&quot;,a)//!!!!!!!
-//cout.print(str);
-//或者 cout,printf(&quot;%.6f&quot;,a);
-
-//检查Segm fault错误
-System.exit(0);
-
-//全新输入 
-String []str=in.readLine().split(&quot; &quot;);
-n=Integer.parseInt(str[0]);
-m=Integer.parseInt(str[1])
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法刷题路线</category>
-      </categories>
-  </entry>
-  <entry>
     <title>聚类算法</title>
     <url>/posts/35f08535.html</url>
     <content><![CDATA[聚类算法
@@ -2137,7 +2064,7 @@ plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figs
 
 2.7、Kmeans聚类算法K值选择
 轮廓系数：
-针对某个样本的轮廓系数s为：$ s= \frac{b - a}{max(a, b)}$
+针对某个样本的轮廓系数s为：s=b−amax(a,b)s= \frac{b - a}{max(a, b)}s=max(a,b)b−a​
 
 a：某个样本与其所在簇内其他样本的平均距离
 b：某个样本与其他簇样本的平均距离
@@ -2265,6 +2192,79 @@ from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数�
       </tags>
   </entry>
   <entry>
+    <title>杂谈笔记</title>
+    <url>/posts/5f473243.html</url>
+    <content><![CDATA[之前一些函数名笔记
+一些matlab函数名；
+可能python也适合用
+矩阵运算操作求矩阵的转置 (A)'；
+求矩阵的逆 inv(A)；
+求矩阵的模det(A)；
+2.数运算操作e的次方 exp(A)指数函数；
+exp(x) 以e为底数 ；对数函数 log(x) 自然对数，即以e为底数的对数；
+log10(x) 常用对数，即以10为底数的对数； log2(x) 以2为底数的x的对数；
+开方函数 sqrt(x) 表示x的算术平方根； 绝对值函数 abs(x) 表示实数的绝对值以及复数的模；
+三角函数（自变量的单位为弧度）
+sin(x) 正弦函数 ；cos(x) 余弦函数； tan(x) 正切函数 ；cot(x) 余切函数 ；sec(x) 正割函数 ；csc(x) 余割函数；
+反三角函数 asin(x) 反正弦函数； acos(x) 反余弦函数 ；atan(x) 反正切函数 ；acot(x) 反余切函数 ；asec(x) 反正割函数； acsc(x) 反余割函数；
+双曲函数 sinh(x) 双曲正弦函数； cosh(x) 双曲余弦函数； tanh(x) 双曲正切函数； coth(x) 双曲余切函数； sech(x) 双曲正割函数 ；csch(x) 双曲余割函数； 反双曲函数 asinh(x) 反双曲正弦函数； acosh(x) 反双曲余弦函数； atanh(x) 反双曲正切函数； acoth(x) 反双曲余切函数 ；asech(x) 反双曲正割函数； acsch(x) 反双曲余割函数 ；
+求角度函数 atan2(y,x) 以坐标原点为顶点，x轴正半轴为始边，从原点到点（x，y）的射线为终边的角，其单位为弧度；
+数论函数 gcd(a,b) 两个整数的最大公约数 ；lcm(a,b) 两个整数的最小公倍数 ；
+排列组合函数 factorial(n) 阶乘函数，表示n的阶乘；
+复数函数 real(z) 实部函数；imag(z) 虚部函数 ；abs(z) 求复数z的模； angle(z) 求复数z的辐角；conj(z) 求复数z的共轭复数 ；
+求整函数与截尾函数 ceil(x) 表示大于或等于实数x的最小整数 ；
+floor(x) 表示小于或等于实数x的最大整数；
+round(x) 最接近x的整数；
+最大、最小函数 max([a，b，c，．．．])
+求最大数 ；min([a，b，c，．．])
+求最小数 ；符号函数 sign(x)
+一些简短的算法笔记
+n第k位数字：n&gt;&gt;k&amp;1
+返回n的最后一位1：lowbit(n) = n &amp; -n
+C++的nth_element函数，cin.tie(0)或者ios::sync_with_stdio(false);
+KMP扩展：BM算法;Sunday算法。
+并查集按秩合并
+Arrays.fill(arr,-1);C++memset();memcopy
+c++reference
+Character.isDigit(‘c’)—false
+需要注意的是 在windows中按一下回车键 一共有两个字符 “\n\r” 而read()只能读取一个字符，所以如要要用read来达到吸收回车的目的，需要用两个read(); 如果用readLine()的话会将&quot;\n\r&quot;全部吸收 ， 所以只需要一个readLine()来吸收回车.
+readLine()用回车来进行下一步操作//cin.sval;只适合吸收非数字字符，不吸收空格。
+int num2 = Integer.parseInt(str);
+String ss = String.valueOf(n);
+数字字符串用BufferedReader
+//字符串转化字符数组过程中从下表零开始
+并查集按秩合并
+cin.nextToken();
+String st=cin.sval;
+str=st.toCharArray();
+int res = Integer.MAX_VALUE;
+g[i][j] = Integer.parseInt(String.valueOf(s.charAt(j)));
+in.readLine();
+g[i][j] = s.charAt(j) - '0';
+
+
+
+浮点数
+//double a;
+//String str=String.format(&quot;%.2f&quot;,a)//!!!!!!!
+//cout.print(str);
+//或者 cout,printf(&quot;%.6f&quot;,a);
+
+//检查Segm fault错误
+System.exit(0);
+
+//全新输入 
+String []str=in.readLine().split(&quot; &quot;);
+n=Integer.parseInt(str[0]);
+m=Integer.parseInt(str[1])
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法刷题路线</category>
+      </categories>
+  </entry>
+  <entry>
     <title>闲言碎语</title>
     <url>/2.html</url>
     <content><![CDATA[]]></content>
@@ -2275,13 +2275,13 @@ from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数�
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/manifest.json</url>
-    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
-  </entry>
-  <entry>
     <title>分类</title>
     <url>/g.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>artitalk</title>
+    <url>/artitalk/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -2290,54 +2290,13 @@ from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数�
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title></title>
+    <url>/manifest.json</url>
+    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
+  </entry>
+  <entry>
     <title>categories</title>
     <url>/categories/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/css/fuction.css</url>
-    <content><![CDATA[.loading-img {
-  background: url(https://s21.ax1x.com/2025/05/12/pEXkRIO.jpg) no-repeat center center;
-  background-size: cover;
-}
-/* 返回顶部 */
-
-
-button#go-up span:nth-child(2) {
-    font-size: 12px!important;
-    margin-right: -1px;
-}
-/* 返回顶部 */
-button#go-up #percent {
-    display: none;
-    /*font-weight: bold;*/
-    font-size: 16px !important;
-}
-
-/* 鼠标滑动到按钮上时显示返回顶部图标 */
-button#go-up:hover i {
-    display: block !important;
-}
-
-button#go-up:hover #percent {
-    display: none !important;
-}
-
-#rightside > div > button,
-#rightside > div > a {
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    -webkit-box-align: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-}
-]]></content>
-  </entry>
-  <entry>
-    <title>artitalk</title>
-    <url>/artitalk/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -3021,6 +2980,47 @@ code.hljs {
   </entry>
   <entry>
     <title></title>
+    <url>/css/fuction.css</url>
+    <content><![CDATA[.loading-img {
+  background: url(https://s21.ax1x.com/2025/05/12/pEXkRIO.jpg) no-repeat center center;
+  background-size: cover;
+}
+/* 返回顶部 */
+
+
+button#go-up span:nth-child(2) {
+    font-size: 12px!important;
+    margin-right: -1px;
+}
+/* 返回顶部 */
+button#go-up #percent {
+    display: none;
+    /*font-weight: bold;*/
+    font-size: 16px !important;
+}
+
+/* 鼠标滑动到按钮上时显示返回顶部图标 */
+button#go-up:hover i {
+    display: block !important;
+}
+
+button#go-up:hover #percent {
+    display: none !important;
+}
+
+#rightside > div > button,
+#rightside > div > a {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+}
+]]></content>
+  </entry>
+  <entry>
+    <title></title>
     <url>/css/progress_bar.css</url>
     <content><![CDATA[.pace {
   -webkit-pointer-events: none;
@@ -3090,480 +3090,31 @@ code.hljs {
   </entry>
   <entry>
     <title></title>
-    <url>/css/swiperstyle.css</url>
-    <content><![CDATA[* {
-    -webkit-box-sizing:border-box;
-    -moz-box-sizing:border-box;
-    box-sizing:border-box
-  }
-  
-  div#swiper_container {
-    background:rgba(255, 255, 255, 0);
-    width: 57%;
-    padding: 0;
-    overflow: initial;
-  }
-  .blog-slider {
-    width:100%;
-    position:relative;
-    border-radius:12px 8px 8px 12px;
-    margin:auto;
-    background:var(--global-bg);
-    padding:10px;
-    -webkit-transition:all .3s;
-    -moz-transition:all .3s;
-    -o-transition:all .3s;
-    -ms-transition:all .3s;
-    transition:all .3s
-  }
-  .blog-slider__item {
-    display:-webkit-box;
-    display:-moz-box;
-    display:-webkit-flex;
-    display:-ms-flexbox;
-    display:box;
-    display:flex;
-    -webkit-box-align:center;
-    -moz-box-align:center;
-    -o-box-align:center;
-    -ms-flex-align:center;
-    -webkit-align-items:center;
-    align-items:center
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__img img {
-    opacity:1;
-    -ms-filter:none;
-    filter:none;
-    -webkit-transition-delay:.3s;
-    -moz-transition-delay:.3s;
-    -o-transition-delay:.3s;
-    -ms-transition-delay:.3s;
-    transition-delay:.3s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>* {
-    opacity:1;
-    -ms-filter:none;
-    filter:none;
-    -webkit-transform:none;
-    -moz-transform:none;
-    -o-transform:none;
-    -ms-transform:none;
-    transform:none
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(1) {
-    -webkit-transition-delay:.3s;
-    -moz-transition-delay:.3s;
-    -o-transition-delay:.3s;
-    -ms-transition-delay:.3s;
-    transition-delay:.3s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(2) {
-    -webkit-transition-delay:.4s;
-    -moz-transition-delay:.4s;
-    -o-transition-delay:.4s;
-    -ms-transition-delay:.4s;
-    transition-delay:.4s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(3) {
-    -webkit-transition-delay:.5s;
-    -moz-transition-delay:.5s;
-    -o-transition-delay:.5s;
-    -ms-transition-delay:.5s;
-    transition-delay:.5s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(4) {
-    -webkit-transition-delay:.6s;
-    -moz-transition-delay:.6s;
-    -o-transition-delay:.6s;
-    -ms-transition-delay:.6s;
-    transition-delay:.6s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(5) {
-    -webkit-transition-delay:.7s;
-    -moz-transition-delay:.7s;
-    -o-transition-delay:.7s;
-    -ms-transition-delay:.7s;
-    transition-delay:.7s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(6) {
-    -webkit-transition-delay:.8s;
-    -moz-transition-delay:.8s;
-    -o-transition-delay:.8s;
-    -ms-transition-delay:.8s;
-    transition-delay:.8s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(7) {
-    -webkit-transition-delay:.9s;
-    -moz-transition-delay:.9s;
-    -o-transition-delay:.9s;
-    -ms-transition-delay:.9s;
-    transition-delay:.9s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(8) {
-    -webkit-transition-delay:1s;
-    -moz-transition-delay:1s;
-    -o-transition-delay:1s;
-    -ms-transition-delay:1s;
-    transition-delay:1s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(9) {
-    -webkit-transition-delay:1.1s;
-    -moz-transition-delay:1.1s;
-    -o-transition-delay:1.1s;
-    -ms-transition-delay:1.1s;
-    transition-delay:1.1s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(10) {
-    -webkit-transition-delay:1.2s;
-    -moz-transition-delay:1.2s;
-    -o-transition-delay:1.2s;
-    -ms-transition-delay:1.2s;
-    transition-delay:1.2s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(11) {
-    -webkit-transition-delay:1.3s;
-    -moz-transition-delay:1.3s;
-    -o-transition-delay:1.3s;
-    -ms-transition-delay:1.3s;
-    transition-delay:1.3s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(12) {
-    -webkit-transition-delay:1.4s;
-    -moz-transition-delay:1.4s;
-    -o-transition-delay:1.4s;
-    -ms-transition-delay:1.4s;
-    transition-delay:1.4s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(13) {
-    -webkit-transition-delay:1.5s;
-    -moz-transition-delay:1.5s;
-    -o-transition-delay:1.5s;
-    -ms-transition-delay:1.5s;
-    transition-delay:1.5s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(14) {
-    -webkit-transition-delay:1.6s;
-    -moz-transition-delay:1.6s;
-    -o-transition-delay:1.6s;
-    -ms-transition-delay:1.6s;
-    transition-delay:1.6s
-  }
-  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(15) {
-    -webkit-transition-delay:1.7s;
-    -moz-transition-delay:1.7s;
-    -o-transition-delay:1.7s;
-    -ms-transition-delay:1.7s;
-    transition-delay:1.7s
-  }
-  .blog-slider__img {
-    width:200px;
-    -webkit-flex-shrink:0;
-    flex-shrink:0;
-    height:200px;
-    padding:10px;
-    border-radius:5px;
-    -webkit-transform:translateX(0);
-    -moz-transform:translateX(0);
-    -o-transform:translateX(0);
-    -ms-transform:translateX(0);
-    transform:translateX(0);
-    overflow:hidden
-  }
-  .blog-slider__img:after {
-    content:'';
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    border-radius:5px;
-    opacity:.8
-  }
-  .blog-slider__img img {
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    opacity:0;
-    border-radius:5px;
-    -webkit-transition:all .3s;
-    -moz-transition:all .3s;
-    -o-transition:all .3s;
-    -ms-transition:all .3s;
-    transition:all .3s
-  }
-  .blog-slider__content {
-    padding-right:50px;
-    padding-left:50px
-  }
-  .blog-slider__content>* {
-    opacity:0;
-    -webkit-transform:translateY(25px);
-    -moz-transform:translateY(25px);
-    -o-transform:translateY(25px);
-    -ms-transform:translateY(25px);
-    transform:translateY(25px);
-    -webkit-transition:all .4s;
-    -moz-transition:all .4s;
-    -o-transition:all .4s;
-    -ms-transition:all .4s;
-    transition:all .4s
-  }
-  .blog-slider__code {
-    color:var(--font-color);
-    margin-bottom:0;
-    display:block;
-    font-weight:500
-  }
-  .blog-slider__title {
-    font-size:18px;
-    font-weight:700;
-    color:var(--font-color);
-    margin-bottom:15px;
-    -webkit-perspective: 1200px; /* Chrome, Safari */
-    -moz-perspective: 1200px;    /* Firefox */
-    -ms-perspective: 1200px;     /* Internet Explorer */
-    -o-perspective: 1200px;      /* Opera */
-    perspective: 1200px;  
-    display:-webkit-box;
-    overflow:hidden;
-    -webkit-box-orient:vertical
-  }
-  .blog-slider__text {
-    color:var(--font-color);
-    -webkit-perspective: 1200px; /* Chrome, Safari */
-    -moz-perspective: 1200px;    /* Firefox */
-    -ms-perspective: 1200px;     /* Internet Explorer */
-    -o-perspective: 1200px;      /* Opera */
-    perspective: 1200px;  
-    display:-webkit-box;
-    overflow:hidden;
-    -webkit-box-orient:vertical;
-    margin-bottom:15px;
-    line-height:1.5em;
-    width:100%;
-    display:block;
-    word-break:break-all;
-    word-wrap:break-word
-  }
-  .blog-slider__button {
-    display:-webkit-inline-box;
-    display:-moz-inline-box;
-    display:-webkit-inline-flex;
-    display:-ms-inline-flexbox;
-    display:inline-box;
-    display:inline-flex;
-    background-color:var(--btn-bg);
-    padding:4px 14px;
-    border-radius:8px;
-    color:var(--btn-color);
-    text-decoration:none;
-    font-weight:500;
-    -webkit-box-pack:center;
-    -moz-box-pack:center;
-    -o-box-pack:center;
-    -ms-flex-pack:center;
-    -webkit-justify-content:center;
-    justify-content:center;
-    text-align:center;
-    letter-spacing:1px;
-    display:none
-  }
-  .blog-slider__button:hover {
-    background-color:var(--btn-hover-color);
-    color:var(--btn-color)
-  }
-  .blog-slider .swiper-container-horizontal>.swiper-pagination-bullets, .blog-slider .swiper-pagination-custom, .blog-slider .swiper-pagination-fraction {
-    bottom:10px;
-    left:0;
-    width:100%
-  }
-  .blog-slider__pagination {
-    position:absolute;
-    z-index:21;
-    right:20px;
-    width:11px!important;
-    text-align:center;
-    left:auto!important;
-    top:50%;
-    bottom:auto!important;
-    -webkit-transform:translateY(-50%);
-    -moz-transform:translateY(-50%);
-    -o-transform:translateY(-50%);
-    -ms-transform:translateY(-50%);
-    transform:translateY(-50%)
-  }
-  .blog-slider__pagination.swiper-pagination-bullets .swiper-pagination-bullet {
-    margin:8px 0
-  }
-  .blog-slider__pagination .swiper-pagination-bullet {
-    width:11px;
-    height:11px;
-    display:block;
-    border-radius:10px;
-    background:#858585;
-    opacity:.2;
-    -webkit-transition:all .3s;
-    -moz-transition:all .3s;
-    -o-transition:all .3s;
-    -ms-transition:all .3s;
-    transition:all .3s
-  }
-  .blog-slider__pagination .swiper-pagination-bullet-active {
-    opacity:1;
-    -ms-filter:none;
-    filter:none;
-    background:var(--btn-bg);
-    height:30px
-  }
-  @media screen and (max-width:600px) {
-    .blog-slider__pagination {
-        -webkit-transform:translateX(-50%);
-        -moz-transform:translateX(-50%);
-        -o-transform:translateX(-50%);
-        -ms-transform:translateX(-50%);
-        transform:translateX(-50%);
-        left:50%!important;
-        top:320px;
-        width:100%!important;
-        display:-webkit-box;
-        display:-moz-box;
-        display:-webkit-flex;
-        display:-ms-flexbox;
-        display:box;
-        display:flex;
-        -webkit-box-pack:center;
-        -moz-box-pack:center;
-        -o-box-pack:center;
-        -ms-flex-pack:center;
-        -webkit-justify-content:center;
-        justify-content:center;
-        -webkit-box-align:center;
-        -moz-box-align:center;
-        -o-box-align:center;
-        -ms-flex-align:center;
-        -webkit-align-items:center;
-        align-items:center
+    <url>/js/fuction.js</url>
+    <content><![CDATA[// 分享本页
+function share() {
+    let url = window.location.origin + window.location.pathname
+    new ClipboardJS(".share", { text: function() { return '标题：' + document.title + '\n链接：' + url } });
+    btf.snackbarShow("本页链接已复制到剪切板，快去分享吧~")
+}
+window.onscroll = percent;// 执行函数
+
+// 页面百分比
+function percent() {
+    // 检查页面中是否存在 card-toc 元素
+    const cardToc = document.getElementById('card-toc');
+    if (!cardToc) {
+        return; // 如果不存在，直接返回，不执行后续代码
     }
-    .blog-slider__pagination.swiper-pagination-bullets .swiper-pagination-bullet {
-        margin:0 5px
-    }
-    .blog-slider__pagination .swiper-pagination-bullet-active {
-        height:11px;
-        width:30px
-    }
-    .blog-slider__button {
-        display:-webkit-inline-box;
-        display:-moz-inline-box;
-        display:-webkit-inline-flex;
-        display:-ms-inline-flexbox;
-        display:inline-box;
-        display:inline-flex;
-        width:100%
-    }
-    .blog-slider__text {
-        margin-bottom:40px
-    }
-    .blog-slider {
-        min-height:350px;
-        height:auto;
-        margin-top:110px;
-        margin-bottom:10px
-    }
-    .blog-slider__content {
-        margin-top:-80px;
-        text-align:center;
-        padding:0 30px
-    }
-    .blog-slider__item {
-        -webkit-box-orient:vertical;
-        -moz-box-orient:vertical;
-        -o-box-orient:vertical;
-        -webkit-flex-direction:column;
-        -ms-flex-direction:column;
-        flex-direction:column
-    }
-    .blog-slider__img {
-        -webkit-transform:translateY(-50%);
-        -moz-transform:translateY(-50%);
-        -o-transform:translateY(-50%);
-        -ms-transform:translateY(-50%);
-        transform:translateY(-50%);
-        width:90%
-    }
-    .blog-slider__content {
-        padding-left:10px;
-        padding-right:10px
-    }
-    .blog-slider__pagination.swiper-pagination-clickable.swiper-pagination-bullets {
-        top:110px
-    }
-  }
-  @media screen and (min-width:600px) {
-    .blog-slider {
-        height:200px
-    }
-    .blog-slider__img {
-        height:200px
-    }
-  }
-  /* 闅忔満鏂囩珷css */
-  #random{
-    background-color: var(--anzhiyu-white-acrylic1)!important;
-    border-radius: 8px;
-    font-family: 'ZhuZiAYuanJWD',PingFang,寰蒋闆呴粦,HYTMR,SimSun;
-    background-size:cover;
-    color:var(--anzhiyu-white);
-    font-size:44px; /*瑙夊緱灏忓彲浠ュ紑澶т竴鐐�*/
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    
-    margin-left: 10px;
-  }
-  #random-banner{
-    width:100% !important;
-    height:178.5px !important;
-    border-radius:8px;
-    display: flex;
-  }
-  #random-hover{
-    opacity: 0;
-    padding-left: 0rem;
-    position:absolute;
-    left: 0;
-    top: 0;
-    height:100%!important;
-    color: #0000;
-    border-radius: 8px;
-    transition: cubic-bezier(.71,.15,.16,1.15) .6s;
-  }
-  #random-hover:hover{
-    padding-left: 1rem;
-    opacity: 1;
-   color:#ffffff;
-   background-color: #425aefdd;
-   backdrop-filter: blur(10px) saturate(180%);
-   -webkit-backdrop-filter: blur(10px) saturate(180%);
-   transition: .3s;
-   background-size: 200%;
-   cursor: pointer;
-  }
-  
-  @media screen and (max-width: 1050px){
-    #random{
-        display: none;
-    }
-    div#swiper_container {
-      width: 100%;
-    }
-  }
-  
-  .swiper_container_card {
-    display: flex !important;
-    justify-content: space-around;
-    flex-direction: row !important;
-  }]]></content>
+
+    // 获取百分比文本内容
+    const percentage = cardToc.querySelector('.toc-percentage').textContent.trim();
+
+    // 获取 go-up 元素
+    let up = document.querySelector("#go-up");
+
+    // 根据百分比设置样式和内容
+    if (percentage ]]></content>
   </entry>
   <entry>
     <title></title>
@@ -4276,31 +3827,480 @@ button.swiper-pagination-bullet {
   </entry>
   <entry>
     <title></title>
-    <url>/js/fuction.js</url>
-    <content><![CDATA[// 分享本页
-function share() {
-    let url = window.location.origin + window.location.pathname
-    new ClipboardJS(".share", { text: function() { return '标题：' + document.title + '\n链接：' + url } });
-    btf.snackbarShow("本页链接已复制到剪切板，快去分享吧~")
-}
-window.onscroll = percent;// 执行函数
-
-// 页面百分比
-function percent() {
-    // 检查页面中是否存在 card-toc 元素
-    const cardToc = document.getElementById('card-toc');
-    if (!cardToc) {
-        return; // 如果不存在，直接返回，不执行后续代码
+    <url>/css/swiperstyle.css</url>
+    <content><![CDATA[* {
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    box-sizing:border-box
+  }
+  
+  div#swiper_container {
+    background:rgba(255, 255, 255, 0);
+    width: 57%;
+    padding: 0;
+    overflow: initial;
+  }
+  .blog-slider {
+    width:100%;
+    position:relative;
+    border-radius:12px 8px 8px 12px;
+    margin:auto;
+    background:var(--global-bg);
+    padding:10px;
+    -webkit-transition:all .3s;
+    -moz-transition:all .3s;
+    -o-transition:all .3s;
+    -ms-transition:all .3s;
+    transition:all .3s
+  }
+  .blog-slider__item {
+    display:-webkit-box;
+    display:-moz-box;
+    display:-webkit-flex;
+    display:-ms-flexbox;
+    display:box;
+    display:flex;
+    -webkit-box-align:center;
+    -moz-box-align:center;
+    -o-box-align:center;
+    -ms-flex-align:center;
+    -webkit-align-items:center;
+    align-items:center
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__img img {
+    opacity:1;
+    -ms-filter:none;
+    filter:none;
+    -webkit-transition-delay:.3s;
+    -moz-transition-delay:.3s;
+    -o-transition-delay:.3s;
+    -ms-transition-delay:.3s;
+    transition-delay:.3s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>* {
+    opacity:1;
+    -ms-filter:none;
+    filter:none;
+    -webkit-transform:none;
+    -moz-transform:none;
+    -o-transform:none;
+    -ms-transform:none;
+    transform:none
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(1) {
+    -webkit-transition-delay:.3s;
+    -moz-transition-delay:.3s;
+    -o-transition-delay:.3s;
+    -ms-transition-delay:.3s;
+    transition-delay:.3s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(2) {
+    -webkit-transition-delay:.4s;
+    -moz-transition-delay:.4s;
+    -o-transition-delay:.4s;
+    -ms-transition-delay:.4s;
+    transition-delay:.4s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(3) {
+    -webkit-transition-delay:.5s;
+    -moz-transition-delay:.5s;
+    -o-transition-delay:.5s;
+    -ms-transition-delay:.5s;
+    transition-delay:.5s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(4) {
+    -webkit-transition-delay:.6s;
+    -moz-transition-delay:.6s;
+    -o-transition-delay:.6s;
+    -ms-transition-delay:.6s;
+    transition-delay:.6s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(5) {
+    -webkit-transition-delay:.7s;
+    -moz-transition-delay:.7s;
+    -o-transition-delay:.7s;
+    -ms-transition-delay:.7s;
+    transition-delay:.7s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(6) {
+    -webkit-transition-delay:.8s;
+    -moz-transition-delay:.8s;
+    -o-transition-delay:.8s;
+    -ms-transition-delay:.8s;
+    transition-delay:.8s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(7) {
+    -webkit-transition-delay:.9s;
+    -moz-transition-delay:.9s;
+    -o-transition-delay:.9s;
+    -ms-transition-delay:.9s;
+    transition-delay:.9s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(8) {
+    -webkit-transition-delay:1s;
+    -moz-transition-delay:1s;
+    -o-transition-delay:1s;
+    -ms-transition-delay:1s;
+    transition-delay:1s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(9) {
+    -webkit-transition-delay:1.1s;
+    -moz-transition-delay:1.1s;
+    -o-transition-delay:1.1s;
+    -ms-transition-delay:1.1s;
+    transition-delay:1.1s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(10) {
+    -webkit-transition-delay:1.2s;
+    -moz-transition-delay:1.2s;
+    -o-transition-delay:1.2s;
+    -ms-transition-delay:1.2s;
+    transition-delay:1.2s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(11) {
+    -webkit-transition-delay:1.3s;
+    -moz-transition-delay:1.3s;
+    -o-transition-delay:1.3s;
+    -ms-transition-delay:1.3s;
+    transition-delay:1.3s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(12) {
+    -webkit-transition-delay:1.4s;
+    -moz-transition-delay:1.4s;
+    -o-transition-delay:1.4s;
+    -ms-transition-delay:1.4s;
+    transition-delay:1.4s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(13) {
+    -webkit-transition-delay:1.5s;
+    -moz-transition-delay:1.5s;
+    -o-transition-delay:1.5s;
+    -ms-transition-delay:1.5s;
+    transition-delay:1.5s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(14) {
+    -webkit-transition-delay:1.6s;
+    -moz-transition-delay:1.6s;
+    -o-transition-delay:1.6s;
+    -ms-transition-delay:1.6s;
+    transition-delay:1.6s
+  }
+  .blog-slider__item.swiper-slide-active .blog-slider__content>:nth-child(15) {
+    -webkit-transition-delay:1.7s;
+    -moz-transition-delay:1.7s;
+    -o-transition-delay:1.7s;
+    -ms-transition-delay:1.7s;
+    transition-delay:1.7s
+  }
+  .blog-slider__img {
+    width:200px;
+    -webkit-flex-shrink:0;
+    flex-shrink:0;
+    height:200px;
+    padding:10px;
+    border-radius:5px;
+    -webkit-transform:translateX(0);
+    -moz-transform:translateX(0);
+    -o-transform:translateX(0);
+    -ms-transform:translateX(0);
+    transform:translateX(0);
+    overflow:hidden
+  }
+  .blog-slider__img:after {
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    border-radius:5px;
+    opacity:.8
+  }
+  .blog-slider__img img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    opacity:0;
+    border-radius:5px;
+    -webkit-transition:all .3s;
+    -moz-transition:all .3s;
+    -o-transition:all .3s;
+    -ms-transition:all .3s;
+    transition:all .3s
+  }
+  .blog-slider__content {
+    padding-right:50px;
+    padding-left:50px
+  }
+  .blog-slider__content>* {
+    opacity:0;
+    -webkit-transform:translateY(25px);
+    -moz-transform:translateY(25px);
+    -o-transform:translateY(25px);
+    -ms-transform:translateY(25px);
+    transform:translateY(25px);
+    -webkit-transition:all .4s;
+    -moz-transition:all .4s;
+    -o-transition:all .4s;
+    -ms-transition:all .4s;
+    transition:all .4s
+  }
+  .blog-slider__code {
+    color:var(--font-color);
+    margin-bottom:0;
+    display:block;
+    font-weight:500
+  }
+  .blog-slider__title {
+    font-size:18px;
+    font-weight:700;
+    color:var(--font-color);
+    margin-bottom:15px;
+    -webkit-perspective: 1200px; /* Chrome, Safari */
+    -moz-perspective: 1200px;    /* Firefox */
+    -ms-perspective: 1200px;     /* Internet Explorer */
+    -o-perspective: 1200px;      /* Opera */
+    perspective: 1200px;  
+    display:-webkit-box;
+    overflow:hidden;
+    -webkit-box-orient:vertical
+  }
+  .blog-slider__text {
+    color:var(--font-color);
+    -webkit-perspective: 1200px; /* Chrome, Safari */
+    -moz-perspective: 1200px;    /* Firefox */
+    -ms-perspective: 1200px;     /* Internet Explorer */
+    -o-perspective: 1200px;      /* Opera */
+    perspective: 1200px;  
+    display:-webkit-box;
+    overflow:hidden;
+    -webkit-box-orient:vertical;
+    margin-bottom:15px;
+    line-height:1.5em;
+    width:100%;
+    display:block;
+    word-break:break-all;
+    word-wrap:break-word
+  }
+  .blog-slider__button {
+    display:-webkit-inline-box;
+    display:-moz-inline-box;
+    display:-webkit-inline-flex;
+    display:-ms-inline-flexbox;
+    display:inline-box;
+    display:inline-flex;
+    background-color:var(--btn-bg);
+    padding:4px 14px;
+    border-radius:8px;
+    color:var(--btn-color);
+    text-decoration:none;
+    font-weight:500;
+    -webkit-box-pack:center;
+    -moz-box-pack:center;
+    -o-box-pack:center;
+    -ms-flex-pack:center;
+    -webkit-justify-content:center;
+    justify-content:center;
+    text-align:center;
+    letter-spacing:1px;
+    display:none
+  }
+  .blog-slider__button:hover {
+    background-color:var(--btn-hover-color);
+    color:var(--btn-color)
+  }
+  .blog-slider .swiper-container-horizontal>.swiper-pagination-bullets, .blog-slider .swiper-pagination-custom, .blog-slider .swiper-pagination-fraction {
+    bottom:10px;
+    left:0;
+    width:100%
+  }
+  .blog-slider__pagination {
+    position:absolute;
+    z-index:21;
+    right:20px;
+    width:11px!important;
+    text-align:center;
+    left:auto!important;
+    top:50%;
+    bottom:auto!important;
+    -webkit-transform:translateY(-50%);
+    -moz-transform:translateY(-50%);
+    -o-transform:translateY(-50%);
+    -ms-transform:translateY(-50%);
+    transform:translateY(-50%)
+  }
+  .blog-slider__pagination.swiper-pagination-bullets .swiper-pagination-bullet {
+    margin:8px 0
+  }
+  .blog-slider__pagination .swiper-pagination-bullet {
+    width:11px;
+    height:11px;
+    display:block;
+    border-radius:10px;
+    background:#858585;
+    opacity:.2;
+    -webkit-transition:all .3s;
+    -moz-transition:all .3s;
+    -o-transition:all .3s;
+    -ms-transition:all .3s;
+    transition:all .3s
+  }
+  .blog-slider__pagination .swiper-pagination-bullet-active {
+    opacity:1;
+    -ms-filter:none;
+    filter:none;
+    background:var(--btn-bg);
+    height:30px
+  }
+  @media screen and (max-width:600px) {
+    .blog-slider__pagination {
+        -webkit-transform:translateX(-50%);
+        -moz-transform:translateX(-50%);
+        -o-transform:translateX(-50%);
+        -ms-transform:translateX(-50%);
+        transform:translateX(-50%);
+        left:50%!important;
+        top:320px;
+        width:100%!important;
+        display:-webkit-box;
+        display:-moz-box;
+        display:-webkit-flex;
+        display:-ms-flexbox;
+        display:box;
+        display:flex;
+        -webkit-box-pack:center;
+        -moz-box-pack:center;
+        -o-box-pack:center;
+        -ms-flex-pack:center;
+        -webkit-justify-content:center;
+        justify-content:center;
+        -webkit-box-align:center;
+        -moz-box-align:center;
+        -o-box-align:center;
+        -ms-flex-align:center;
+        -webkit-align-items:center;
+        align-items:center
     }
-
-    // 获取百分比文本内容
-    const percentage = cardToc.querySelector('.toc-percentage').textContent.trim();
-
-    // 获取 go-up 元素
-    let up = document.querySelector("#go-up");
-
-    // 根据百分比设置样式和内容
-    if (percentage ]]></content>
+    .blog-slider__pagination.swiper-pagination-bullets .swiper-pagination-bullet {
+        margin:0 5px
+    }
+    .blog-slider__pagination .swiper-pagination-bullet-active {
+        height:11px;
+        width:30px
+    }
+    .blog-slider__button {
+        display:-webkit-inline-box;
+        display:-moz-inline-box;
+        display:-webkit-inline-flex;
+        display:-ms-inline-flexbox;
+        display:inline-box;
+        display:inline-flex;
+        width:100%
+    }
+    .blog-slider__text {
+        margin-bottom:40px
+    }
+    .blog-slider {
+        min-height:350px;
+        height:auto;
+        margin-top:110px;
+        margin-bottom:10px
+    }
+    .blog-slider__content {
+        margin-top:-80px;
+        text-align:center;
+        padding:0 30px
+    }
+    .blog-slider__item {
+        -webkit-box-orient:vertical;
+        -moz-box-orient:vertical;
+        -o-box-orient:vertical;
+        -webkit-flex-direction:column;
+        -ms-flex-direction:column;
+        flex-direction:column
+    }
+    .blog-slider__img {
+        -webkit-transform:translateY(-50%);
+        -moz-transform:translateY(-50%);
+        -o-transform:translateY(-50%);
+        -ms-transform:translateY(-50%);
+        transform:translateY(-50%);
+        width:90%
+    }
+    .blog-slider__content {
+        padding-left:10px;
+        padding-right:10px
+    }
+    .blog-slider__pagination.swiper-pagination-clickable.swiper-pagination-bullets {
+        top:110px
+    }
+  }
+  @media screen and (min-width:600px) {
+    .blog-slider {
+        height:200px
+    }
+    .blog-slider__img {
+        height:200px
+    }
+  }
+  /* 闅忔満鏂囩珷css */
+  #random{
+    background-color: var(--anzhiyu-white-acrylic1)!important;
+    border-radius: 8px;
+    font-family: 'ZhuZiAYuanJWD',PingFang,寰蒋闆呴粦,HYTMR,SimSun;
+    background-size:cover;
+    color:var(--anzhiyu-white);
+    font-size:44px; /*瑙夊緱灏忓彲浠ュ紑澶т竴鐐�*/
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    
+    margin-left: 10px;
+  }
+  #random-banner{
+    width:100% !important;
+    height:178.5px !important;
+    border-radius:8px;
+    display: flex;
+  }
+  #random-hover{
+    opacity: 0;
+    padding-left: 0rem;
+    position:absolute;
+    left: 0;
+    top: 0;
+    height:100%!important;
+    color: #0000;
+    border-radius: 8px;
+    transition: cubic-bezier(.71,.15,.16,1.15) .6s;
+  }
+  #random-hover:hover{
+    padding-left: 1rem;
+    opacity: 1;
+   color:#ffffff;
+   background-color: #425aefdd;
+   backdrop-filter: blur(10px) saturate(180%);
+   -webkit-backdrop-filter: blur(10px) saturate(180%);
+   transition: .3s;
+   background-size: 200%;
+   cursor: pointer;
+  }
+  
+  @media screen and (max-width: 1050px){
+    #random{
+        display: none;
+    }
+    div#swiper_container {
+      width: 100%;
+    }
+  }
+  
+  .swiper_container_card {
+    display: flex !important;
+    justify-content: space-around;
+    flex-direction: row !important;
+  }]]></content>
   </entry>
   <entry>
     <title>友情链接</title>
