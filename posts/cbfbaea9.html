@@ -1,0 +1,740 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>决策回归树与集成算法 | molittle</title><meta name="author" content="molittle"><meta name="copyright" content="molittle"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1、决策回归树原理概述   与分类树一样   裂分指标，使用的是MSE、MAE MSE(y,y^)&#x3D;1nsamples∑i&#x3D;0nsamples−1(yi−y^i)2\text{MSE}(y, \hat{y}) &#x3D; \frac{1}{n_\text{samples}} \sum\limits_{i&#x3D;0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2MSE(y,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="决策回归树与集成算法">
+<meta property="og:url" content="http://git.molittle.site/posts/cbfbaea9.html">
+<meta property="og:site_name" content="molittle">
+<meta property="og:description" content="1、决策回归树原理概述   与分类树一样   裂分指标，使用的是MSE、MAE MSE(y,y^)&#x3D;1nsamples∑i&#x3D;0nsamples−1(yi−y^i)2\text{MSE}(y, \hat{y}) &#x3D; \frac{1}{n_\text{samples}} \sum\limits_{i&#x3D;0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2MSE(y,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://git.molittle.site/img/123.png">
+<meta property="article:published_time" content="2025-06-10T05:49:32.000Z">
+<meta property="article:modified_time" content="2025-06-10T07:57:21.021Z">
+<meta property="article:author" content="molittle">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://git.molittle.site/img/123.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "决策回归树与集成算法",
+  "url": "http://git.molittle.site/posts/cbfbaea9.html",
+  "image": "http://git.molittle.site/img/123.png",
+  "datePublished": "2025-06-10T05:49:32.000Z",
+  "dateModified": "2025-06-10T07:57:21.021Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "molittle",
+      "url": "http://git.molittle.site/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/butterfly-icon.png"><link rel="canonical" href="http://git.molittle.site/posts/cbfbaea9.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="manifest" href="/manifest.json"/><meta name="msapplication-TileColor" content="#3b70fc"/><link rel="apple-touch-icon" sizes="180x180" href="/img/siteicon/128.png"/><link rel="icon" type="image/png" sizes="32x32" href="/img/siteicon/bitbug_favicon.ico"/><link rel="icon" type="image/png" sizes="16x16" href="/img/siteicon/bitbug_favicon%20(1).ico"/><link rel="mask-icon" href="/img/siteicon/128.png" color="#5bbad5"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '决策回归树与集成算法',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><script src="/js/title.js"></script><link rel="stylesheet" href="/css/fuction.css"></script><link rel="stylesheet" href="https://gcore.jsdelivr.net/gh/sviptzk/StaticFile_HEXO@latest/butterfly/css/macblack.css"><script data-pjax src="//npm.elemecdn.com/pace-js@1.2.4/pace.min.js"></script><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<link rel="stylesheet" href="/css/runtime/runtime.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://unpkg.zhimg.com/hexo-butterfly-swiper/lib/swiper.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/assets/font-awesome-animation.min.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/tag_plugins.css" media="defer" onload="this.media='all'"><script src="https://cdn.cbd.int/hexo-butterfly-tag-plugins-plus@latest/lib/assets/carousel-touch.js"></script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="molittle" type="application/atom+xml">
+</head><body><div id="loading-box" onclick="document.getElementById(&quot;loading-box&quot;).classList.add(&quot;loaded&quot;)"><div class="loading-bg"><div class="loading-img"></div><div class="loading-image-dot"></div></div></div><script>const preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',()=> { preloader.endLoading() })
+
+if (true) {
+  document.addEventListener('pjax:send', () => { preloader.initLoading() })
+  document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+}</script><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="/css/progress_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(/img/789.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-home1"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shangpinfenlei24"></use></svg><span> 分类</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/artitalk/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liaotian"></use></svg><span> 闲言碎语</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-customerservice-fill1"></use></svg><span> 音乐馆</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liuyanban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shijianzhou_gaoliang"></use></svg><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/bangumis/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon_bilibili-circle"></use></svg><span> 追番</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/fcircle/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-zhifeiji1"></use></svg><span> 朋友圈</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon-lianjie"></use></svg><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-medium-circle-fill"></use></svg><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(img/123.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">molittle</span></a><a class="nav-page-title" href="/"><span class="site-name">决策回归树与集成算法</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-home1"></use></svg><span> 首页</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/categories/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shangpinfenlei24"></use></svg><span> 分类</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/artitalk/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liaotian"></use></svg><span> 闲言碎语</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/music/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-customerservice-fill1"></use></svg><span> 音乐馆</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/comments/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-liuyanban"></use></svg><span> 留言板</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/archives/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-shijianzhou_gaoliang"></use></svg><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/bangumis/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon_bilibili-circle"></use></svg><span> 追番</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/fcircle/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-zhifeiji1"></use></svg><span> 朋友圈</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/link/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-icon-lianjie"></use></svg><span> 友人帐</span></a></div><div class="menus_item"><a class="site-page faa-parent animated-hover" href="/about/"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-medium-circle-fill"></use></svg><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">决策回归树与集成算法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-06-10T05:49:32.000Z" title="发表于 2025-06-10 13:49:32">2025-06-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-06-10T07:57:21.021Z" title="更新于 2025-06-10 15:57:21">2025-06-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/program/">program</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/program/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h3 id="1、决策回归树原理概述">1、决策回归树原理概述</h3>
+<ul>
+<li>
+<p>与分类树一样</p>
+</li>
+<li>
+<p>裂分指标，使用的是MSE、MAE</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>MSE</mtext><mo stretchy="false">(</mo><mi>y</mi><mo separator="true">,</mo><mover accent="true"><mi>y</mi><mo>^</mo></mover><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mtext>samples</mtext></msub></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mi>n</mi><mtext>samples</mtext></msub><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\text{MSE}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum\limits_{i=0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">MSE</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.5929em;vertical-align:-0.9777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5481em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6152em;"><span style="top:-2.1223em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∑</span></span></span><span style="top:-4.0641em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9777em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>MAE</mtext><mo stretchy="false">(</mo><mi>y</mi><mo separator="true">,</mo><mover accent="true"><mi>y</mi><mo>^</mo></mover><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mtext>samples</mtext></msub></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mi>n</mi><mtext>samples</mtext></msub><mo>−</mo><mn>1</mn></mrow></msubsup><mrow><mo fence="true">∣</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mi>i</mi></msub><mo fence="true">∣</mo></mrow></mrow><annotation encoding="application/x-tex">\text{MAE}(y, \hat{y}) = \frac{1}{n_{\text{samples}}} \sum\limits_{i=0}^{n_{\text{samples}}-1} \left| y_i - \hat{y}_i \right|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">MAE</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.5929em;vertical-align:-0.9777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5481em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6152em;"><span style="top:-2.1223em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∑</span></span></span><span style="top:-4.0641em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">∣</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose delimcenter" style="top:0em;">∣</span></span></span></span></span></p>
+</li>
+<li>
+<p>决策回归树，认为它是<font color = red>分类问题</font>，只是，分的类别多一些！！！</p>
+</li>
+<li>
+<p>只要树，分类回归，其实就是分类多和少的问题</p>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/1-%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91.png" alt=""></p>
+<h3 id="2、决策回归树算例">2、决策回归树算例</h3>
+<h4 id="2-1、决策树预测圆的轨迹">2.1、决策树预测圆的轨迹</h4>
+<p>导包并创建数据与可视化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeRegressor<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> tree<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> LinearRegression<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><span class="hljs-keyword">import</span> graphviz<br>X = np.linspace(<span class="hljs-number">0</span>,<span class="hljs-number">2</span>*np.pi,<span class="hljs-number">40</span>).reshape(-<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)<br>X_test = np.linspace(<span class="hljs-number">0</span>,<span class="hljs-number">2</span>*np.pi,<span class="hljs-number">187</span>).reshape(-<span class="hljs-number">1</span>,<span class="hljs-number">1</span>)<br><span class="hljs-comment"># y 一个正弦波，余弦波，圆</span><br>y = np.c_[np.sin(X),np.cos(X)]<br>plt.figure(figsize=(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>))<br>plt.scatter(y[:,<span class="hljs-number">0</span>],y[:,<span class="hljs-number">1</span>])<br></code></pre></td></tr></table></figure>
+<p>使用线性回归预测，看效果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">linear = LinearRegression()<br>linear.fit(X,y) <span class="hljs-comment">#将数据交给算法，学习，希望算法，找到规律</span><br><span class="hljs-comment"># X ----&gt; y 是一个圆；预测X_test返回值y_ 如果预测好，也是圆</span><br>y_ = linear.predict(X_test)<br>plt.figure(figsize=(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>))<br>plt.scatter(y_[:,<span class="hljs-number">0</span>],y_[:,<span class="hljs-number">1</span>])<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/2-线性回归效果.png" style="zoom: 33%;" />
+<p>使用决策树回归，看效果</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Python">model = DecisionTreeRegressor(criterion=<span class="hljs-string">&#x27;mse&#x27;</span>,max_depth=<span class="hljs-number">3</span>)<br>model.fit(X,y)<span class="hljs-comment">#X 是40个点 y是一个圆</span><br>y_ = model.predict(X_test) <span class="hljs-comment">#X_test是187点，预测y_应该是一个圆</span><br><span class="hljs-comment"># 请问y_中有多少数据？？？</span><br><span class="hljs-built_in">print</span>(y_.shape)<br>plt.figure(figsize=(<span class="hljs-number">6</span>,<span class="hljs-number">6</span>))<br>plt.scatter(y_[:,<span class="hljs-number">0</span>],y_[:,<span class="hljs-number">1</span>],color = <span class="hljs-string">&#x27;green&#x27;</span>)<br>plt.savefig(<span class="hljs-string">&#x27;./3-决策树回归效果.png&#x27;</span>,dpi = <span class="hljs-number">200</span>)<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/3-决策树回归效果.png" style="zoom:33%;" />
+<p>思考一下为什么画出来的图形是八个点？</p>
+<p>决策回归树可视化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 决策树形状</span><br>dot_data = tree.export_graphviz(model,filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph.render(<span class="hljs-string">&#x27;./1-决策回归树&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/1-%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91.png" alt=""></p>
+<p>因为决策树<strong>深度是3</strong>，所以最终得到<strong>8个叶节点</strong>，所以分成8类！</p>
+<h4 id="2-2、增加决策树深度">2.2、增加决策树深度</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs Python">model = DecisionTreeRegressor(criterion=<span class="hljs-string">&#x27;mse&#x27;</span>,max_depth=<span class="hljs-number">4</span>)<br>model.fit(X,y)<span class="hljs-comment">#X 是40个点 y是一个圆</span><br>y_ = model.predict(X_test) <span class="hljs-comment">#X_test是187点，预测y_应该是一个圆</span><br><span class="hljs-comment"># 请问y_中有多少数据？？？</span><br><span class="hljs-built_in">print</span>(y_.shape)<br>plt.figure(figsize=(<span class="hljs-number">6</span>,<span class="hljs-number">6</span>))<br>plt.scatter(y_[:,<span class="hljs-number">0</span>],y_[:,<span class="hljs-number">1</span>],color = <span class="hljs-string">&#x27;green&#x27;</span>)<br>plt.savefig(<span class="hljs-string">&#x27;./4-增加深度决策树回归效果.png&#x27;</span>,dpi = <span class="hljs-number">200</span>)<br><span class="hljs-comment"># 决策树形状</span><br>dot_data = tree.export_graphviz(model,filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph.render(<span class="hljs-string">&#x27;./5-增加深度决策回归树&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/4-增加深度决策树回归效果.png" style="zoom:33%;" />
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/5-%E5%A2%9E%E5%8A%A0%E6%B7%B1%E5%BA%A6%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91%E7%BB%93%E6%9E%84.png" alt=""></p>
+<h4 id="2-3、决策回归树分裂原理剖析">2.3、决策回归树分裂原理剖析</h4>
+<p>以上面深度为3的决策树为例</p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/1-%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91.png" alt=""></p>
+<p>1、计算未分裂时，整体MSE:</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext>MSE</mtext><mo stretchy="false">(</mo><mi>y</mi><mo separator="true">,</mo><mover accent="true"><mi>y</mi><mo>^</mo></mover><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><msub><mi>n</mi><mtext>samples</mtext></msub></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><msub><mi>n</mi><mtext>samples</mtext></msub><mo>−</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mover accent="true"><mi>y</mi><mo>^</mo></mover><mi>i</mi></msub><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\text{MSE}(y, \hat{y}) = \frac{1}{n_\text{samples}} \sum\limits_{i=0}^{n_\text{samples} - 1} (y_i - \hat{y}_i)^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">MSE</span></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.5929em;vertical-align:-0.9777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.5481em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.6152em;"><span style="top:-2.1223em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">0</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∑</span></span></span><span style="top:-4.0641em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3488em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord text mtight"><span class="mord mtight">samples</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2901em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9777em;"><span></span></span></span></span></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord accent"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.6944em;"><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span class="accent-body" style="left:-0.1944em;"><span class="mord">^</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1944em;"><span></span></span></span></span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs Python">mse = ((y - y.mean(axis = <span class="hljs-number">0</span>))**<span class="hljs-number">2</span>).mean()<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;未分裂时，整体MSE:&#x27;</span>,mse)<br></code></pre></td></tr></table></figure>
+<p>2、根据分裂标准X[0] &lt;= 3.142，计算分裂后的MSE：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">cond = X &lt;= <span class="hljs-number">3.142</span><br>part1 = y[cond.reshape(-<span class="hljs-number">1</span>)]<br>part2 = y[(~cond).reshape(-<span class="hljs-number">1</span>)]<br>mse1 = ((part1 - part1.mean(axis = <span class="hljs-number">0</span>))**<span class="hljs-number">2</span>).mean()<br>mse2 = ((part2 - part2.mean(axis = <span class="hljs-number">0</span>))**<span class="hljs-number">2</span>).mean()<br><span class="hljs-built_in">print</span>(mse1,mse2)<br></code></pre></td></tr></table></figure>
+<p>3、寻找最佳分裂条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs Python">split_result = &#123;&#125;<br>mse_lower = <span class="hljs-number">0.5</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(X) - <span class="hljs-number">1</span>):<br>    split = <span class="hljs-built_in">round</span>(X[i:i + <span class="hljs-number">2</span>].mean(),<span class="hljs-number">3</span>)<br>    cond = X &lt;= split<br>    part1 = y[cond.reshape(-<span class="hljs-number">1</span>)]<br>    part2 = y[(~cond).reshape(-<span class="hljs-number">1</span>)]<br>    mse1 = ((part1 - part1.mean(axis = <span class="hljs-number">0</span>))**<span class="hljs-number">2</span>).mean()<br>    mse2 = ((part2 - part2.mean(axis = <span class="hljs-number">0</span>))**<span class="hljs-number">2</span>).mean()<br>    mse = mse1 * <span class="hljs-built_in">len</span>(part1)/cond.size + mse2 * <span class="hljs-built_in">len</span>(part2)/cond.size<br>    mse_result.append(mse)<br>    <span class="hljs-keyword">if</span> mse &lt; mse_lower:<br>        split_result.clear()<br>        split_result[split] = [i,mse]<br>        mse_lower = mse<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;最佳分裂条件：&#x27;</span>,split_result)<br></code></pre></td></tr></table></figure>
+<p>根据打印输出，我们知道最佳裂分，索引是：19。分裂条件是：3.142。</p>
+<p>结论：和直接使用决策回归树绘图显示的结果一模一样~</p>
+<h3 id="3、决策回归树-VS-线性回归">3、决策回归树 VS 线性回归</h3>
+<p>1、加载数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeRegressor<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> tree<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> datasets<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> LinearRegression<br>diabetes = datasets.load_diabetes()<span class="hljs-comment">#糖尿病</span><br>X = diabetes[<span class="hljs-string">&#x27;data&#x27;</span>]<br>y = diabetes[<span class="hljs-string">&#x27;target&#x27;</span>]<br>X_train,X_test,y_train,y_test = train_test_split(X,y,random_state = <span class="hljs-number">911</span>)<br></code></pre></td></tr></table></figure>
+<p>2、线性回归表现</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Python">linear = LinearRegression()<br>linear.fit(X_train,y_train)<br>linear.score(X_test,y_test)<br></code></pre></td></tr></table></figure>
+<p>3、决策树回归表现</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br>plt.rcParams[<span class="hljs-string">&#x27;font.family&#x27;</span>] = <span class="hljs-string">&#x27;STKaiti&#x27;</span><br>max_depth = np.arange(<span class="hljs-number">1</span>,<span class="hljs-number">16</span>)<br>score = []<br><span class="hljs-keyword">for</span> d <span class="hljs-keyword">in</span> max_depth:<br>    model = DecisionTreeRegressor(max_depth = d)<br>    model.fit(X_train,y_train)<br>    score.append(model.score(X_test,y_test))<br>plt.plot(max_depth,score,<span class="hljs-string">&#x27;ro-&#x27;</span>)<br>plt.xlabel(<span class="hljs-string">&#x27;max_depth&#x27;</span>,fontsize = <span class="hljs-number">18</span>)<br>plt.ylabel(<span class="hljs-string">&#x27;Score&#x27;</span>,fontsize = <span class="hljs-number">18</span>)<br>plt.title(<span class="hljs-string">&#x27;决策树准确率随着深度变化&#x27;</span>,pad = <span class="hljs-number">20</span>,fontsize = <span class="hljs-number">20</span>)<br>plt.savefig(<span class="hljs-string">&#x27;./6-决策树回归糖尿病.png&#x27;</span>,dpi = <span class="hljs-number">200</span>)<br></code></pre></td></tr></table></figure>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/6-%E5%86%B3%E7%AD%96%E6%A0%91%E5%9B%9E%E5%BD%92%E7%B3%96%E5%B0%BF%E7%97%85.png" alt=""></p>
+<p>4、结论：</p>
+<ul>
+<li>对于这个案例，线性回归效果更好一些</li>
+<li>糖尿病这个数据，更适合使用方程对规律进行拟合</li>
+<li>在很多方面，决策树回归表现也优秀~</li>
+</ul>
+<h3 id="4、集成算法">4、集成算法</h3>
+<h4 id="4-1、集成算法概述">4.1、集成算法概述</h4>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/7-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97.png" alt=""></p>
+<p>集成算法核心：</p>
+<p>少数服从多数，人多力量大，三个臭皮匠顶个诸葛亮。</p>
+<p>假设你有 100 个朋友给你出主意投资股票，你怎么做最终的决定？</p>
+<ol>
+<li>
+<p>选择最牛 x 的一个朋友的意见当作自己的意见（找到最好的单颗决策树）</p>
+</li>
+<li>
+<p>所有朋友的意见投票，少数服从多数（随机森林）</p>
+</li>
+<li>
+<p>还是牛一点的朋友多给几票，弱鸡一点的少给几票（Adaboost）</p>
+</li>
+</ol>
+<p>聚合模型：</p>
+<p>所有朋友的意见投票, 少数服从多数（随机森林对应原理公式）</p>
+<ul>
+<li>$G(x) = \frac{1}{n}\sum\limits_{i =1}^n1 \times g_i(x) $</li>
+</ul>
+<p>牛一点的朋友多给几票，弱鸡一点的少给几票（Adaboost对应原理公式）</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>α</mi><mi>i</mi></msub><mo>×</mo><msub><mi>g</mi><mi>i</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo separator="true">;</mo><msub><mi>α</mi><mi>i</mi></msub><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">G(x) = \frac{1}{n}\sum\limits_{i =1}^n \alpha_i \times g_i(x) ;\alpha_i \ge 0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">G</span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.3291em;vertical-align:-0.9777em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8451em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mop op-limits"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3514em;"><span style="top:-2.1223em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">i</span><span class="mrel mtight">=</span><span class="mord mtight">1</span></span></span></span><span style="top:-3em;"><span class="pstrut" style="height:3em;"></span><span><span class="mop op-symbol small-op">∑</span></span></span><span style="top:-3.95em;margin-left:0em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.9777em;"><span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mpunct">;</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0037em;">α</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0037em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">≥</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">0</span></span></span></span>​​​</li>
+</ul>
+<h4 id="4-2、构造不同模型（朋友）">4.2、构造不同模型（朋友）</h4>
+<p>同样的数据，行列都相同，<strong>不同的超参数</strong>，可以得到不同的模型。</p>
+<p>同样的超参数，行相同，<strong>列不同</strong>，可以得到不同的模型。</p>
+<p>同样的超参数，<strong>行不同</strong>，列相同，可以得到不同的模型。</p>
+<p>同样的超参数，同样的数据，但是<strong>数据权重不同</strong>，可以得到不同的模型。</p>
+<h4 id="4-3、集成算法不同方式">4.3、集成算法不同方式</h4>
+<ul>
+<li>
+<p>方式一Bagging（套袋法）</p>
+<ul>
+<li>对训练集进行<strong>抽样</strong>， 将抽样的结果用于训练 g(x)。</li>
+<li>并行，独立训练。</li>
+<li>随机森林random forest便是这一类别的代表。</li>
+</ul>
+</li>
+<li>
+<p>方式二Boosting（提升法）</p>
+<ul>
+<li>利用训练集训练出模型，根据本次模型的预测结果，调整训练集。</li>
+<li>然后利用调整后的训练集训练下一个模型。</li>
+<li>串行，需要第一个模型。</li>
+<li>Adaboost，GBDT，Xgboost都是提升树算法典型代表。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-4、Bagging集成算法步骤">4.4、Bagging集成算法步骤</h4>
+<ol>
+<li>
+<p>Bootstrap（独立自主） : 有放回地对原始数据集进行均匀抽样</p>
+</li>
+<li>
+<p>利用每次抽样生成的数据集训练模型</p>
+</li>
+<li>
+<p>最终的模型为每次生成的模型进行投票</p>
+</li>
+<li>
+<p>其实 boosting 和 bagging 都不仅局限于对决策树这种基模型适应</p>
+</li>
+<li>
+<p>如果不是同一种 base model，也可以做集成算法</p>
+</li>
+</ol>
+<h3 id="5、随机森林">5、随机森林</h3>
+<h4 id="5-1、随机森林介绍">5.1、随机森林介绍</h4>
+<p>Bagging 思想 + 决策树就诞生了<strong>随机森林</strong>。</p>
+<p>随机森林，都有哪些随机？</p>
+<ul>
+<li>bagging生成一颗决策树时，随机抽样</li>
+<li>抽样后，分裂时，每一个结点都随机选择特征，从部分特征中筛选最优分裂条件</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/10-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97.png" alt=""></p>
+<h4 id="5-2、随机森林实战">5.2、随机森林实战</h4>
+<p>1、导包加载数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> tree<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> datasets<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">import</span> graphviz<br><span class="hljs-comment"># ensemble 集成</span><br><span class="hljs-comment"># 随机森林</span><br><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> RandomForestClassifier<br><span class="hljs-comment"># 作为对照</span><br><span class="hljs-keyword">from</span> sklearn.linear_model <span class="hljs-keyword">import</span> LogisticRegression<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeClassifier<br><span class="hljs-comment"># 加载数据</span><br>X,y = datasets.load_iris(return_X_y=<span class="hljs-literal">True</span>)<br>X_train,X_test,y_train,y_test = train_test_split(X,y,random_state = <span class="hljs-number">112</span>)<br></code></pre></td></tr></table></figure>
+<p>2、普通决策树</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Python">score = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>    X_train,X_test,y_train,y_test = train_test_split(X,y)<br>    model = DecisionTreeClassifier()<br>    model.fit(X_train,y_train)<br>    score += model.score(X_test,y_test)/<span class="hljs-number">100</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;随机森林平均准确率是：&#x27;</span>,score)<br></code></pre></td></tr></table></figure>
+<p>3、随机森林（运行时间稍长，10s）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Python">score = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>    X_train,X_test,y_train,y_test = train_test_split(X,y)<br>    model = RandomForestClassifier()<br>    model.fit(X_train,y_train)<br>    score += model.score(X_test,y_test)/<span class="hljs-number">100</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;随机森林平均准确率是：&#x27;</span>,score)<br></code></pre></td></tr></table></figure>
+<p>结论：</p>
+<ul>
+<li>和决策树对比发现，随机森林分数稍高，结果稳定</li>
+<li>即降低了结果方差，减少错误率</li>
+</ul>
+<p>4、逻辑斯蒂回归</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> warnings<br>warnings.filterwarnings(<span class="hljs-string">&#x27;ignore&#x27;</span>)<br>score = <span class="hljs-number">0</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">100</span>):<br>    X_train,X_test,y_train,y_test = train_test_split(X,y)<br>    lr = LogisticRegression()<br>    lr.fit(X_train,y_train)<br>    score += lr.score(X_test,y_test)/<span class="hljs-number">100</span><br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;逻辑斯蒂回归平均准确率是：&#x27;</span>,score)<br></code></pre></td></tr></table></figure>
+<p>结论：</p>
+<ul>
+<li>逻辑斯蒂回归这个算法更加适合鸢尾花这个数据的分类</li>
+<li>随机森林也非常优秀</li>
+</ul>
+<h4 id="5-3、随机森林可视化">5.3、随机森林可视化</h4>
+<p>1、创建随机森林进行预测</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">X_train,X_test,y_train,y_test = train_test_split(X,y,random_state = <span class="hljs-number">9</span>)<br>forest = RandomForestClassifier(n_estimators=<span class="hljs-number">100</span>,criterion=<span class="hljs-string">&#x27;gini&#x27;</span>)<br>forest.fit(X_train,y_train)<br>score1 = <span class="hljs-built_in">round</span>(forest.score(X_test,y_test),<span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;随机森林准确率：&#x27;</span>,score1)<br><span class="hljs-built_in">print</span>(forest.predict_proba(X_test))<br></code></pre></td></tr></table></figure>
+<p>2、对比决策树</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">X_train,X_test,y_train,y_test = train_test_split(X,y,random_state = <span class="hljs-number">112</span>)<br>model = DecisionTreeClassifier()<br>model.fit(X_train,y_train)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;决策树准确率：&#x27;</span>,model.score(X_test,y_test))<br>proba_ = model.predict_proba(X_test)<br><span class="hljs-built_in">print</span>(proba_)<br></code></pre></td></tr></table></figure>
+<p>总结：</p>
+<ul>
+<li>一般情况下，随机森林比决策树更加优秀</li>
+<li>随机森林，是多棵树投票的概率，所以predict_proba()概率值，出现0.97</li>
+<li>单一决策树，不是，通过投票，而是通过决策树叶节点分类，所以概率要么是0，要么是1</li>
+</ul>
+<p>3、绘制决策树</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 第一颗树类别</span><br>dot_data = tree.export_graphviz(forest[<span class="hljs-number">0</span>],filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/11-随机森林第一棵树.png" style="zoom: 67%;" />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 第五十颗树类别</span><br>dot_data = tree.export_graphviz(forest[<span class="hljs-number">49</span>],filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/12-随机森林第五十棵树.png" style="zoom:67%;" />
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-comment"># 第100颗树类别</span><br>dot_data = tree.export_graphviz(forest[-<span class="hljs-number">1</span>],filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/13-随机森林第一百棵树.png" style="zoom:67%;" />
+<h4 id="5-4、随机森林总结">5.4、随机森林总结</h4>
+<p>随机森林主要步骤：</p>
+<ul>
+<li>
+<p>随机选择样本（放回抽样）；</p>
+</li>
+<li>
+<p>随机选择特征；</p>
+</li>
+<li>
+<p>构建决策树；</p>
+</li>
+<li>
+<p>随机森林投票（平均）</p>
+</li>
+</ul>
+<p>优点:</p>
+<ul>
+<li>
+<p>表现良好</p>
+</li>
+<li>
+<p>可以处理高维度数据(维度随机选择)</p>
+</li>
+<li>
+<p>辅助进行特征选择</p>
+</li>
+<li>
+<p>得益于 Bagging 可以进行并行训练</p>
+</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>对于噪声过大的数据容易过拟合</li>
+</ul>
+<h3 id="6、极限森林">6、极限森林</h3>
+<h4 id="6-1、极限森林介绍">6.1、极限森林介绍</h4>
+<p>极限森林，都有哪些随机？</p>
+<ul>
+<li>极限森林中每一个决策树都采用<strong>原始训练集</strong></li>
+<li>抽样后，分裂时，每一个结点分裂时，都进行特征随机抽样（一部分特征作为分裂属性）</li>
+<li>从分裂随机中筛选最优分裂条件</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/14-%E6%9E%81%E9%99%90%E6%A3%AE%E6%9E%97.png" alt=""></p>
+<h4 id="6-2、极限森林实战">6.2、极限森林实战</h4>
+<p>1、加载数据</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs Python"><span class="hljs-keyword">import</span> warnings<br>warnings.filterwarnings(<span class="hljs-string">&#x27;ignore&#x27;</span>)<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">from</span> sklearn.ensemble <span class="hljs-keyword">import</span> RandomForestClassifier,ExtraTreesClassifier<br><span class="hljs-keyword">from</span> sklearn.tree <span class="hljs-keyword">import</span> DecisionTreeClassifier<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> datasets<br><span class="hljs-keyword">from</span> sklearn.model_selection <span class="hljs-keyword">import</span> train_test_split<br><span class="hljs-keyword">import</span> graphviz<br><span class="hljs-keyword">from</span> sklearn <span class="hljs-keyword">import</span> tree<br><br><span class="hljs-comment"># 加载数据</span><br>X,y = datasets.load_wine(<span class="hljs-literal">True</span>)<br>X_train,X_test,y_train,y_test = train_test_split(X,y,random_state = <span class="hljs-number">119</span>)<br></code></pre></td></tr></table></figure>
+<p>2、单棵决策树</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Python">clf = DecisionTreeClassifier()<br>clf.fit(X_train,y_train)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;单棵决策树得分：&#x27;</span>,clf.score(X_test,y_test))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;数据特征：&#x27;</span>,clf.n_features_)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;节点分裂选择最大特征数量：&#x27;</span>,clf.max_features_)<br></code></pre></td></tr></table></figure>
+<p>3、随机森林</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">clf2 = RandomForestClassifier()<br>clf2.fit(X_train,y_train)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;随机森林得分：&#x27;</span>,clf2.score(X_test,y_test))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;数据特征：&#x27;</span>,clf2.n_features_)<br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> clf2:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;节点分裂选择最大特征数量：&#x27;</span>,t.max_features_)<br></code></pre></td></tr></table></figure>
+<p>4、极限森林</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs Python">clf3 = ExtraTreesClassifier(max_depth = <span class="hljs-number">3</span>)<br>clf3.fit(X_train,y_train)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;极限森林得分：&#x27;</span>,clf3.score(X_test,y_test))<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;数据特征：&#x27;</span>,clf3.n_features_)<br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> clf3:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;节点分裂选择最大特征数量：&#x27;</span>,t.max_features_)<br></code></pre></td></tr></table></figure>
+<p>5、可视化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Python">dot_data = tree.export_graphviz(clf3[<span class="hljs-number">0</span>],filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph<br></code></pre></td></tr></table></figure>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/15-%E6%9E%81%E9%99%90%E6%A3%AE%E6%9E%97%E5%86%B3%E7%AD%96%E6%A0%91%E7%BB%93%E6%9E%84.png" alt=""></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs Python">dot_data = tree.export_graphviz(clf3[<span class="hljs-number">49</span>],filled=<span class="hljs-literal">True</span>)<br>graph = graphviz.Source(dot_data)<br>graph<br></code></pre></td></tr></table></figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/16-极限森林第50棵树结构.png" style="zoom:33%;" />
+<p>6、分裂标准代码演练</p>
+<p>6.1、计算未分裂gini系数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Python">count = []<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>    count.append((y_train == i).<span class="hljs-built_in">sum</span>())<br>count = np.array(count)<br>p = count / count.<span class="hljs-built_in">sum</span>()<br>gini = (p * (<span class="hljs-number">1</span> - p)).<span class="hljs-built_in">sum</span>()<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;未分裂，gini系数是：&#x27;</span>,<span class="hljs-built_in">round</span>(gini,<span class="hljs-number">3</span>))<br></code></pre></td></tr></table></figure>
+<p>6.2、根据属性寻找最佳分裂条件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs Python">f = np.sort(X_train[:,<span class="hljs-number">11</span>])<br>gini_lower = <span class="hljs-number">1</span><br>best_split = &#123;&#125;<br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(f) - <span class="hljs-number">1</span>):<br>    split = <span class="hljs-built_in">round</span>(f[i:i + <span class="hljs-number">2</span>].mean(),<span class="hljs-number">3</span>)<br>    cond = X_train[:,<span class="hljs-number">11</span>] &lt;= split<br>    part1 = y_train[cond]<br>    part2 = y_train[~cond]<br>    <span class="hljs-comment"># 计算每一部分的gini系数</span><br>    count1 = []<br>    count2 = []<br>    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">3</span>):<br>        count1.append((part1 == j).<span class="hljs-built_in">sum</span>())<br>        count2.append((part2 == j).<span class="hljs-built_in">sum</span>())<br>    count1,count2 = np.array(count1),np.array(count2)<br>    p1 = count1 / count1.<span class="hljs-built_in">sum</span>()<br>    p2 = count2 / count2.<span class="hljs-built_in">sum</span>()<br>    gini1 = <span class="hljs-built_in">round</span>((p1 * (<span class="hljs-number">1</span> - p1)).<span class="hljs-built_in">sum</span>(),<span class="hljs-number">3</span>)<br>    gini2 = <span class="hljs-built_in">round</span>((p2 * (<span class="hljs-number">1</span> - p2)).<span class="hljs-built_in">sum</span>(),<span class="hljs-number">3</span>)<br>    <span class="hljs-comment"># 计算整体的gini系数</span><br>    gini = <span class="hljs-built_in">round</span>(gini1 * count1.<span class="hljs-built_in">sum</span>()/(y_train.size) + gini2 * count2.<span class="hljs-built_in">sum</span>()/(y_train.size),<span class="hljs-number">3</span>)<br>    <span class="hljs-keyword">if</span> gini &lt; gini_lower:<br>        gini_lower = gini<br>        best_split.clear()<br>        best_split[j] = split<br>    <span class="hljs-built_in">print</span>(split,gini1,gini2,gini,count1,count2)<br><span class="hljs-built_in">print</span>(best_split,gini_lower)<br></code></pre></td></tr></table></figure>
+<p><strong>结论：</strong></p>
+<ul>
+<li>通过打印输出可知，极限森林分裂条件，并不是最优的</li>
+<li>并没有使用gini系数最小的分裂点</li>
+<li>分裂值，具有随机性，这正是极限森林的随机所在！</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://git.molittle.site">molittle</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://git.molittle.site/posts/cbfbaea9.html">http://git.molittle.site/posts/cbfbaea9.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://git.molittle.site" target="_blank">molittle</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/AI/">AI</a></div><div class="post-share"><div class="social-share" data-image="/img/123.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/posts/3c50d4b7.html" title="决策树算法"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/123.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">决策树算法</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a><a class="pagination-related" href="/posts/ccca0725.html" title="2-KNN"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/123.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">2-KNN</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a></nav><p>相关文章功能暂时不可用</p><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">molittle</div><div class="author-info-description">MyBlog</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">11</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/molittle-git"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon faa-parent animated-hover" href="https://github.com/molittle-git" target="_blank" title="Github"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-github"></use></svg></a><a class="social-icon faa-parent animated-hover" href="https://wx.mail.qq.com/list/readtemplate?name=proxy_spwd.html&amp;type=indepent-password-login&amp;account=3466954759&amp;redirect_url=%2Fhome%2Findex%3Fsid%3DzQdUMoyIbFMupTJnAM5FMAAA&amp;loginfrom=qqconnect&amp;sid=zQdUMoyIbFMupTJnAM5FMAAA&amp;" target="_blank" title="Email"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-youxiang"></use></svg></a><a class="social-icon faa-parent animated-hover" href="/atom.xml" target="_blank" title="RSS"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-RSS"></use></svg></a><a class="social-icon faa-parent animated-hover" href="https://space.bilibili.com/1572041910" target="_blank" title="BiliBili"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-bilibili-nh"></use></svg></a><a class="social-icon faa-parent animated-hover" href="tencent://Message/?Uin=2268025923&amp;amp;websiteName=local.edu.com:8888=&amp;amp;Menu=yes" target="_blank" title="QQ"><svg class="icon faa-tada" aria-hidden="true"><use xlink:href="#icon-QQ"></use></svg></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91%E5%8E%9F%E7%90%86%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1、决策回归树原理概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91%E7%AE%97%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">2、决策回归树算例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-1%E3%80%81%E5%86%B3%E7%AD%96%E6%A0%91%E9%A2%84%E6%B5%8B%E5%9C%86%E7%9A%84%E8%BD%A8%E8%BF%B9"><span class="toc-number">2.1.</span> <span class="toc-text">2.1、决策树预测圆的轨迹</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-2%E3%80%81%E5%A2%9E%E5%8A%A0%E5%86%B3%E7%AD%96%E6%A0%91%E6%B7%B1%E5%BA%A6"><span class="toc-number">2.2.</span> <span class="toc-text">2.2、增加决策树深度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3%E3%80%81%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91%E5%88%86%E8%A3%82%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">2.3、决策回归树分裂原理剖析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%86%B3%E7%AD%96%E5%9B%9E%E5%BD%92%E6%A0%91-VS-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92"><span class="toc-number">3.</span> <span class="toc-text">3、决策回归树 VS 线性回归</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E9%9B%86%E6%88%90%E7%AE%97%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">4、集成算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-1%E3%80%81%E9%9B%86%E6%88%90%E7%AE%97%E6%B3%95%E6%A6%82%E8%BF%B0"><span class="toc-number">4.1.</span> <span class="toc-text">4.1、集成算法概述</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-2%E3%80%81%E6%9E%84%E9%80%A0%E4%B8%8D%E5%90%8C%E6%A8%A1%E5%9E%8B%EF%BC%88%E6%9C%8B%E5%8F%8B%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">4.2、构造不同模型（朋友）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-3%E3%80%81%E9%9B%86%E6%88%90%E7%AE%97%E6%B3%95%E4%B8%8D%E5%90%8C%E6%96%B9%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">4.3、集成算法不同方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-4%E3%80%81Bagging%E9%9B%86%E6%88%90%E7%AE%97%E6%B3%95%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.4.</span> <span class="toc-text">4.4、Bagging集成算法步骤</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="toc-number">5.</span> <span class="toc-text">5、随机森林</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1%E3%80%81%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E4%BB%8B%E7%BB%8D"><span class="toc-number">5.1.</span> <span class="toc-text">5.1、随机森林介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2%E3%80%81%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E5%AE%9E%E6%88%98"><span class="toc-number">5.2.</span> <span class="toc-text">5.2、随机森林实战</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-3%E3%80%81%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="toc-number">5.3.</span> <span class="toc-text">5.3、随机森林可视化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-4%E3%80%81%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E6%80%BB%E7%BB%93"><span class="toc-number">5.4.</span> <span class="toc-text">5.4、随机森林总结</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E6%9E%81%E9%99%90%E6%A3%AE%E6%9E%97"><span class="toc-number">6.</span> <span class="toc-text">6、极限森林</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#6-1%E3%80%81%E6%9E%81%E9%99%90%E6%A3%AE%E6%9E%97%E4%BB%8B%E7%BB%8D"><span class="toc-number">6.1.</span> <span class="toc-text">6.1、极限森林介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-2%E3%80%81%E6%9E%81%E9%99%90%E6%A3%AE%E6%9E%97%E5%AE%9E%E6%88%98"><span class="toc-number">6.2.</span> <span class="toc-text">6.2、极限森林实战</span></a></li></ol></li></ol></div></div><div class="card-widget card-categories"><div class="item-headline">
+            <i class="fas fa-folder-open"></i>
+            <span>分类</span>
+            
+          </div>
+          <ul class="card-category-list" id="aside-cat-list">
+            <li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/"><span class="card-category-list-name">program</span><span class="card-category-list-count">32</span></a><ul class="card-category-list child"><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E4%B8%80%E4%BA%9B%E9%A2%98%E8%A7%A3/"><span class="card-category-list-name">一些题解</span><span class="card-category-list-count">1</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"><span class="card-category-list-name">机器学习</span><span class="card-category-list-count">20</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E7%AE%97%E6%B3%95%E5%88%B7%E9%A2%98%E8%B7%AF%E7%BA%BF/"><span class="card-category-list-name">算法刷题路线</span><span class="card-category-list-count">2</span></a></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/program/%E7%AE%97%E6%B3%95%E6%A8%A1%E6%9D%BF/"><span class="card-category-list-name">算法模板</span><span class="card-category-list-count">9</span></a></li></ul></li><li class="card-category-list-item "><a class="card-category-list-link" href="/categories/uncategorized/"><span class="card-category-list-name">uncategorized</span><span class="card-category-list-count">1</span></a></li>
+          </ul></div><div class="card-widget card-tags"><div class="item-headline"><i class="fas fa-tags"></i><span>标签</span></div><div class="card-tag-cloud"><a href="/tags/spfa/" style="font-size: 1.1em; color: #999">spfa</a> <a href="/tags/Numpy/" style="font-size: 1.1em; color: #999">Numpy</a> <a href="/tags/%E6%9C%80%E7%9F%AD%E8%B7%AF/" style="font-size: 1.1em; color: #999">最短路</a> <a href="/tags/%E5%89%8D%E7%BC%80%E5%92%8C/" style="font-size: 1.1em; color: #999">前缀和</a> <a href="/tags/%E4%BA%8C%E5%88%86/" style="font-size: 1.3em; color: #99a1ac">二分</a> <a href="/tags/Floyd/" style="font-size: 1.1em; color: #999">Floyd</a> <a href="/tags/%E6%A0%91%E7%8A%B6%E6%95%B0%E7%BB%84/" style="font-size: 1.1em; color: #999">树状数组</a> <a href="/tags/%E6%95%B0%E5%AD%A6/" style="font-size: 1.1em; color: #999">数学</a> <a href="/tags/%E5%B7%AE%E5%88%86/" style="font-size: 1.1em; color: #999">差分</a> <a href="/tags/AI/" style="font-size: 1.5em; color: #99a9bf">AI</a> <a href="/tags/%E6%8E%92%E5%BA%8F/" style="font-size: 1.1em; color: #999">排序</a></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By molittle</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div><script src="/js/runtime.js"></script><link rel="stylesheet" href="/css/runtime/runtime.css"/></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="share" type="button" title="分享链接" onclick="share()"><i class="fas fa-share-nodes"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i><span id="percent"> </span></button><button id="go-down" type="button" title="直达底部" onclick="btf.scrollToDest(document.body.scrollHeight, 500)"><i class="fas fa-arrow-down"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://twikoo.git.molittle.site/',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://twikoo.git.molittle.site/',
+      region: '',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script src="https://cdn.bootcdn.net/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script><script src="https://fastly.jsdelivr.net/npm/live2d-widgets@0/autoload.js"></script><script src="/js/fuction.js"></script><div class="aplayer no-destroy" data-id="4879584972" data-server="netease" data-type="playlist"   data-order="list" data-fixed="true" data-preload="auto" data-autoplay="false" data-mutex="true" ></div><script async src="//at.alicdn.com/t/c/font_4902343_uyeqwzz0p0r.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script>(() => {
+  const destroyAplayer = () => {
+    if (window.aplayers) {
+      for (let i = 0; i < window.aplayers.length; i++) {
+        if (!window.aplayers[i].options.fixed) {
+          window.aplayers[i].destroy()
+        }
+      }
+    }
+  }
+
+  const runMetingJS = () => {
+    typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+  }
+
+  btf.addGlobalFn('pjaxSend', destroyAplayer, 'destroyAplayer')
+  btf.addGlobalFn('pjaxComplete', loadMeting, 'runMetingJS')
+})()</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show","#web_bg(style=getBgPath(theme.background))",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      const usePjax = true
+      false 
+        ? (usePjax ? pjax.loadUrl('/404.html') : window.location.href = '/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})()</script><div class="app-refresh" id="app-refresh" style="position: fixed;top: -2.2rem;left: 0;right: 0;z-index: 99999;padding: 0 1rem;font-size: 15px;height: 2.2rem;transition: all 0.3s ease;"><div class="app-refresh-wrap" style=" display: flex;color: #fff;height: 100%;align-items: center;justify-content: center;"><label>✨ 有新文章啦！ 👉</label><a href="javascript:void(0)" onclick="location.reload()"><span style="color: #fff;text-decoration: underline;cursor: pointer;">🍗点击食用🍔</span></a></div></div><script>if ('serviceWorker' in navigator) {
+if (navigator.serviceWorker.controller) {
+navigator.serviceWorker.addEventListener('controllerchange', function() {
+showNotification()
+})
+}
+window.addEventListener('load', function() {
+navigator.serviceWorker.register('/sw.js')
+})
+}
+function showNotification() {
+if (GLOBAL_CONFIG.Snackbar) {
+var snackbarBg =
+document.documentElement.getAttribute('data-theme') === 'light' ?
+GLOBAL_CONFIG.Snackbar.bgLight :
+GLOBAL_CONFIG.Snackbar.bgDark
+var snackbarPos = GLOBAL_CONFIG.Snackbar.position
+Snackbar.show({
+text: '✨ 有新文章啦！ 👉',
+backgroundColor: snackbarBg,
+duration: 500000,
+pos: snackbarPos,
+actionText: '🍗点击食用🍔',
+actionTextColor: '#fff',
+onActionClick: function(e) {
+location.reload()
+},
+})
+} else {
+var showBg =
+document.documentElement.getAttribute('data-theme') === 'light' ?
+'#3b70fc' :
+'#1f1f1f'
+var cssText = `top: 0; background: ${showBg};`
+document.getElementById('app-refresh').style.cssText = cssText
+}
+}</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --><script>
+    // 全局变量声明区域
+    var fdata = {
+      apiurl: 'https://hexo-friendcircle-api-ai9d4hwad-anzhiyu-c.vercel.app/api',
+      initnumber: 20, //【可选】页面初始化展示文章数量
+      stepnumber: 10, //【可选】每次加载增加的篇数
+      error_img: 'https://npm.elemecdn.com/akilar-candyassets/image/404.gif' //【可选，头像图片加载失败时的默认头像】
+    }
+    //存入本地存储
+    localStorage.setItem("fdatalist",JSON.stringify(fdata))
+    </script>
+    <script defer src="https://npm.elemecdn.com/hexo-filter-fcircle/assets/js/fetch.min.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><div id="ghbdages" style="overflow:hidden;max-height:90px;height:auto;text-align:center;margin-top:10px"><div class="swiper-wrapper"><div class="swiper-slide"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" title="博客框架为Hexo_v5.4.0"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" title="主题版本Butterfly_v4.2.2"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a><a class="github-badge" target="_blank" href="https://www.jsdelivr.com/" style="margin-inline:5px" title="本站使用JsDelivr为静态资源提供CDN加速"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&amp;logo=jsDelivr" alt=""/></a></div><div class="swiper-slide"><a class="github-badge" target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index" style="margin-inline:5px" title="本站已在鲁进行备案"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/e1d492.svg" alt=""/></a><a class="github-badge" target="_blank" href="https://github.com/" style="margin-inline:5px" title="本站项目由Github托管"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&amp;logo=GitHub" alt=""/></a><a class="github-badge" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="margin-inline:5px" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&amp;logo=Claris" alt=""/></a></div></div></div><style>a.github-badge:hover:before {display:none}</style>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/js/runtime.js"></script><script defer src="https://unpkg.zhimg.com/hexo-butterfly-swiper/lib/swiper.min.js"></script><script defer data-pjax src="https://unpkg.zhimg.com/hexo-butterfly-footer-beautify/lib/swiperbdage_init.min.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '30');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('article-sort-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__slideInRight');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow_init.js"></script><script async src="/js/ali_font.js"></script><!-- hexo injector body_end end --></body></html>
