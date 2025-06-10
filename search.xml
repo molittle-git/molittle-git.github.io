@@ -219,196 +219,6 @@ import numpy as np  # 导入类库 numpydata = np.loadtxt(&#x27;./iris.csv&#x27;
       </tags>
   </entry>
   <entry>
-    <title>pandas数据分析库</title>
-    <url>/posts/a67c1f02.html</url>
-    <content><![CDATA[
-
-pandas数据分析库
-第一部分 课程介绍
-
-Python在数据处理和准备方面一直做得很好，但在数据分析和建模方面就差一些。pandas帮助填补了这一空白，使您能够在Python中执行整个数据分析工作流程，而不必切换到更特定于领域的语言，如R。
-与出色的 jupyter工具包和其他库相结合，Python中用于进行数据分析的环境在性能、生产率和协作能力方面都是卓越的。
-pandas是 Python 的核心数据分析支持库，提供了快速、灵活、明确的数据结构，旨在简单、直观地处理关系型、标记型数据。pandas是Python进行数据分析的必备高级工具。
-pandas的主要数据结构是 **Series(**一维数据)与 DataFrame (二维数据)，这两种数据结构足以处理金融、统计、社会科学、工程等领域里的大多数案例
-处理数据一般分为几个阶段：数据整理与清洗、数据分析与建模、数据可视化与制表，Pandas 是处理数据的理想工具。
-pip install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-第二部分 数据结构
-第一节 Series
-用列表生成 Series时，Pandas 默认自动生成整数索引，也可以指定索引
-l = [0,1,7,9,np.NAN,None,1024,512]# 无论是numpy中的NAN还是Python中的None在pandas中都以缺失数据NaN对待s1 = pd.Series(data = l)  # pandas自动添加索引s2 = pd.Series(data = l,index = list(&#x27;abcdefhi&#x27;),dtype=&#x27;float32&#x27;) # 指定行索引# 传入字典创建，key行索引s3 = pd.Series(data = &#123;&#x27;a&#x27;:99,&#x27;b&#x27;:137,&#x27;c&#x27;:149&#125;,name = &#x27;Python_score&#x27;) display(s1,s2,s3)
-第二节 DataFrame
-DataFrame是由多种类型的列构成的二维标签数据结构，类似于 Excel 、SQL 表，或 Series 对象构成的字典。
-import numpy as npimport pandas as pd# index 作为行索引，字典中的key作为列索引，创建了3*3的DataFrame表格二维数组df1 = pd.DataFrame(data = &#123;&#x27;Python&#x27;:[99,107,122],&#x27;Math&#x27;:[111,137,88],&#x27;En&#x27;:[68,108,43]&#125;,# key作为列索引                   index = [&#x27;张三&#x27;,&#x27;李四&#x27;,&#x27;Michael&#x27;]) # 行索引df2 = pd.DataFrame(data = np.random.randint(0,151,size = (5,3)),                   index = [&#x27;Danial&#x27;,&#x27;Brandon&#x27;,&#x27;softpo&#x27;,&#x27;Ella&#x27;,&#x27;Cindy&#x27;],# 行索引                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引
-第三部分 数据查看
-
-查看DataFrame的常用属性和DataFrame的概览和统计信息
-
-import numpy as npimport pandas as pd# 创建 shape(150,3)的二维标签数组结构DataFramedf = pd.DataFrame(data = np.random.randint(0,151,size = (150,3)),                   index = None,# 行索引默认                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引# 查看其属性、概览和统计信息df.head(10) # 显示头部10行，默认5个df.tail(10) # 显示末尾10行，默认5个df.shape # 查看形状，行数和列数df.dtypes # 查看数据类型df.index # 行索引df.columns # 列索引df.values # 对象值，二维ndarray数组df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值df.info() # 查看列索引、数据类型、非空计数和内存信息
-第四部分 数据输入与输出
-第一节 csv
-import numpy as npimport pandas as pddf = DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])# 保存到当前路径下，文件命名是：salary.csv。csv逗号分割值文件格式df.to_csv(&#x27;./salary.csv&#x27;,          sep = &#x27;;&#x27;, # 文本分隔符，默认是逗号          header = True,# 是否保存列索引          index = True) # 是否保存行索引，保存行索引，文件被加载时，默认行索引会作为一列# 加载pd.read_csv(&#x27;./salary.csv&#x27;,            sep = &#x27;;&#x27;,# 默认是逗号            header = [0],#指定列索引            index_col=0) # 指定行索引pd.read_table(&#x27;./salary.csv&#x27;, # 和read_csv类似，读取限定分隔符的文本文件            sep = &#x27;;&#x27;,            header = [0],#指定列索引            index_col=1) # 指定行索引,IT作为行索引
-第二节 Excel
-pip install xlrd -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install xlwt -i https://pypi.tuna.tsinghua.edu.cn/simple
-import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：salary.xlsdf1.to_excel(&#x27;./salary.xls&#x27;,            sheet_name = &#x27;salary&#x27;,# Excel中工作表的名字            header = True,# 是否保存列索引            index = False) # 是否保存行索引，保存行索引pd.read_excel(&#x27;./salary.xls&#x27;,              sheet_name=0,# 读取哪一个Excel中工作表，默认第一个              header = 0,# 使用第一行数据作为列索引              names = list(&#x27;ABCDE&#x27;),# 替换行索引              index_col=1)# 指定行索引，B作为行索引# 一个Excel文件中保存多个工作表with pd.ExcelWriter(&#x27;./data.xlsx&#x27;) as writer:    df1.to_excel(writer,sheet_name=&#x27;salary&#x27;,index = False)    df2.to_excel(writer,sheet_name=&#x27;score&#x27;,index = False)pd.read_excel(&#x27;./data.xlsx&#x27;,              sheet_name=&#x27;salary&#x27;) # 读取Excel中指定名字的工作表 
-第三节 SQL
-pip install sqlalchemy -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install pymysql -i https://pypi.tuna.tsinghua.edu.cn/simple
-数据库引擎配置
-import pandas as pd# SQLAlchemy是Python编程语言下的一款开源软件。提供了SQL工具包及对象关系映射（ORM）工具from sqlalchemy import create_enginedf = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 数据库连接conn = create_engine(&#x27;mysql+pymysql://root:12345678@localhost/pandas?charset=UTF8MB4&#x27;)# 保存到数据库df.to_sql(&#x27;score&#x27;,#数据库中表名          conn,# 数据库连接          if_exists=&#x27;append&#x27;)#如果表名存在，追加数据# 从数据库中加载pd.read_sql(&#x27;select * from score limit 10&#x27;, # sql查询语句            conn, # 数据库连接            index_col=&#x27;Python&#x27;) # 指定行索引名
-第四节 HDF5
-pip install tables -i https://pypi.tuna.tsinghua.edu.cn/simple
-HDF5是一个独特的技术套件，可以管理非常大和复杂的数据收集。
-HDF5，可以存储不同类型数据的文件格式，后缀通常是.h5，它的结构是层次性的。
-一个HDF5文件可以被看作是一个组包含了各类不同的数据集。
-对于HDF5文件中的数据存储，有两个核心概念：group 和 dataset
-dataset 代表数据集，一个文件当中可以存放不同种类的数据集，这些数据集如何管理，就用到了group
-最直观的理解，可以参考我们的文件管理系统，不同的文件位于不同的目录下。
-目录就是HDF5中的group, 描述了数据集dataset的分类信息，通过group 有效的将多种dataset 进行管理和区分；文件就是HDF5中的dataset, 表示的是具体的数据。
-import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：data.h5df1.to_hdf(&#x27;./data.h5&#x27;,key=&#x27;salary&#x27;) # 保存数据的key，标记df2.to_hdf(&#x27;./data.h5&#x27;,key = &#x27;score&#x27;)pd.read_hdf(&#x27;./data.h5&#x27;,            key = &#x27;salary&#x27;)#获取指定的标记、key的数据
-第五部分 数据选取
-第一节 字段数据
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df[&#x27;Python&#x27;] # 获取单列，Seriesdf.Python # 获取单列，Seriesdf[[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 获取多列，DataFramedf[3:15] # 行切片
-第二节 标签选择
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.loc[[&#x27;A&#x27;,&#x27;C&#x27;,&#x27;D&#x27;,&#x27;F&#x27;]] # 选取指定行标签数据。df.loc[&#x27;A&#x27;:&#x27;E&#x27;,[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 根据行标签切片，选取指定列标签的数据df.loc[:,[&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;]] # :默认保留所有行df.loc[&#x27;E&#x27;::2,&#x27;Python&#x27;:&#x27;Tensorflow&#x27;] # 行切片从标签E开始每2个中取一个，列标签进行切片df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] # 选取标量值
-第三节 位置选择
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4] # 用整数位置选择。df.iloc[2:8,0:2] # 用整数切片，类似NumPydf.iloc[[1,3,5],[0,2,1]] # 整数列表按位置切片df.iloc[1:3,:] # 行切片df.iloc[:,:2] # 列切片df.iloc[0,2] # 选取标量值
-第四节 boolean索引
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目cond1 = df.Python &gt; 100 #  判断Python分数是否大于100，返回值是boolean类型的Seriesdf[cond1] # 返回Python分数大于100分的用户所有考试科目数据cond2 = (df.Python &gt; 50) &amp; (df[&#x27;Keras&#x27;] &gt; 50) # &amp;与运算df[cond2] # 返回Python和Keras同时大于50分的用户的所有考试科目数据df[df &gt; 50]# 选择DataFrame中满足条件的值，如果满足返回值，不然返回空数据NaNdf[df.index.isin([&#x27;A&#x27;,&#x27;C&#x27;,&#x27;F&#x27;])] # isin判断是否在数组中，返回也是boolean类型值
-第五节 赋值操作
-import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目s = pd.Series(data = np.random.randint(0,150,size = 9),index=list(&#x27;BCDEFGHIJ&#x27;),name = &#x27;PyTorch&#x27;)df[&#x27;PyTorch&#x27;] = s # 增加一列，DataFrame行索引自动对齐df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] = 256 # 按标签赋值df.iloc[3,2] = 512 # 按位置赋值df.loc[:,&#x27;Python&#x27;] = np.array([128]*10) # 按NumPy数组进行赋值df[df &gt;= 128] = -df # 按照where条件进行赋值，大于等于128变成原来的负数，否则不变df
-第六部分 数据集成
-pandas 提供了多种将 Series、DataFrame 对象组合在一起的功能
-第一节 concat数据串联
-import pandas as pdimport numpy as npdf1 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df2 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;KLMNOPQRST&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df3 = pd.DataFrame(data = np.random.randint(0,150,size = (10,2)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns=[&#x27;PyTorch&#x27;,&#x27;Paddle&#x27;])pd.concat([df1,df2],axis = 0) # df1和df2行串联，df2的行追加df2行后面df1.append(df2) # 在df1后面追加df2pd.concat([df1,df3],axis = 1) # df1和df2列串联，df2的列追加到df1列后面
-第二节 插入
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])df.insert(loc = 1,column=&#x27;Pytorch&#x27;,value=1024) # 插入列df# 对行的操作，使用追加append，默认在最后面，无法指定位置# 如果想要在指定位置插入行：切割-添加-合并
-第三节 Join SQL风格合并
-数据集的合并（merge）或连接（join）运算是通过一个或者多个键将数据链接起来的。这些运算是关系型数据库的核心操作。pandas的merge函数是数据集进行join运算的主要切入点。
-import pandas as pdimport numpy as np# 表一中记录的是name和体重信息df1 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Ella&#x27;],&#x27;weight&#x27;:[70,55,75,65]&#125;)# 表二中记录的是name和身高信息df2 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)df3 = pd.DataFrame(data = &#123;&#x27;名字&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)# 根据共同的name将俩表的数据，进行合并pd.merge(df1,df2,         how = &#x27;inner&#x27;,# 内合并代表两对象交集         on = &#x27;name&#x27;)pd.merge(df1,df3,         how = &#x27;outer&#x27;,# 全外连接，两对象并集         left_on = &#x27;name&#x27;,# 左边DataFrame使用列标签 name进行合并         right_on = &#x27;名字&#x27;)# 右边DataFrame使用列标签 名字进行合并# 创建10名学生的考试成绩df4 = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                   index = list(&#x27;ABCDEFHIJK&#x27;),                   columns=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])# 计算每位学生各科平均分，转换成DataFramescore_mean = pd.DataFrame(df4.mean(axis = 1).round(1),columns=[&#x27;平均分&#x27;])# 将平均分和df3使用merge进行合并，它俩有共同的行索引pd.merge(left = df4,right = score_mean,         left_index=True,# 左边DataFrame使用行索引进行合并         right_index=True)# 右边的DataFrame使用行索引进行合并
-第七部分 数据清洗
-import numpy as npimport pandas as pddf = pd.DataFrame(data = &#123;&#x27;color&#x27;:[&#x27;red&#x27;,&#x27;blue&#x27;,&#x27;red&#x27;,&#x27;green&#x27;,&#x27;blue&#x27;,None,&#x27;red&#x27;],                          &#x27;price&#x27;:[10,20,10,15,20,0,np.NaN]&#125;)# 1、重复数据过滤df.duplicated() # 判断是否存在重复数据df.drop_duplicates() # 删除重复数据# 2、空数据过滤df.isnull() # 判断是否存在空数据，存在返回True，否则返回Falsedf.dropna(how = &#x27;any&#x27;) # 删除空数据df.fillna(value=1111) # 填充空数据# 3、指定行或者列过滤del df[&#x27;color&#x27;] # 直接删除某列df.drop(labels = [&#x27;price&#x27;],axis = 1)# 删除指定列df.drop(labels = [0,1,5],axis = 0) # 删除指定行# 4、函数filter使用df = pd.DataFrame(np.array(([3,7,1], [2, 8, 256])),                  index=[&#x27;dog&#x27;, &#x27;cat&#x27;],                  columns=[&#x27;China&#x27;, &#x27;America&#x27;, &#x27;France&#x27;])df.filter(items=[&#x27;China&#x27;, &#x27;France&#x27;])# 根据正则表达式删选列标签df.filter(regex=&#x27;a$&#x27;, axis=1)# 选择行中包含ogdf.filter(like=&#x27;og&#x27;, axis=0)# 5、异常值过滤df2 = pd.DataFrame(data = np.random.randn(10000,3)) # 正态分布数据# 3σ过滤异常值，σ即是标准差cond = (df2 &gt; 3*df2.std()).any(axis = 1)index = df2[cond].index # 不满足条件的行索引df2.drop(labels=index,axis = 0) # 根据行索引，进行数据删除
-第八部分 数据转换
-第一节 轴和元素替换
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据#1、重命名轴索引df.rename(index = &#123;&#x27;A&#x27;:&#x27;AA&#x27;,&#x27;B&#x27;:&#x27;BB&#x27;&#125;,columns = &#123;&#x27;Python&#x27;:&#x27;人工智能&#x27;&#125;) # 2、替换值df.replace(3,1024) #将3替换为1024df.replace([0,7],2048) # 将0和7替换为2048df.replace(&#123;0:512,np.nan:998&#125;) # 根据字典键值对进行替换df.replace(&#123;&#x27;Python&#x27;:2&#125;,-1024) # 将Python这一列中等于2的，替换为-1024
-第二节 map Series元素改变
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、map批量元素改变，Series专有df[&#x27;Keras&#x27;].map(&#123;1:&#x27;Hello&#x27;,5:&#x27;World&#x27;,7:&#x27;AI&#x27;&#125;) # 字典映射df[&#x27;Python&#x27;].map(lambda x:True if x &gt;=5 else False) # 隐式函数映射def convert(x): # 显示函数映射    if x%3 == 0:        return True    elif x%3 == 1:        return Falsedf[&#x27;Tensorflow&#x27;].map(convert)
-第三节 apply元素改变。既支持 Series，也支持 DataFrame
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、apply 应用方法数据转换，通用# Series，其中x是Series中元素df[&#x27;Keras&#x27;].apply(lambda x:True if x &gt;5 else False) # DataFrame，其中的x是DataFrame中列或者行，是Seriesdf.apply(lambda x : x.median(),axis = 0) # 列的中位数def convert(x): # 自定义方法    return (x.mean().round(1),x.count())df.apply(convert,axis = 1) # 行平均值，计数# 2、applymap DataFrame专有df.applymap(lambda x : x + 100) # 计算DataFrame中每个元素
-第四节 transform变形金刚
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、一列执行多项计算df[&#x27;Python&#x27;].transform([np.sqrt,np.exp]) # Series处理def convert(x):    if x.mean() &gt; 5:        x *= 10    else:        x *= -10    return x# 2、多列执行不同计算df.transform(&#123;&#x27;Python&#x27;:convert,&#x27;Tensorflow&#x27;:np.max,&#x27;Keras&#x27;:np.min&#125;) # DataFrame处理
-第五节 重排随机抽样哑变量
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])ran = np.random.permutation(10) # 随机重排df.take(ran) # 重排DataFramedf.take(np.random.randint(0,10,size = 15)) # 随机抽样# 哑变量，独热编码，1表示有，0表示没有df = pd.DataFrame(&#123;&#x27;key&#x27;:[&#x27;b&#x27;,&#x27;b&#x27;,&#x27;a&#x27;,&#x27;c&#x27;,&#x27;a&#x27;,&#x27;b&#x27;]&#125;)pd.get_dummies(df,prefix=&#x27;&#x27;,prefix_sep=&#x27;&#x27;)
-第九部分 数据重塑
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.T # 转置df2 = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                   index = pd.MultiIndex.from_product([list(&#x27;ABCDEFHIJK&#x27;),[&#x27;期中&#x27;,&#x27;期末&#x27;]]),#多层索引                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df2.unstack(level = -1) # 行旋转成列，level指定哪一层，进行变换df2.stack() # 列旋转成行df2.stack().unstack(level = 1) # 行列互换# 多层索引DataFrame数学计算df2.mean() # 各学科平均分df2.mean(level=0) # 各学科，每个人期中期末平均分df2.mean(level = 1) # 各学科，期中期末所有人平均分
-第十部分 数学和统计方法
-pandas对象拥有一组常用的数学和统计方法。它们属于汇总统计，对Series汇总计算获取mean、max值或者对DataFrame行、列汇总计算返回一个Series。
-第一节 简单统计指标
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                  index = list(&#x27;ABCDEFHIJKLMNOPQRSTU&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、简单统计指标df.count() # 非NA值的数量df.max(axis = 0) #轴0最大值，即每一列最大值df.min() #默认计算轴0最小值df.median() # 中位数df.sum() # 求和df.mean(axis = 1) #轴1平均值，即每一行的平均值df.quantile(q = [0.2,0.4,0.8]) # 分位数df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值
-第二节 索引标签、位置获取
-# 2、索引位置df[&#x27;Python&#x27;].argmin() # 计算最小值位置df[&#x27;Keras&#x27;].argmax() # 最大值位置df.idxmax() # 最大值索引标签df.idxmin() # 最小值索引标签
-第三节 更多统计指标
-# 3、更多统计指标df[&#x27;Python&#x27;].value_counts() # 统计元素出现次数df[&#x27;Keras&#x27;].unique() # 去重df.cumsum() # 累加df.cumprod() # 累乘df.std() # 标准差df.var() # 方差df.cummin() # 累计最小值df.cummax() # 累计最大值df.diff() # 计算差分df.pct_change() # 计算百分比变化
-第四节 高级统计指标
-# 4、高级统计指标df.cov() # 属性的协方差df[&#x27;Python&#x27;].cov(df[&#x27;Keras&#x27;]) # Python和Keras的协方差df.corr() # 所有属性相关性系数df.corrwith(df[&#x27;Tensorflow&#x27;]) # 单一属性相关性系数
-协方差：Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1Cov(X,Y) = \\frac{\\sum\\limits\_1^n(X\_i - \\overline{X})(Y\_i - \\overline{Y})}{n-1}Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1
-相关性系数：r(X,Y) = \\frac{Cov(X,Y)}{\\sqrt{Var\[X\]Var\[Y\]}}
-第十一部分 数据排序
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,30,size = (30,3)),                  index = list(&#x27;qwertyuioijhgfcasdcvbnerfghjcf&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Pytorch&#x27;])# 1、索引列名排序df.sort_index(axis = 0,ascending=True) # 按索引排序，降序df.sort_index(axis = 1,ascending=False) #按列名排序，升序# 2、属性值排序df.sort_values(by = [&#x27;Python&#x27;]) #按Python属性值排序df.sort_values(by = [&#x27;Python&#x27;,&#x27;Keras&#x27;])#先按Python，再按Keras排序# 3、返回属性n大或者n小的值df.nlargest(10,columns=&#x27;Keras&#x27;) # 根据属性Keras排序,返回最大10个数据df.nsmallest(5,columns=&#x27;Python&#x27;) # 根据属性Python排序，返回最小5个数据
-第十二部分 分箱操作
-分箱操作就是将连续数据转换为分类对应物的过程。比如将连续的身高数据划分为：矮中高。
-分箱操作分为等距分箱和等频分箱。
-分箱操作也叫面元划分或者离散化。
-import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,150,size = (100,3)),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、等宽分箱pd.cut(df.Python,bins = 3)# 指定宽度分箱pd.cut(df.Keras,#分箱数据       bins = [0,60,90,120,150],#分箱断点       right = False,# 左闭右开       labels=[&#x27;不及格&#x27;,&#x27;中等&#x27;,&#x27;良好&#x27;,&#x27;优秀&#x27;])# 分箱后分类# 2、等频分箱pd.qcut(df.Python,q = 4,# 4等分        labels=[&#x27;差&#x27;,&#x27;中&#x27;,&#x27;良&#x27;,&#x27;优&#x27;]) # 分箱后分类
-第十三部分 分组聚合
-第一节 分组
-import numpy as npimport pandas as pd# 准备数据df = pd.DataFrame(data = &#123;&#x27;sex&#x27;:np.random.randint(0,2,size = 300), # 0男，1女                          &#x27;class&#x27;:np.random.randint(1,9,size = 300),#1~8八个班                          &#x27;Python&#x27;:np.random.randint(0,151,size = 300),#Python成绩                          &#x27;Keras&#x27;:np.random.randint(0,151,size =300),#Keras成绩                          &#x27;Tensorflow&#x27;:np.random.randint(0,151,size=300),                          &#x27;Java&#x27;:np.random.randint(0,151,size = 300),                          &#x27;C++&#x27;:np.random.randint(0,151,size = 300)&#125;)df[&#x27;sex&#x27;] = df[&#x27;sex&#x27;].map(&#123;0:&#x27;男&#x27;,1:&#x27;女&#x27;&#125;) # 将0，1映射成男女# 1、分组-&gt;可迭代对象# 1.1 先分组再获取数据g = df.groupby(by = &#x27;sex&#x27;)[[&#x27;Python&#x27;,&#x27;Java&#x27;]] # 单分组for name,data in g:    print(&#x27;组名：&#x27;,name)    print(&#x27;数据：&#x27;,data)df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;]] # 多分组# 1.2 对一列值进行分组df[&#x27;Python&#x27;].groupby(df[&#x27;class&#x27;]) # 单分组df[&#x27;Keras&#x27;].groupby([df[&#x27;class&#x27;],df[&#x27;sex&#x27;]]) # 多分组# 1.3 按数据类型分组df.groupby(df.dtypes,axis = 1)# 1.4 通过字典进行分组m = &#123;&#x27;sex&#x27;:&#x27;category&#x27;,&#x27;class&#x27;:&#x27;category&#x27;,&#x27;Python&#x27;:&#x27;IT&#x27;,&#x27;Keras&#x27;:&#x27;IT&#x27;,&#x27;Tensorflow&#x27;:&#x27;IT&#x27;,&#x27;Java&#x27;:&#x27;IT&#x27;,&#x27;C++&#x27;:&#x27;IT&#x27;&#125;for name,data in df.groupby(m,axis = 1):    print(&#x27;组名&#x27;,name)    print(&#x27;数据&#x27;,data)
-第二节 分组聚合
-# 2、分组直接调用函数进行聚合# 按照性别分组，其他列均值聚合df.groupby(by = &#x27;sex&#x27;).mean().round(1) # 保留1位小数# 按照班级和性别进行分组，Python、Keras的最大值聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].max()# 按照班级和性别进行分组，计数聚合。统计每个班，男女人数df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).size()# 基本描述性统计聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).describe()
-第三节 分组聚合apply、transform
-# 3、分组后调用apply，transform封装单一函数计算# 返回分组结果df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].apply(np.mean).round(1)def normalization(x):    return (x - x.min())/(x.max() - x.min()) # 最大值最小值归一化# 返回全数据，返回DataFrame.shape和原DataFrame.shape一样。df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;]].transform(normalization).round(3)
-第四节 分组聚合agg
-# 4、agg 多中统计汇总操作# 分组后调用agg应用多种统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]].agg([np.max,np.min,pd.Series.count])# 分组后不同属性应用多种不同统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].agg(&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max),(&#x27;最小值&#x27;,np.min)],                                                          &#x27;Keras&#x27;:[(&#x27;计数&#x27;,pd.Series.count),(&#x27;中位数&#x27;,np.median)]&#125;)
-第五节 透视表pivot_table
-# 5、透视表# 透视表也是一种分组聚合运算def count(x):    return len(x)df.pivot_table(values=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;],# 要透视分组的值               index=[&#x27;class&#x27;,&#x27;sex&#x27;], # 分组透视指标               aggfunc=&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max)], # 聚合运算                        &#x27;Keras&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;中位数&#x27;,np.median)],                        &#x27;Tensorflow&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;平均值&#x27;,np.mean),(&#x27;计数&#x27;,count)]&#125;)
-第十四部分 时间序列
-第一节 时间戳操作
-# 1、创建方法pd.Timestamp(&#x27;2020-8-24 12&#x27;)# 时刻数据pd.Period(&#x27;2020-8-24&#x27;,freq = &#x27;M&#x27;) # 时期数据index = pd.date_range(&#x27;2020.08.24&#x27;,periods=5,freq = &#x27;M&#x27;) # 批量时刻数据pd.period_range(&#x27;2020.08.24&#x27;,periods=5,freq=&#x27;M&#x27;) # 批量时期数据ts = pd.Series(np.random.randint(0,10,size = 5),index = index) # 时间戳索引Series# 2、转换方法pd.to_datetime([&#x27;2020.08.24&#x27;,&#x27;2020-08-24&#x27;,&#x27;24/08/2020&#x27;,&#x27;2020/8/24&#x27;])pd.to_datetime([1598582232],unit=&#x27;s&#x27;)dt = pd.to_datetime([1598582420401],unit = &#x27;ms&#x27;) # 世界标准时间dt + pd.DateOffset(hours = 8) # 东八区时间dt + pd.DateOffset(days = 100) # 100天后日期
-第二节 时间戳索引
-index = pd.date_range(&quot;2020-8-24&quot;, periods=200, freq=&quot;D&quot;)ts = pd.Series(range(len(index)), index=index)# str类型索引ts[&#x27;2020-08-30&#x27;] # 日期访问数据ts[&#x27;2020-08-24&#x27;:&#x27;2020-09-3&#x27;] # 日期切片ts[&#x27;2020-08&#x27;] # 传入年月ts[&#x27;2020&#x27;] # 传入年# 时间戳索引ts[pd.Timestamp(&#x27;2020-08-30&#x27;)]ts[pd.Timestamp(&#x27;2020-08-24&#x27;):pd.Timestamp(&#x27;2020-08-30&#x27;)] # 切片ts[pd.date_range(&#x27;2020-08-24&#x27;,periods=10,freq=&#x27;D&#x27;)]# 时间戳索引属性ts.index.year # 获取年ts.index.dayofweek # 获取星期几ts.index.weekofyear # 一年中第几个星期几
-第三节 时间序列常用方法
-在做时间序列相关的工作时，经常要对时间做一些移动/滞后、频率转换、采样等相关操作，我们来看下这些操作如何使用
-index = pd.date_range(&#x27;8/1/2020&#x27;, periods=365, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randint(0, 500, len(index)), index=index)# 1、移动ts.shift(periods = 2) #  数据后移 ts.shift(periods = -2) # 数据前移# 日期移动ts.shift(periods = 2,freq = pd.tseries.offsets.Day()) # 天移动ts.tshift(periods = 1,freq = pd.tseries.offsets.MonthOffset()) #月移动# 2、频率转换ts.asfreq(pd.tseries.offsets.Week()) # 天变周ts.asfreq(pd.tseries.offsets.MonthEnd()) # 天变月ts.asfreq(pd.tseries.offsets.Hour(),fill_value = 0) #天变小时，又少变多，fill_value为填充值# 3、重采样# resample 表示根据日期维度进行数据聚合，可以按照分钟、小时、工作日、周、月、年等来作为日期维度ts.resample(&#x27;2W&#x27;).sum() # 以2周为单位进行汇总ts.resample(&#x27;3M&#x27;).sum().cumsum() # 以季度为单位进行汇总# 4、DataFrame重采样d = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],          &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50],          &#x27;week_starting&#x27;:pd.date_range(&#x27;24/08/2020&#x27;,periods=8,freq=&#x27;W&#x27;)&#125;)df1 = pd.DataFrame(d)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).apply(np.sum)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).agg(&#123;&#x27;price&#x27;:np.mean,&#x27;volume&#x27;:np.sum&#125;)days = pd.date_range(&#x27;1/8/2020&#x27;, periods=4, freq=&#x27;D&#x27;)data2 = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],           &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50]&#125;)df2 = pd.DataFrame(data2,                   index=pd.MultiIndex.from_product([days,[&#x27;morning&#x27;,&#x27;afternoon&#x27;]]))df2.resample(&#x27;D&#x27;, level=0).sum()
-第四节 时区表示
-index = pd.date_range(&#x27;8/1/2012 00:00&#x27;, periods=5, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randn(len(index)), index)import pytzpytz.common_timezones # 常用时区# 时区表示ts = ts.tz_localize(tz=&#x27;UTC&#x27;)# 转换成其它时区ts.tz_convert(tz = &#x27;Asia/Shanghai&#x27;)
-第十五部分 数据可视化
-pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple
-import numpy as npimport pandas as pd# 1、线形图df1 = pd.DataFrame(data = np.random.randn(1000,4),                  index = pd.date_range(start = &#x27;27/6/2012&#x27;,periods=1000),                  columns=list(&#x27;ABCD&#x27;))df1.cumsum().plot()# 2、条形图df2 = pd.DataFrame(data = np.random.rand(10,4),                   columns = list(&#x27;ABCD&#x27;))df2.plot.bar(stacked = True) # stacked 是否堆叠# 3、饼图df3 = pd.DataFrame(data = np.random.rand(4,2),                   index = list(&#x27;ABCD&#x27;),                   columns=[&#x27;One&#x27;,&#x27;Two&#x27;])df3.plot.pie(subplots = True,figsize = (8,8))# 4、散点图df4 = pd.DataFrame(np.random.rand(50, 4), columns=list(&#x27;ABCD&#x27;))df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;B&#x27;) # A和B关系绘制# 在一张图中绘制AC散点图，同时绘制BD散点图ax = df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;C&#x27;, color=&#x27;DarkBlue&#x27;, label=&#x27;Group 1&#x27;);df4.plot.scatter(x=&#x27;B&#x27;, y=&#x27;D&#x27;, color=&#x27;DarkGreen&#x27;, label=&#x27;Group 2&#x27;, ax=ax)# 气泡图，散点有大小之分df4.plot.scatter(x=&#x27;A&#x27;,y=&#x27;B&#x27;,s = df4[&#x27;C&#x27;]*200)# 5、面积图df5 = pd.DataFrame(data = np.random.rand(10, 4),                    columns=list(&#x27;ABCD&#x27;))df5.plot.area(stacked = True);# stacked 是否堆叠# 6、箱式图df6 = pd.DataFrame(data = np.random.rand(10, 5),                    columns=list(&#x27;ABCDE&#x27;))df6.plot.box()# 7、直方图df7 = pd.DataFrame(&#123;&#x27;A&#x27;: np.random.randn(1000) + 1, &#x27;B&#x27;: np.random.randn(1000),                    &#x27;C&#x27;: np.random.randn(1000) - 1&#125;)df7.plot.hist(alpha=0.5) #带透明度直方图df7.plot.hist(stacked = True)# 堆叠图df7.hist(figsize = (8,8)) # 子视图绘制
-第十六部分 实战-数据分析师招聘数据分析
-第一节 分析目标
-
-各城市对数据分析岗位的需求情况
-不同细分领域对数据分析岗的需求情况
-数据分析岗位的薪资状况
-工作经验与薪水的关系
-公司都要求什么掌握什么技能
-岗位的学历要求高吗
-不同规模的企业对工资经验的要求以及提供的薪资水平
-
-第二节 数据加载
-import pandas as pdimport numpy as npjob = pd.read_csv(&#x27;./job.csv&#x27;)job.drop_duplicates(inplace = True) # 删除重复数据
-第三节 数据清洗
-
-
-过滤非数据分析的岗位
-# 数据分析相应的岗位数量cond = job[&quot;positionName&quot;].str.contains(&quot;数据分析&quot;)  # 职位名中含有数据分析字眼的# 筛选出我们想要的字段，并剔除positionNamejob = job[cond]job.reset_index(inplace=True) # 行索引 重置job
-
-
-数据中的薪水是一个区间，这里用薪水区间的均值作为相应职位的薪水
-# 处理过程#1、将salary中的字符串均小写化（因为存在8k-16k和8K-16K）#2、运用正则表达式提取出薪资区间#3、将提取出来的数字转化为int型#4、取区间的平均值job[&quot;salary&quot;] = job[&quot;salary&quot;].str.lower()\               .str.extract(r&#x27;(\d+)[k]-(\d+)k&#x27;)\               .applymap(lambda x:int(x))\               .mean(axis=1)
-
-
-从job_detail中提取出技能要求 将技能分为以下几类 Python SQL Tableau Excel SPSS/SAS 处理方式： 如果job_detail中含有上述五类，则赋值为1，不含有则为0
-
-
-job[&quot;job_detail&quot;] = job[&quot;job_detail&quot;].str.lower().fillna(&quot;&quot;)  #将字符串小写化，并将缺失值赋值为空字符串
-job[&quot;Python&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('python' in x) else 0)
-job[&quot;SQL&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('sql' in x) or ('hive' in x)  else 0)
-job[&quot;Tableau&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'tableau' in x  else 0)
-job[&quot;Excel&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'excel' in x  else 0)
-job['SPSS/SAS'] = job['job_detail'].map(lambda x:1 if ('spss' in x) or ('sas' in x) else 0)
-    *   处理行业信息        在行业信息中有多个标签，对其进行处理，筛选最显著的行业标签。        ```python    def clean_industry(industry):        industry = industry.split(&quot;,&quot;)        if industry[0]==&quot;移动互联网&quot; and len(industry)&gt;1:            return industry[1]        else:            return industry[0]    job[&quot;industryField&quot;] = job.industryField.map(clean_industry)
-
-
-
-
-数据分析师职位的数据预处理基本完成，后续使用matplotlib进行数据可视化分析。
-
-
-pandas库的亮点
-
-一个快速、高效的DataFrame对象，用于数据操作和综合索引；
-用于在内存数据结构和不同格式之间读写数据的工具：CSV和文本文件、Microsoft Excel、SQL数据库和快速HDF 5格式；
-智能数据对齐和丢失数据的综合处理：在计算中获得基于标签的自动对齐，并轻松地将凌乱的数据操作为有序的形式；
-数据集的灵活调整和旋转；
-基于智能标签的切片、花式索引和大型数据集的子集；
-可以从数据结构中插入和删除列，以实现大小可变；
-通过在强大的引擎中聚合或转换数据，允许对数据集进行拆分应用组合操作;
-数据集的高性能合并和连接；
-层次轴索引提供了在低维数据结构中处理高维数据的直观方法；
-时间序列-功能：日期范围生成和频率转换、移动窗口统计、移动窗口线性回归、日期转换和滞后。甚至在不丢失数据的情况下创建特定领域的时间偏移和加入时间序列；
-对性能进行了高度优化，用Cython或C编写了关键代码路径。
-Python与pandas在广泛的学术和商业领域中使用，包括金融，神经科学，经济学，统计学，广告，网络分析，等等
-学到这里，体会一会pandas库的亮点，如果对哪些还不熟悉，请对之前知识点再次进行复习。
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-  </entry>
-  <entry>
     <title>NumPy科学计算库</title>
     <url>/posts/e1ca7594.html</url>
     <content><![CDATA[[toc]
@@ -660,6 +470,196 @@ target_names = faces.target_namesprint(&#x27;目标任务名字如下：&#x27;,t
       <tags>
         <tag>AI</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>pandas数据分析库</title>
+    <url>/posts/a67c1f02.html</url>
+    <content><![CDATA[
+
+pandas数据分析库
+第一部分 课程介绍
+
+Python在数据处理和准备方面一直做得很好，但在数据分析和建模方面就差一些。pandas帮助填补了这一空白，使您能够在Python中执行整个数据分析工作流程，而不必切换到更特定于领域的语言，如R。
+与出色的 jupyter工具包和其他库相结合，Python中用于进行数据分析的环境在性能、生产率和协作能力方面都是卓越的。
+pandas是 Python 的核心数据分析支持库，提供了快速、灵活、明确的数据结构，旨在简单、直观地处理关系型、标记型数据。pandas是Python进行数据分析的必备高级工具。
+pandas的主要数据结构是 **Series(**一维数据)与 DataFrame (二维数据)，这两种数据结构足以处理金融、统计、社会科学、工程等领域里的大多数案例
+处理数据一般分为几个阶段：数据整理与清洗、数据分析与建模、数据可视化与制表，Pandas 是处理数据的理想工具。
+pip install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+第二部分 数据结构
+第一节 Series
+用列表生成 Series时，Pandas 默认自动生成整数索引，也可以指定索引
+l = [0,1,7,9,np.NAN,None,1024,512]# 无论是numpy中的NAN还是Python中的None在pandas中都以缺失数据NaN对待s1 = pd.Series(data = l)  # pandas自动添加索引s2 = pd.Series(data = l,index = list(&#x27;abcdefhi&#x27;),dtype=&#x27;float32&#x27;) # 指定行索引# 传入字典创建，key行索引s3 = pd.Series(data = &#123;&#x27;a&#x27;:99,&#x27;b&#x27;:137,&#x27;c&#x27;:149&#125;,name = &#x27;Python_score&#x27;) display(s1,s2,s3)
+第二节 DataFrame
+DataFrame是由多种类型的列构成的二维标签数据结构，类似于 Excel 、SQL 表，或 Series 对象构成的字典。
+import numpy as npimport pandas as pd# index 作为行索引，字典中的key作为列索引，创建了3*3的DataFrame表格二维数组df1 = pd.DataFrame(data = &#123;&#x27;Python&#x27;:[99,107,122],&#x27;Math&#x27;:[111,137,88],&#x27;En&#x27;:[68,108,43]&#125;,# key作为列索引                   index = [&#x27;张三&#x27;,&#x27;李四&#x27;,&#x27;Michael&#x27;]) # 行索引df2 = pd.DataFrame(data = np.random.randint(0,151,size = (5,3)),                   index = [&#x27;Danial&#x27;,&#x27;Brandon&#x27;,&#x27;softpo&#x27;,&#x27;Ella&#x27;,&#x27;Cindy&#x27;],# 行索引                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引
+第三部分 数据查看
+
+查看DataFrame的常用属性和DataFrame的概览和统计信息
+
+import numpy as npimport pandas as pd# 创建 shape(150,3)的二维标签数组结构DataFramedf = pd.DataFrame(data = np.random.randint(0,151,size = (150,3)),                   index = None,# 行索引默认                   columns=[&#x27;Python&#x27;,&#x27;Math&#x27;,&#x27;En&#x27;])# 列索引# 查看其属性、概览和统计信息df.head(10) # 显示头部10行，默认5个df.tail(10) # 显示末尾10行，默认5个df.shape # 查看形状，行数和列数df.dtypes # 查看数据类型df.index # 行索引df.columns # 列索引df.values # 对象值，二维ndarray数组df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值df.info() # 查看列索引、数据类型、非空计数和内存信息
+第四部分 数据输入与输出
+第一节 csv
+import numpy as npimport pandas as pddf = DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])# 保存到当前路径下，文件命名是：salary.csv。csv逗号分割值文件格式df.to_csv(&#x27;./salary.csv&#x27;,          sep = &#x27;;&#x27;, # 文本分隔符，默认是逗号          header = True,# 是否保存列索引          index = True) # 是否保存行索引，保存行索引，文件被加载时，默认行索引会作为一列# 加载pd.read_csv(&#x27;./salary.csv&#x27;,            sep = &#x27;;&#x27;,# 默认是逗号            header = [0],#指定列索引            index_col=0) # 指定行索引pd.read_table(&#x27;./salary.csv&#x27;, # 和read_csv类似，读取限定分隔符的文本文件            sep = &#x27;;&#x27;,            header = [0],#指定列索引            index_col=1) # 指定行索引,IT作为行索引
+第二节 Excel
+pip install xlrd -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install xlwt -i https://pypi.tuna.tsinghua.edu.cn/simple
+import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：salary.xlsdf1.to_excel(&#x27;./salary.xls&#x27;,            sheet_name = &#x27;salary&#x27;,# Excel中工作表的名字            header = True,# 是否保存列索引            index = False) # 是否保存行索引，保存行索引pd.read_excel(&#x27;./salary.xls&#x27;,              sheet_name=0,# 读取哪一个Excel中工作表，默认第一个              header = 0,# 使用第一行数据作为列索引              names = list(&#x27;ABCDE&#x27;),# 替换行索引              index_col=1)# 指定行索引，B作为行索引# 一个Excel文件中保存多个工作表with pd.ExcelWriter(&#x27;./data.xlsx&#x27;) as writer:    df1.to_excel(writer,sheet_name=&#x27;salary&#x27;,index = False)    df2.to_excel(writer,sheet_name=&#x27;score&#x27;,index = False)pd.read_excel(&#x27;./data.xlsx&#x27;,              sheet_name=&#x27;salary&#x27;) # 读取Excel中指定名字的工作表 
+第三节 SQL
+pip install sqlalchemy -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pymysql -i https://pypi.tuna.tsinghua.edu.cn/simple
+数据库引擎配置
+import pandas as pd# SQLAlchemy是Python编程语言下的一款开源软件。提供了SQL工具包及对象关系映射（ORM）工具from sqlalchemy import create_enginedf = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 数据库连接conn = create_engine(&#x27;mysql+pymysql://root:12345678@localhost/pandas?charset=UTF8MB4&#x27;)# 保存到数据库df.to_sql(&#x27;score&#x27;,#数据库中表名          conn,# 数据库连接          if_exists=&#x27;append&#x27;)#如果表名存在，追加数据# 从数据库中加载pd.read_sql(&#x27;select * from score limit 10&#x27;, # sql查询语句            conn, # 数据库连接            index_col=&#x27;Python&#x27;) # 指定行索引名
+第四节 HDF5
+pip install tables -i https://pypi.tuna.tsinghua.edu.cn/simple
+HDF5是一个独特的技术套件，可以管理非常大和复杂的数据收集。
+HDF5，可以存储不同类型数据的文件格式，后缀通常是.h5，它的结构是层次性的。
+一个HDF5文件可以被看作是一个组包含了各类不同的数据集。
+对于HDF5文件中的数据存储，有两个核心概念：group 和 dataset
+dataset 代表数据集，一个文件当中可以存放不同种类的数据集，这些数据集如何管理，就用到了group
+最直观的理解，可以参考我们的文件管理系统，不同的文件位于不同的目录下。
+目录就是HDF5中的group, 描述了数据集dataset的分类信息，通过group 有效的将多种dataset 进行管理和区分；文件就是HDF5中的dataset, 表示的是具体的数据。
+import numpy as npimport pandas as pddf1 = pd.DataFrame(data = np.random.randint(0,50,size = [50,5]), # 薪资情况               columns=[&#x27;IT&#x27;,&#x27;化工&#x27;,&#x27;生物&#x27;,&#x27;教师&#x27;,&#x27;士兵&#x27;])df2 = pd.DataFrame(data = np.random.randint(0,50,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 保存到当前路径下，文件命名是：data.h5df1.to_hdf(&#x27;./data.h5&#x27;,key=&#x27;salary&#x27;) # 保存数据的key，标记df2.to_hdf(&#x27;./data.h5&#x27;,key = &#x27;score&#x27;)pd.read_hdf(&#x27;./data.h5&#x27;,            key = &#x27;salary&#x27;)#获取指定的标记、key的数据
+第五部分 数据选取
+第一节 字段数据
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [150,3]),# 计算机科目的考试成绩                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df[&#x27;Python&#x27;] # 获取单列，Seriesdf.Python # 获取单列，Seriesdf[[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 获取多列，DataFramedf[3:15] # 行切片
+第二节 标签选择
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.loc[[&#x27;A&#x27;,&#x27;C&#x27;,&#x27;D&#x27;,&#x27;F&#x27;]] # 选取指定行标签数据。df.loc[&#x27;A&#x27;:&#x27;E&#x27;,[&#x27;Python&#x27;,&#x27;Keras&#x27;]] # 根据行标签切片，选取指定列标签的数据df.loc[:,[&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;]] # :默认保留所有行df.loc[&#x27;E&#x27;::2,&#x27;Python&#x27;:&#x27;Tensorflow&#x27;] # 行切片从标签E开始每2个中取一个，列标签进行切片df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] # 选取标量值
+第三节 位置选择
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4] # 用整数位置选择。df.iloc[2:8,0:2] # 用整数切片，类似NumPydf.iloc[[1,3,5],[0,2,1]] # 整数列表按位置切片df.iloc[1:3,:] # 行切片df.iloc[:,:2] # 列切片df.iloc[0,2] # 选取标量值
+第四节 boolean索引
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目cond1 = df.Python &gt; 100 #  判断Python分数是否大于100，返回值是boolean类型的Seriesdf[cond1] # 返回Python分数大于100分的用户所有考试科目数据cond2 = (df.Python &gt; 50) &amp; (df[&#x27;Keras&#x27;] &gt; 50) # &amp;与运算df[cond2] # 返回Python和Keras同时大于50分的用户的所有考试科目数据df[df &gt; 50]# 选择DataFrame中满足条件的值，如果满足返回值，不然返回空数据NaNdf[df.index.isin([&#x27;A&#x27;,&#x27;C&#x27;,&#x27;F&#x27;])] # isin判断是否在数组中，返回也是boolean类型值
+第五节 赋值操作
+import pandas as pdimport numpy as npdf = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目s = pd.Series(data = np.random.randint(0,150,size = 9),index=list(&#x27;BCDEFGHIJ&#x27;),name = &#x27;PyTorch&#x27;)df[&#x27;PyTorch&#x27;] = s # 增加一列，DataFrame行索引自动对齐df.loc[&#x27;A&#x27;,&#x27;Python&#x27;] = 256 # 按标签赋值df.iloc[3,2] = 512 # 按位置赋值df.loc[:,&#x27;Python&#x27;] = np.array([128]*10) # 按NumPy数组进行赋值df[df &gt;= 128] = -df # 按照where条件进行赋值，大于等于128变成原来的负数，否则不变df
+第六部分 数据集成
+pandas 提供了多种将 Series、DataFrame 对象组合在一起的功能
+第一节 concat数据串联
+import pandas as pdimport numpy as npdf1 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;ABCDEFGHIJ&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df2 = pd.DataFrame(data = np.random.randint(0,150,size = [10,3]),# 计算机科目的考试成绩                  index = list(&#x27;KLMNOPQRST&#x27;),# 行标签，用户                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]) # 考试科目df3 = pd.DataFrame(data = np.random.randint(0,150,size = (10,2)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns=[&#x27;PyTorch&#x27;,&#x27;Paddle&#x27;])pd.concat([df1,df2],axis = 0) # df1和df2行串联，df2的行追加df2行后面df1.append(df2) # 在df1后面追加df2pd.concat([df1,df3],axis = 1) # df1和df2列串联，df2的列追加到df1列后面
+第二节 插入
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                  index = list(&#x27;ABCDEFGHIJ&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])df.insert(loc = 1,column=&#x27;Pytorch&#x27;,value=1024) # 插入列df# 对行的操作，使用追加append，默认在最后面，无法指定位置# 如果想要在指定位置插入行：切割-添加-合并
+第三节 Join SQL风格合并
+数据集的合并（merge）或连接（join）运算是通过一个或者多个键将数据链接起来的。这些运算是关系型数据库的核心操作。pandas的merge函数是数据集进行join运算的主要切入点。
+import pandas as pdimport numpy as np# 表一中记录的是name和体重信息df1 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Ella&#x27;],&#x27;weight&#x27;:[70,55,75,65]&#125;)# 表二中记录的是name和身高信息df2 = pd.DataFrame(data = &#123;&#x27;name&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)df3 = pd.DataFrame(data = &#123;&#x27;名字&#x27;:[&#x27;softpo&#x27;,&#x27;Daniel&#x27;,&#x27;Brandon&#x27;,&#x27;Cindy&#x27;],&#x27;height&#x27;:[172,170,170,166]&#125;)# 根据共同的name将俩表的数据，进行合并pd.merge(df1,df2,         how = &#x27;inner&#x27;,# 内合并代表两对象交集         on = &#x27;name&#x27;)pd.merge(df1,df3,         how = &#x27;outer&#x27;,# 全外连接，两对象并集         left_on = &#x27;name&#x27;,# 左边DataFrame使用列标签 name进行合并         right_on = &#x27;名字&#x27;)# 右边DataFrame使用列标签 名字进行合并# 创建10名学生的考试成绩df4 = pd.DataFrame(data = np.random.randint(0,151,size = (10,3)),                   index = list(&#x27;ABCDEFHIJK&#x27;),                   columns=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;])# 计算每位学生各科平均分，转换成DataFramescore_mean = pd.DataFrame(df4.mean(axis = 1).round(1),columns=[&#x27;平均分&#x27;])# 将平均分和df3使用merge进行合并，它俩有共同的行索引pd.merge(left = df4,right = score_mean,         left_index=True,# 左边DataFrame使用行索引进行合并         right_index=True)# 右边的DataFrame使用行索引进行合并
+第七部分 数据清洗
+import numpy as npimport pandas as pddf = pd.DataFrame(data = &#123;&#x27;color&#x27;:[&#x27;red&#x27;,&#x27;blue&#x27;,&#x27;red&#x27;,&#x27;green&#x27;,&#x27;blue&#x27;,None,&#x27;red&#x27;],                          &#x27;price&#x27;:[10,20,10,15,20,0,np.NaN]&#125;)# 1、重复数据过滤df.duplicated() # 判断是否存在重复数据df.drop_duplicates() # 删除重复数据# 2、空数据过滤df.isnull() # 判断是否存在空数据，存在返回True，否则返回Falsedf.dropna(how = &#x27;any&#x27;) # 删除空数据df.fillna(value=1111) # 填充空数据# 3、指定行或者列过滤del df[&#x27;color&#x27;] # 直接删除某列df.drop(labels = [&#x27;price&#x27;],axis = 1)# 删除指定列df.drop(labels = [0,1,5],axis = 0) # 删除指定行# 4、函数filter使用df = pd.DataFrame(np.array(([3,7,1], [2, 8, 256])),                  index=[&#x27;dog&#x27;, &#x27;cat&#x27;],                  columns=[&#x27;China&#x27;, &#x27;America&#x27;, &#x27;France&#x27;])df.filter(items=[&#x27;China&#x27;, &#x27;France&#x27;])# 根据正则表达式删选列标签df.filter(regex=&#x27;a$&#x27;, axis=1)# 选择行中包含ogdf.filter(like=&#x27;og&#x27;, axis=0)# 5、异常值过滤df2 = pd.DataFrame(data = np.random.randn(10000,3)) # 正态分布数据# 3σ过滤异常值，σ即是标准差cond = (df2 &gt; 3*df2.std()).any(axis = 1)index = df2[cond].index # 不满足条件的行索引df2.drop(labels=index,axis = 0) # 根据行索引，进行数据删除
+第八部分 数据转换
+第一节 轴和元素替换
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据#1、重命名轴索引df.rename(index = &#123;&#x27;A&#x27;:&#x27;AA&#x27;,&#x27;B&#x27;:&#x27;BB&#x27;&#125;,columns = &#123;&#x27;Python&#x27;:&#x27;人工智能&#x27;&#125;) # 2、替换值df.replace(3,1024) #将3替换为1024df.replace([0,7],2048) # 将0和7替换为2048df.replace(&#123;0:512,np.nan:998&#125;) # 根据字典键值对进行替换df.replace(&#123;&#x27;Python&#x27;:2&#125;,-1024) # 将Python这一列中等于2的，替换为-1024
+第二节 map Series元素改变
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、map批量元素改变，Series专有df[&#x27;Keras&#x27;].map(&#123;1:&#x27;Hello&#x27;,5:&#x27;World&#x27;,7:&#x27;AI&#x27;&#125;) # 字典映射df[&#x27;Python&#x27;].map(lambda x:True if x &gt;=5 else False) # 隐式函数映射def convert(x): # 显示函数映射    if x%3 == 0:        return True    elif x%3 == 1:        return Falsedf[&#x27;Tensorflow&#x27;].map(convert)
+第三节 apply元素改变。既支持 Series，也支持 DataFrame
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、apply 应用方法数据转换，通用# Series，其中x是Series中元素df[&#x27;Keras&#x27;].apply(lambda x:True if x &gt;5 else False) # DataFrame，其中的x是DataFrame中列或者行，是Seriesdf.apply(lambda x : x.median(),axis = 0) # 列的中位数def convert(x): # 自定义方法    return (x.mean().round(1),x.count())df.apply(convert,axis = 1) # 行平均值，计数# 2、applymap DataFrame专有df.applymap(lambda x : x + 100) # 计算DataFrame中每个元素
+第四节 transform变形金刚
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.iloc[4,2] = None # 空数据# 1、一列执行多项计算df[&#x27;Python&#x27;].transform([np.sqrt,np.exp]) # Series处理def convert(x):    if x.mean() &gt; 5:        x *= 10    else:        x *= -10    return x# 2、多列执行不同计算df.transform(&#123;&#x27;Python&#x27;:convert,&#x27;Tensorflow&#x27;:np.max,&#x27;Keras&#x27;:np.min&#125;) # DataFrame处理
+第五节 重排随机抽样哑变量
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,10,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])ran = np.random.permutation(10) # 随机重排df.take(ran) # 重排DataFramedf.take(np.random.randint(0,10,size = 15)) # 随机抽样# 哑变量，独热编码，1表示有，0表示没有df = pd.DataFrame(&#123;&#x27;key&#x27;:[&#x27;b&#x27;,&#x27;b&#x27;,&#x27;a&#x27;,&#x27;c&#x27;,&#x27;a&#x27;,&#x27;b&#x27;]&#125;)pd.get_dummies(df,prefix=&#x27;&#x27;,prefix_sep=&#x27;&#x27;)
+第九部分 数据重塑
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (10,3)),                  index = list(&#x27;ABCDEFHIJK&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df.T # 转置df2 = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                   index = pd.MultiIndex.from_product([list(&#x27;ABCDEFHIJK&#x27;),[&#x27;期中&#x27;,&#x27;期末&#x27;]]),#多层索引                   columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])df2.unstack(level = -1) # 行旋转成列，level指定哪一层，进行变换df2.stack() # 列旋转成行df2.stack().unstack(level = 1) # 行列互换# 多层索引DataFrame数学计算df2.mean() # 各学科平均分df2.mean(level=0) # 各学科，每个人期中期末平均分df2.mean(level = 1) # 各学科，期中期末所有人平均分
+第十部分 数学和统计方法
+pandas对象拥有一组常用的数学和统计方法。它们属于汇总统计，对Series汇总计算获取mean、max值或者对DataFrame行、列汇总计算返回一个Series。
+第一节 简单统计指标
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,100,size = (20,3)),                  index = list(&#x27;ABCDEFHIJKLMNOPQRSTU&#x27;),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、简单统计指标df.count() # 非NA值的数量df.max(axis = 0) #轴0最大值，即每一列最大值df.min() #默认计算轴0最小值df.median() # 中位数df.sum() # 求和df.mean(axis = 1) #轴1平均值，即每一行的平均值df.quantile(q = [0.2,0.4,0.8]) # 分位数df.describe() # 查看数值型列的汇总统计,计数、平均值、标准差、最小值、四分位数、最大值
+第二节 索引标签、位置获取
+# 2、索引位置df[&#x27;Python&#x27;].argmin() # 计算最小值位置df[&#x27;Keras&#x27;].argmax() # 最大值位置df.idxmax() # 最大值索引标签df.idxmin() # 最小值索引标签
+第三节 更多统计指标
+# 3、更多统计指标df[&#x27;Python&#x27;].value_counts() # 统计元素出现次数df[&#x27;Keras&#x27;].unique() # 去重df.cumsum() # 累加df.cumprod() # 累乘df.std() # 标准差df.var() # 方差df.cummin() # 累计最小值df.cummax() # 累计最大值df.diff() # 计算差分df.pct_change() # 计算百分比变化
+第四节 高级统计指标
+# 4、高级统计指标df.cov() # 属性的协方差df[&#x27;Python&#x27;].cov(df[&#x27;Keras&#x27;]) # Python和Keras的协方差df.corr() # 所有属性相关性系数df.corrwith(df[&#x27;Tensorflow&#x27;]) # 单一属性相关性系数
+协方差：Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1Cov(X,Y) = \\frac{\\sum\\limits\_1^n(X\_i - \\overline{X})(Y\_i - \\overline{Y})}{n-1}Cov(X,Y)=fracsumlimits_1n(X_i−overlineX)(Y_i−overlineY)n−1
+相关性系数：r(X,Y) = \\frac{Cov(X,Y)}{\\sqrt{Var\[X\]Var\[Y\]}}
+第十一部分 数据排序
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,30,size = (30,3)),                  index = list(&#x27;qwertyuioijhgfcasdcvbnerfghjcf&#x27;),                  columns = [&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Pytorch&#x27;])# 1、索引列名排序df.sort_index(axis = 0,ascending=True) # 按索引排序，降序df.sort_index(axis = 1,ascending=False) #按列名排序，升序# 2、属性值排序df.sort_values(by = [&#x27;Python&#x27;]) #按Python属性值排序df.sort_values(by = [&#x27;Python&#x27;,&#x27;Keras&#x27;])#先按Python，再按Keras排序# 3、返回属性n大或者n小的值df.nlargest(10,columns=&#x27;Keras&#x27;) # 根据属性Keras排序,返回最大10个数据df.nsmallest(5,columns=&#x27;Python&#x27;) # 根据属性Python排序，返回最小5个数据
+第十二部分 分箱操作
+分箱操作就是将连续数据转换为分类对应物的过程。比如将连续的身高数据划分为：矮中高。
+分箱操作分为等距分箱和等频分箱。
+分箱操作也叫面元划分或者离散化。
+import numpy as npimport pandas as pddf = pd.DataFrame(data = np.random.randint(0,150,size = (100,3)),                  columns=[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;])# 1、等宽分箱pd.cut(df.Python,bins = 3)# 指定宽度分箱pd.cut(df.Keras,#分箱数据       bins = [0,60,90,120,150],#分箱断点       right = False,# 左闭右开       labels=[&#x27;不及格&#x27;,&#x27;中等&#x27;,&#x27;良好&#x27;,&#x27;优秀&#x27;])# 分箱后分类# 2、等频分箱pd.qcut(df.Python,q = 4,# 4等分        labels=[&#x27;差&#x27;,&#x27;中&#x27;,&#x27;良&#x27;,&#x27;优&#x27;]) # 分箱后分类
+第十三部分 分组聚合
+第一节 分组
+import numpy as npimport pandas as pd# 准备数据df = pd.DataFrame(data = &#123;&#x27;sex&#x27;:np.random.randint(0,2,size = 300), # 0男，1女                          &#x27;class&#x27;:np.random.randint(1,9,size = 300),#1~8八个班                          &#x27;Python&#x27;:np.random.randint(0,151,size = 300),#Python成绩                          &#x27;Keras&#x27;:np.random.randint(0,151,size =300),#Keras成绩                          &#x27;Tensorflow&#x27;:np.random.randint(0,151,size=300),                          &#x27;Java&#x27;:np.random.randint(0,151,size = 300),                          &#x27;C++&#x27;:np.random.randint(0,151,size = 300)&#125;)df[&#x27;sex&#x27;] = df[&#x27;sex&#x27;].map(&#123;0:&#x27;男&#x27;,1:&#x27;女&#x27;&#125;) # 将0，1映射成男女# 1、分组-&gt;可迭代对象# 1.1 先分组再获取数据g = df.groupby(by = &#x27;sex&#x27;)[[&#x27;Python&#x27;,&#x27;Java&#x27;]] # 单分组for name,data in g:    print(&#x27;组名：&#x27;,name)    print(&#x27;数据：&#x27;,data)df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;]] # 多分组# 1.2 对一列值进行分组df[&#x27;Python&#x27;].groupby(df[&#x27;class&#x27;]) # 单分组df[&#x27;Keras&#x27;].groupby([df[&#x27;class&#x27;],df[&#x27;sex&#x27;]]) # 多分组# 1.3 按数据类型分组df.groupby(df.dtypes,axis = 1)# 1.4 通过字典进行分组m = &#123;&#x27;sex&#x27;:&#x27;category&#x27;,&#x27;class&#x27;:&#x27;category&#x27;,&#x27;Python&#x27;:&#x27;IT&#x27;,&#x27;Keras&#x27;:&#x27;IT&#x27;,&#x27;Tensorflow&#x27;:&#x27;IT&#x27;,&#x27;Java&#x27;:&#x27;IT&#x27;,&#x27;C++&#x27;:&#x27;IT&#x27;&#125;for name,data in df.groupby(m,axis = 1):    print(&#x27;组名&#x27;,name)    print(&#x27;数据&#x27;,data)
+第二节 分组聚合
+# 2、分组直接调用函数进行聚合# 按照性别分组，其他列均值聚合df.groupby(by = &#x27;sex&#x27;).mean().round(1) # 保留1位小数# 按照班级和性别进行分组，Python、Keras的最大值聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].max()# 按照班级和性别进行分组，计数聚合。统计每个班，男女人数df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).size()# 基本描述性统计聚合df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;]).describe()
+第三节 分组聚合apply、transform
+# 3、分组后调用apply，transform封装单一函数计算# 返回分组结果df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].apply(np.mean).round(1)def normalization(x):    return (x - x.min())/(x.max() - x.min()) # 最大值最小值归一化# 返回全数据，返回DataFrame.shape和原DataFrame.shape一样。df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Tensorflow&#x27;]].transform(normalization).round(3)
+第四节 分组聚合agg
+# 4、agg 多中统计汇总操作# 分组后调用agg应用多种统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Tensorflow&#x27;,&#x27;Keras&#x27;]].agg([np.max,np.min,pd.Series.count])# 分组后不同属性应用多种不同统计汇总df.groupby(by = [&#x27;class&#x27;,&#x27;sex&#x27;])[[&#x27;Python&#x27;,&#x27;Keras&#x27;]].agg(&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max),(&#x27;最小值&#x27;,np.min)],                                                          &#x27;Keras&#x27;:[(&#x27;计数&#x27;,pd.Series.count),(&#x27;中位数&#x27;,np.median)]&#125;)
+第五节 透视表pivot_table
+# 5、透视表# 透视表也是一种分组聚合运算def count(x):    return len(x)df.pivot_table(values=[&#x27;Python&#x27;,&#x27;Keras&#x27;,&#x27;Tensorflow&#x27;],# 要透视分组的值               index=[&#x27;class&#x27;,&#x27;sex&#x27;], # 分组透视指标               aggfunc=&#123;&#x27;Python&#x27;:[(&#x27;最大值&#x27;,np.max)], # 聚合运算                        &#x27;Keras&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;中位数&#x27;,np.median)],                        &#x27;Tensorflow&#x27;:[(&#x27;最小值&#x27;,np.min),(&#x27;平均值&#x27;,np.mean),(&#x27;计数&#x27;,count)]&#125;)
+第十四部分 时间序列
+第一节 时间戳操作
+# 1、创建方法pd.Timestamp(&#x27;2020-8-24 12&#x27;)# 时刻数据pd.Period(&#x27;2020-8-24&#x27;,freq = &#x27;M&#x27;) # 时期数据index = pd.date_range(&#x27;2020.08.24&#x27;,periods=5,freq = &#x27;M&#x27;) # 批量时刻数据pd.period_range(&#x27;2020.08.24&#x27;,periods=5,freq=&#x27;M&#x27;) # 批量时期数据ts = pd.Series(np.random.randint(0,10,size = 5),index = index) # 时间戳索引Series# 2、转换方法pd.to_datetime([&#x27;2020.08.24&#x27;,&#x27;2020-08-24&#x27;,&#x27;24/08/2020&#x27;,&#x27;2020/8/24&#x27;])pd.to_datetime([1598582232],unit=&#x27;s&#x27;)dt = pd.to_datetime([1598582420401],unit = &#x27;ms&#x27;) # 世界标准时间dt + pd.DateOffset(hours = 8) # 东八区时间dt + pd.DateOffset(days = 100) # 100天后日期
+第二节 时间戳索引
+index = pd.date_range(&quot;2020-8-24&quot;, periods=200, freq=&quot;D&quot;)ts = pd.Series(range(len(index)), index=index)# str类型索引ts[&#x27;2020-08-30&#x27;] # 日期访问数据ts[&#x27;2020-08-24&#x27;:&#x27;2020-09-3&#x27;] # 日期切片ts[&#x27;2020-08&#x27;] # 传入年月ts[&#x27;2020&#x27;] # 传入年# 时间戳索引ts[pd.Timestamp(&#x27;2020-08-30&#x27;)]ts[pd.Timestamp(&#x27;2020-08-24&#x27;):pd.Timestamp(&#x27;2020-08-30&#x27;)] # 切片ts[pd.date_range(&#x27;2020-08-24&#x27;,periods=10,freq=&#x27;D&#x27;)]# 时间戳索引属性ts.index.year # 获取年ts.index.dayofweek # 获取星期几ts.index.weekofyear # 一年中第几个星期几
+第三节 时间序列常用方法
+在做时间序列相关的工作时，经常要对时间做一些移动/滞后、频率转换、采样等相关操作，我们来看下这些操作如何使用
+index = pd.date_range(&#x27;8/1/2020&#x27;, periods=365, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randint(0, 500, len(index)), index=index)# 1、移动ts.shift(periods = 2) #  数据后移 ts.shift(periods = -2) # 数据前移# 日期移动ts.shift(periods = 2,freq = pd.tseries.offsets.Day()) # 天移动ts.tshift(periods = 1,freq = pd.tseries.offsets.MonthOffset()) #月移动# 2、频率转换ts.asfreq(pd.tseries.offsets.Week()) # 天变周ts.asfreq(pd.tseries.offsets.MonthEnd()) # 天变月ts.asfreq(pd.tseries.offsets.Hour(),fill_value = 0) #天变小时，又少变多，fill_value为填充值# 3、重采样# resample 表示根据日期维度进行数据聚合，可以按照分钟、小时、工作日、周、月、年等来作为日期维度ts.resample(&#x27;2W&#x27;).sum() # 以2周为单位进行汇总ts.resample(&#x27;3M&#x27;).sum().cumsum() # 以季度为单位进行汇总# 4、DataFrame重采样d = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],          &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50],          &#x27;week_starting&#x27;:pd.date_range(&#x27;24/08/2020&#x27;,periods=8,freq=&#x27;W&#x27;)&#125;)df1 = pd.DataFrame(d)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).apply(np.sum)df1.resample(&#x27;M&#x27;,on = &#x27;week_starting&#x27;).agg(&#123;&#x27;price&#x27;:np.mean,&#x27;volume&#x27;:np.sum&#125;)days = pd.date_range(&#x27;1/8/2020&#x27;, periods=4, freq=&#x27;D&#x27;)data2 = dict(&#123;&#x27;price&#x27;: [10, 11, 9, 13, 14, 18, 17, 19],           &#x27;volume&#x27;: [50, 60, 40, 100, 50, 100, 40, 50]&#125;)df2 = pd.DataFrame(data2,                   index=pd.MultiIndex.from_product([days,[&#x27;morning&#x27;,&#x27;afternoon&#x27;]]))df2.resample(&#x27;D&#x27;, level=0).sum()
+第四节 时区表示
+index = pd.date_range(&#x27;8/1/2012 00:00&#x27;, periods=5, freq=&#x27;D&#x27;)ts = pd.Series(np.random.randn(len(index)), index)import pytzpytz.common_timezones # 常用时区# 时区表示ts = ts.tz_localize(tz=&#x27;UTC&#x27;)# 转换成其它时区ts.tz_convert(tz = &#x27;Asia/Shanghai&#x27;)
+第十五部分 数据可视化
+pip install matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple
+import numpy as npimport pandas as pd# 1、线形图df1 = pd.DataFrame(data = np.random.randn(1000,4),                  index = pd.date_range(start = &#x27;27/6/2012&#x27;,periods=1000),                  columns=list(&#x27;ABCD&#x27;))df1.cumsum().plot()# 2、条形图df2 = pd.DataFrame(data = np.random.rand(10,4),                   columns = list(&#x27;ABCD&#x27;))df2.plot.bar(stacked = True) # stacked 是否堆叠# 3、饼图df3 = pd.DataFrame(data = np.random.rand(4,2),                   index = list(&#x27;ABCD&#x27;),                   columns=[&#x27;One&#x27;,&#x27;Two&#x27;])df3.plot.pie(subplots = True,figsize = (8,8))# 4、散点图df4 = pd.DataFrame(np.random.rand(50, 4), columns=list(&#x27;ABCD&#x27;))df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;B&#x27;) # A和B关系绘制# 在一张图中绘制AC散点图，同时绘制BD散点图ax = df4.plot.scatter(x=&#x27;A&#x27;, y=&#x27;C&#x27;, color=&#x27;DarkBlue&#x27;, label=&#x27;Group 1&#x27;);df4.plot.scatter(x=&#x27;B&#x27;, y=&#x27;D&#x27;, color=&#x27;DarkGreen&#x27;, label=&#x27;Group 2&#x27;, ax=ax)# 气泡图，散点有大小之分df4.plot.scatter(x=&#x27;A&#x27;,y=&#x27;B&#x27;,s = df4[&#x27;C&#x27;]*200)# 5、面积图df5 = pd.DataFrame(data = np.random.rand(10, 4),                    columns=list(&#x27;ABCD&#x27;))df5.plot.area(stacked = True);# stacked 是否堆叠# 6、箱式图df6 = pd.DataFrame(data = np.random.rand(10, 5),                    columns=list(&#x27;ABCDE&#x27;))df6.plot.box()# 7、直方图df7 = pd.DataFrame(&#123;&#x27;A&#x27;: np.random.randn(1000) + 1, &#x27;B&#x27;: np.random.randn(1000),                    &#x27;C&#x27;: np.random.randn(1000) - 1&#125;)df7.plot.hist(alpha=0.5) #带透明度直方图df7.plot.hist(stacked = True)# 堆叠图df7.hist(figsize = (8,8)) # 子视图绘制
+第十六部分 实战-数据分析师招聘数据分析
+第一节 分析目标
+
+各城市对数据分析岗位的需求情况
+不同细分领域对数据分析岗的需求情况
+数据分析岗位的薪资状况
+工作经验与薪水的关系
+公司都要求什么掌握什么技能
+岗位的学历要求高吗
+不同规模的企业对工资经验的要求以及提供的薪资水平
+
+第二节 数据加载
+import pandas as pdimport numpy as npjob = pd.read_csv(&#x27;./job.csv&#x27;)job.drop_duplicates(inplace = True) # 删除重复数据
+第三节 数据清洗
+
+
+过滤非数据分析的岗位
+# 数据分析相应的岗位数量cond = job[&quot;positionName&quot;].str.contains(&quot;数据分析&quot;)  # 职位名中含有数据分析字眼的# 筛选出我们想要的字段，并剔除positionNamejob = job[cond]job.reset_index(inplace=True) # 行索引 重置job
+
+
+数据中的薪水是一个区间，这里用薪水区间的均值作为相应职位的薪水
+# 处理过程#1、将salary中的字符串均小写化（因为存在8k-16k和8K-16K）#2、运用正则表达式提取出薪资区间#3、将提取出来的数字转化为int型#4、取区间的平均值job[&quot;salary&quot;] = job[&quot;salary&quot;].str.lower()\               .str.extract(r&#x27;(\d+)[k]-(\d+)k&#x27;)\               .applymap(lambda x:int(x))\               .mean(axis=1)
+
+
+从job_detail中提取出技能要求 将技能分为以下几类 Python SQL Tableau Excel SPSS/SAS 处理方式： 如果job_detail中含有上述五类，则赋值为1，不含有则为0
+
+
+job[&quot;job_detail&quot;] = job[&quot;job_detail&quot;].str.lower().fillna(&quot;&quot;)  #将字符串小写化，并将缺失值赋值为空字符串
+job[&quot;Python&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('python' in x) else 0)
+job[&quot;SQL&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if ('sql' in x) or ('hive' in x)  else 0)
+job[&quot;Tableau&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'tableau' in x  else 0)
+job[&quot;Excel&quot;] = job[&quot;job_detail&quot;].map(lambda x:1 if 'excel' in x  else 0)
+job['SPSS/SAS'] = job['job_detail'].map(lambda x:1 if ('spss' in x) or ('sas' in x) else 0)
+    *   处理行业信息        在行业信息中有多个标签，对其进行处理，筛选最显著的行业标签。        ```python    def clean_industry(industry):        industry = industry.split(&quot;,&quot;)        if industry[0]==&quot;移动互联网&quot; and len(industry)&gt;1:            return industry[1]        else:            return industry[0]    job[&quot;industryField&quot;] = job.industryField.map(clean_industry)
+
+
+
+
+数据分析师职位的数据预处理基本完成，后续使用matplotlib进行数据可视化分析。
+
+
+pandas库的亮点
+
+一个快速、高效的DataFrame对象，用于数据操作和综合索引；
+用于在内存数据结构和不同格式之间读写数据的工具：CSV和文本文件、Microsoft Excel、SQL数据库和快速HDF 5格式；
+智能数据对齐和丢失数据的综合处理：在计算中获得基于标签的自动对齐，并轻松地将凌乱的数据操作为有序的形式；
+数据集的灵活调整和旋转；
+基于智能标签的切片、花式索引和大型数据集的子集；
+可以从数据结构中插入和删除列，以实现大小可变；
+通过在强大的引擎中聚合或转换数据，允许对数据集进行拆分应用组合操作;
+数据集的高性能合并和连接；
+层次轴索引提供了在低维数据结构中处理高维数据的直观方法；
+时间序列-功能：日期范围生成和频率转换、移动窗口统计、移动窗口线性回归、日期转换和滞后。甚至在不丢失数据的情况下创建特定领域的时间偏移和加入时间序列；
+对性能进行了高度优化，用Cython或C编写了关键代码路径。
+Python与pandas在广泛的学术和商业领域中使用，包括金融，神经科学，经济学，统计学，广告，网络分析，等等
+学到这里，体会一会pandas库的亮点，如果对哪些还不熟悉，请对之前知识点再次进行复习。
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
   </entry>
   <entry>
     <title>Dijkstra</title>
@@ -1031,6 +1031,23 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
       </tags>
   </entry>
   <entry>
+    <title>二分</title>
+    <url>/posts/9947c71c.html</url>
+    <content><![CDATA[最小值最大化
+import java.util.*;public class Main&#123;    static int N=100010;    static int[]h=new int[N];    static int[]w=new int[N];    static int n,k;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        k=scan.nextInt();        h=new int[n];        w=new int[n];        for(int i=0;i&lt;n;i++) &#123;            h[i]=scan.nextInt();            w[i]=scan.nextInt();        &#125;        int l=1,r=(int)1e5+10;        while(l&lt;r) &#123;            int mid=(r+l+1)/2;            if(check(mid))l=mid;            else r=mid-1;        &#125;        System.out.println(l);&#125;    static boolean check(int x) &#123;        long res=0;        for(int i=0;i&lt;n;i++) &#123;        res+=(h[i]/x)*(w[i]/x);        &#125;        if(res&gt;=k) &#123;            return true;        &#125;        return false;    &#125;&#125;
+最大值最小化
+题目：共n个月,给出每个月的开销.将n个月划分成m个时间段,求m个时间段中开销最大的时间段的最小开销值。
+#include&lt;bits/stdc++.h&gt;using namespace std;int n,m;vector&lt;int&gt;a;int check(int M)&#123;    int ct=0,now=0;    for(int i=0;i&lt;n;i++)&#123;        if(a[i]&gt;M) return 0;        if(now+a[i]&gt;M)&#123;            ct++;            now=0;            &#125;            now+=a[i];    &#125;    return ct&lt;m;&#125;int main()&#123;    cin&gt;&gt;n&gt;&gt;m;    a.resize(n);    int R=0,L=0;    for(int i=0;i&lt;n;i++)&#123;        cin&gt;&gt;a[i];        R+=a[i];        L=max(L,a[i]);    &#125;    R++;        while(L&lt;R)&#123;        int M=(L+R)/2;        if(check(M)) R=M;        else L=M+1;    &#125;    cout&lt;&lt;L&lt;&lt;endl;    return 0;&#125;
+//更安全的求最大值最小化import java.util.Arrays;import java.util.Scanner;public class Main &#123;    static  int N=100010,n,k,t;    static  long a[]=new long[N];    public  static  boolean check(int m)&#123;        long arr[]=new long[m+5];        long s[]=new long[m+5];        long s_pow[]=new long[m+5];        for(int i=1;i&lt;=m;i++) arr[i]=a[i];        Arrays.sort(arr,1,m+1);        for(int i=1;i&lt;=m;i++)&#123;            s[i]=s[i-1]+arr[i];            s_pow[i]=s_pow[i-1]+(arr[i]*arr[i]);        &#125;        for(int i=k;i&lt;=m;i++)&#123;            long s1=s_pow[i]-s_pow[i-k];            long s2=s[i]-s[i-k];            double avg=s2*1.00/k;//把他给的方差公式 可以优化 成这个 提醒平方差公式            double res=(s1-2*avg*s2+k*avg*avg)/k;            if(res&lt;t) return  true;        &#125;        return  false;    &#125;    public static void main(String[] args) &#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        k=sc.nextInt();        t=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextLong();        &#125;        int l=k,r=n;        int res=-1;        while (l&lt;=r)&#123;            int mid=(l+r)&gt;&gt;1;            if(check(mid))&#123;                r=mid-1;                res=mid;            &#125;else&#123;                l=mid+1;            &#125;        &#125;        System.out.println(res);    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>二分</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hello World</title>
     <url>/posts/4a17b156.html</url>
     <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
@@ -1048,23 +1065,6 @@ Deploy to remote sites
 $ hexo deploy
 More info: Deployment
 ]]></content>
-  </entry>
-  <entry>
-    <title>二分</title>
-    <url>/posts/9947c71c.html</url>
-    <content><![CDATA[最小值最大化
-import java.util.*;public class Main&#123;    static int N=100010;    static int[]h=new int[N];    static int[]w=new int[N];    static int n,k;    public static void main(String[] args) &#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        k=scan.nextInt();        h=new int[n];        w=new int[n];        for(int i=0;i&lt;n;i++) &#123;            h[i]=scan.nextInt();            w[i]=scan.nextInt();        &#125;        int l=1,r=(int)1e5+10;        while(l&lt;r) &#123;            int mid=(r+l+1)/2;            if(check(mid))l=mid;            else r=mid-1;        &#125;        System.out.println(l);&#125;    static boolean check(int x) &#123;        long res=0;        for(int i=0;i&lt;n;i++) &#123;        res+=(h[i]/x)*(w[i]/x);        &#125;        if(res&gt;=k) &#123;            return true;        &#125;        return false;    &#125;&#125;
-最大值最小化
-题目：共n个月,给出每个月的开销.将n个月划分成m个时间段,求m个时间段中开销最大的时间段的最小开销值。
-#include&lt;bits/stdc++.h&gt;using namespace std;int n,m;vector&lt;int&gt;a;int check(int M)&#123;    int ct=0,now=0;    for(int i=0;i&lt;n;i++)&#123;        if(a[i]&gt;M) return 0;        if(now+a[i]&gt;M)&#123;            ct++;            now=0;            &#125;            now+=a[i];    &#125;    return ct&lt;m;&#125;int main()&#123;    cin&gt;&gt;n&gt;&gt;m;    a.resize(n);    int R=0,L=0;    for(int i=0;i&lt;n;i++)&#123;        cin&gt;&gt;a[i];        R+=a[i];        L=max(L,a[i]);    &#125;    R++;        while(L&lt;R)&#123;        int M=(L+R)/2;        if(check(M)) R=M;        else L=M+1;    &#125;    cout&lt;&lt;L&lt;&lt;endl;    return 0;&#125;
-//更安全的求最大值最小化import java.util.Arrays;import java.util.Scanner;public class Main &#123;    static  int N=100010,n,k,t;    static  long a[]=new long[N];    public  static  boolean check(int m)&#123;        long arr[]=new long[m+5];        long s[]=new long[m+5];        long s_pow[]=new long[m+5];        for(int i=1;i&lt;=m;i++) arr[i]=a[i];        Arrays.sort(arr,1,m+1);        for(int i=1;i&lt;=m;i++)&#123;            s[i]=s[i-1]+arr[i];            s_pow[i]=s_pow[i-1]+(arr[i]*arr[i]);        &#125;        for(int i=k;i&lt;=m;i++)&#123;            long s1=s_pow[i]-s_pow[i-k];            long s2=s[i]-s[i-k];            double avg=s2*1.00/k;//把他给的方差公式 可以优化 成这个 提醒平方差公式            double res=(s1-2*avg*s2+k*avg*avg)/k;            if(res&lt;t) return  true;        &#125;        return  false;    &#125;    public static void main(String[] args) &#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        k=sc.nextInt();        t=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            a[i]=sc.nextLong();        &#125;        int l=k,r=n;        int res=-1;        while (l&lt;=r)&#123;            int mid=(l+r)&gt;&gt;1;            if(check(mid))&#123;                r=mid-1;                res=mid;            &#125;else&#123;                l=mid+1;            &#125;        &#125;        System.out.println(res);    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>二分</tag>
-      </tags>
   </entry>
   <entry>
     <title>Floyd</title>
@@ -1139,6 +1139,50 @@ import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123; 
       </tags>
   </entry>
   <entry>
+    <title>images</title>
+    <url>/posts/e01fbe6a.html</url>
+    <content><![CDATA[
+]]></content>
+  </entry>
+  <entry>
+    <title>排序和二分</title>
+    <url>/posts/c5627fcb.html</url>
+    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>二分</tag>
+        <tag>排序</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Leetcode刷题路线</title>
+    <url>/posts/5f473243.html</url>
+    <content><![CDATA[推荐链接：力扣刷题攻略路线
+
+数学
+数组
+链表
+字符串
+哈希表
+双指针
+递归
+栈
+队列
+树
+图与回溯算法
+贪心
+动态规划
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法刷题路线</category>
+      </categories>
+  </entry>
+  <entry>
     <title>math</title>
     <url>/posts/a927044d.html</url>
     <content><![CDATA[求100!的约数个数和约数之和
@@ -1182,44 +1226,6 @@ import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public 
       <categories>
         <category>program</category>
         <category>算法模板</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>排序和二分</title>
-    <url>/posts/c5627fcb.html</url>
-    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>二分</tag>
-        <tag>排序</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Leetcode刷题路线</title>
-    <url>/posts/5f473243.html</url>
-    <content><![CDATA[推荐链接：力扣刷题攻略路线
-
-数学
-数组
-链表
-字符串
-哈希表
-双指针
-递归
-栈
-队列
-树
-图与回溯算法
-贪心
-动态规划
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法刷题路线</category>
       </categories>
   </entry>
   <entry>
@@ -1283,22 +1289,283 @@ import java.util.*;import java.io.*;// 1:无需package// 2: 类名必须Main, �
       </tags>
   </entry>
   <entry>
-    <title>蓝桥杯-高塔</title>
-    <url>/posts/a38c4cc3.html</url>
-    <content><![CDATA[问题描述 小蓝正在玩一个攀登高塔的游戏。高塔的层数是无限的，但游戏最多只有 n n 回合。
-小蓝一开始拥有 m m 点能量，在每个回合都有一个值 A i A i ​ 表示小蓝的角色状态。小蓝每回合可以选择消费任意点能量 C i C i ​ （最低消费 1 1 点，没有上限），他在这回合将最多可以向上攀爬 A i ⋅ C i A i ​ ⋅C i ​ 层。实际攀爬的层数取决于小蓝自己在这回合的表现，不过最差也会向上爬一层。
-当某回合小蓝的能量点数耗尽，那么在完成这个回合后，游戏结束。 n n 回合结束后，不管能量还有没有剩余，游戏都会直接结束。
-给出小蓝每回合的 A i A i ​ 和自己一开始的能量点数 m m。小蓝想知道有多少种不同的可能出现的游玩过程。如果小蓝在两种游玩过程中的任一对应回合花费的能量点数不同或该回合结束时所处层数不同，那么这两种游玩过程就被视为不同。
-输入格式 输入的第一行包含两个整数 n n, m m，用一个空格分隔。
-第二行包含 n n 个整数 A i A i ​ ，相邻整数之间使用一个空格分隔，表示小蓝每回合的状态值。
-输出格式 输出一行包含一个整数表示给定条件下不同游玩过程的数量。由于答案可能很大，你只需要输出答案对 998244353 998244353 取模的结果。
-样例输入 9 15 3 2 5 7 1 4 6 8 3 copy 样例输出 392149233 copy 评测用例规模与约定 对于 40 40% 的评测用例， n ≤ 300 n≤300， m ≤ 500 m≤500；
-对于所有评测用例， 1 ≤ n ≤ 2 × 1 0 5 1≤n≤2×10 5 ， n ≤ m ≤ 1 0 18 n≤m≤10 18 ， 1 ≤ A i ≤ 1 0 9 1≤A i ​ ≤10 9 。
-]]></content>
+    <title>梯度下降</title>
+    <url>/posts/3c50d4b7.html</url>
+    <content><![CDATA[梯度下降
+线性回归预测房价
+
+数据加载
+数据介绍
+数据拆分
+数据建模
+数据预测
+数据评估
+
+1、无约束最优化问题
+1.1、无约束最优化
+无约束最优化问题（unconstrained optimizationproblem）指的是从一个问题的所有可能的备选方案中，选择出依某种指标来说是最优的解决方案。从数学上说，最优化是研究在一个给定的集合S上泛函J(theta)J(\\theta)J(theta)的极小化或极大化问题：广义上，最优化包括数学规划、图和网络、组合最优化、库存论、决策论、排队论、最优控制等。狭义上，最优化仅指数学规划。
+1.2、梯度下降
+梯度下降法(Gradient Descent)是一个算法，但不是像多元线性回归那样是一个具体做回归任务的算法，而是一个非常通用的优化算法来帮助一些机器学习算法（都是无约束最优化问题）求解出最优解， 所谓的通用就是很多机器学习算法都是用梯度下降，甚至深度学习也是用它来求解最优解。所有优化算法的目的都是期望以最快的速度把模型参数θ求解出来，梯度下降法就是一种经典常用的优化算法。
+之前利用正规方程求解的 θ 是最优解的原因是 MSE 这个损失函数是凸函数。但是，机器学习的损失函数并非都是凸函数，设置导数为 0 会得到很多个极值，不能确定唯一解。
+
+使用正规方程 theta=(XTX)−1XTy\\theta = (X^TX)^{-1}X^Tytheta=(XTX)−1XTy 求解的另一个限制是特征维度（X_1、X_2……、X_nX\_1、X\_2……、X\_nX_1、X_2……、X_n）不能太多，矩阵逆运算的时间复杂度通常为 O(n3)O(n^3)O(n3) 。换句话说，就是如果特征数量翻倍，你的计算时间大致为原来的 232^323 倍，也就是之前时间的8倍。举个例子，2 个特征 1 秒，4 个特征就是 8 秒，8 个特征就是 64 秒，16 个特征就是 512 秒，当特征更多的时候呢？运行时间会非常漫长~
+所以正规方程求出最优解并不是机器学习甚至深度学习常用的手段。
+之前我们令导数为 0，反过来求解最低点 θ 是多少，而梯度下降法是一点点去逼近最优解!
+
+其实这就跟生活中的情形很像，比如你问一个朋友的工资是多少，他说你猜？那就很难了，他说你猜完我告诉你是猜高了还是猜低了，这样你就可以奔着对的方向一直猜下去，最后总会猜对！梯度下降法就是这样的，多次尝试。并且，在试的过程中还得想办法知道是不是在猜对的路上，说白了就是得到正确的反馈再调整然后继续猜才有意义~
+这个就好比道士下山，我们把 Loss （或者称为Cost，即损失）曲线看成是山谷，如果走过了，就再往回返，所以是一个迭代的过程。
+1.3、梯度下降公式
+这里梯度下降法的公式就是一个式子指导计算机迭代过程中如何去调整theta\\thetatheta，可以通过泰勒公式一阶展开来进行推导和证明：
+
+
+\\theta^{n + 1} = \\theta^{n} - \\alpha \* gradient
+其中 alpha\\alphaalpha 表示学习率，gradient 表示梯度
+
+
+\\theta^{n + 1} = \\theta^{n} - \\alpha \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
+有些公式，使用其他字母表示：
+
+
+\\theta^{n + 1} = \\theta^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
+
+
+w\_j^{n + 1} = w\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j}
+
+
+这里的 w_jw\_jw_j 就是 theta\\thetatheta 中的某一个 j = 0…m，这里的 eta\\etaeta 就是梯度下降图里的 learning step，很多时候也叫学习率 learning rate，很多时候也用 alpha\\alphaalpha 表示，这个学习率我们可以看作是下山迈的步子的大小，步子迈的大下山就快。
+
+学习率一般都是正数，如果在山左侧（曲线左半边）梯度是负的，那么这个负号就会把 w_jw\_jw_j 往大了调， 如果在山右侧（曲线右半边）梯度就是正的，那么负号就会把 w_jw\_jw_j 往小了调。每次 w_jw\_jw_j 调整的幅度就是 \\eta \* gradient，就是横轴上移动的距离。
+因此，无论在左边，还是在右边，梯度下降都可以快速找到最优解，实现快速下山~
+如果特征或维度越多，那么这个公式用的次数就越多，也就是每次迭代要应用的这个式子多次（多少特征，就应用多少次），所以其实上面的图不是特别准，因为 theta\\thetatheta 对应的是很多维度，应该每一个维度都可以画一个这样的图，或者是一个多维空间的图。
+
+w\_0^{n + 1} = w\_0^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_0}
+w\_1^{n + 1} = w\_1^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_1}
+……
+w\_m^{n + 1} = w\_m^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_m}
+
+
+所以观察上图我们可以发现不是某一个 theta_0\\theta\_0theta_0 或 theta_1\\theta\_1theta_1 找到最小值就是最优解，而是它们一起找到 J(theta)J(\\theta)J(theta) 最小值才是最优解。
+1.4、学习率
+根据我们上面讲的梯度下降公式，我们知道 eta\\etaeta 是学习率，设置大的学习率 w_jw\_jw_j 每次调整的幅度就大，设置小的学习率 w_jw\_jw_j 每次调整的幅度就小，然而如果步子迈的太大也会有问题，俗话说步子大了容易扯着蛋！学习率大，可能一下子迈过了，到另一边去了（从曲线左半边跳到右半边），继续梯度下降又迈回来， 使得来来回回震荡。步子太小呢，就像蜗牛一步步往前挪，也会使得整体迭代次数增加。
+
+学习率的设置是门一门学问，一般我们会把它设置成一个比较小的正整数，0.1、0.01、0.001、0.0001，都是常见的设定数值（然后根据情况调整）。一般情况下学习率在整体迭代过程中是不变，但是也可以设置成随着迭代次数增多学习率逐渐变小，因为越靠近山谷我们就可以步子迈小点，可以更精准的走入最低点，同时防止走过。还有一些深度学习的优化算法会自己控制调整学习率这个值，后面学习过程中这些策略在讲解代码中我们会一一讲到。
+
+1.5、全局最优化
+
+上图显示了梯度下降的两个主要挑战：
+
+若随机初始化，算法从左侧起步，那么会收敛到一个局部最小值，而不是全局最小值；
+若随机初始化，算法从右侧起步，那么需要经过很长时间才能越过Plateau（函数停滞带，梯度很小），如果停下得太早，则永远达不到全局最小值；
+
+而线性回归的模型MSE损失函数恰好是个凸函数，凸函数保证了只有一个全局最小值，其次是个连续函数，斜率不会发生陡峭的变化，因此即便是乱走，梯度下降都可以趋近全局最小值。
+上图损失函数是非凸函数，梯度下降法是有可能落到局部最小值的，所以其实步长不能设置的太小太稳健，那样就很容易落入局部最优解，虽说局部最小值也没大问题， 因为模型只要是堪用的就好嘛，但是我们肯定还是尽量要奔着全局最优解去！
+1.6、梯度下降步骤
+梯度下降流程就是“猜”正确答案的过程:
+
+
+1、“瞎蒙”，Random 随机数生成 theta\\thetatheta，随机生成一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n ，期望 mu\\mumu 为 0 方差 sigma\\sigmasigma 为 1 的正太分布数据。
+
+
+2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
+
+
+3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
+
+
+4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
+收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
+
+
+
+1.7、代码模拟梯度下降
+
+
+梯度下降优化算法，比正规方程，应用更加广泛
+
+
+什么是梯度？
+
+梯度就是导数对应的值！
+
+
+
+下降？
+
+涉及到优化问题，最小二乘法
+
+
+
+梯度下降呢？
+
+梯度方向下降，速度最快的~
+
+
+
+接下来，我们使用代码来描述上面梯度下降的过程：
+方程如下：
+f(x)=(x−3.5)2−4.5x+10f(x) = (x - 3.5)^2 - 4.5x + 10f(x)=(x−3.5)2−4.5x+10
+
+使用梯度下降的思想，来一步步逼近，函数的最小值。
+import numpy as npimport matplotlib.pyplot as pltf = lambda x : (x - 3.5)**2 -4.5*x + 10# 导函数d = lambda x :2*(x - 3.5) - 4.5 # 梯度 == 导数# 梯度下降的步幅，比例，（学习率，幅度）step = 0.1# 求解当x等于多少的时候，函数值最小。求解目标值：随机生成的# 相等于：&#x27;瞎蒙&#x27; ----&gt; 方法 ----&gt; 优化x = np.random.randint(0,12,size = 1)[0]# 梯度下降，每下降一步，每走一步，目标值，都会更新。# 更新的这个新值和上一步的值，差异，如果差异很小（万分之一）# 梯度下降退出last_x = x + 0.02 # 记录上一步的值，首先让last_x和x有一定的差异！！！# 精确率，真实计算，都是有误差，自己定义precision = 1e-4print(&#x27;+++++++++++++++++++++&#x27;, x)x_ = [x]while True:    # 退出条件，精确度，满足了    if np.abs(x - last_x) &lt; precision:        break         # 更新    last_x = x    x -= step*d(x) # 更新，减法：最小值    x_.append(x)    print(&#x27;--------------------&#x27;,x)# 数据可视化plt.rcParams[&#x27;font.family&#x27;] = &#x27;Kaiti SC&#x27;plt.figure(figsize=(9,6))x = np.linspace(5.75 - 5, 5.75 + 5, 100)y = f(x)plt.plot(x,y,color = &#x27;green&#x27;)plt.title(&#x27;梯度下降&#x27;,size = 24,pad = 15)x_ = np.array(x_)y_ = f(x_)plt.scatter(x_, y_,color = &#x27;red&#x27;)plt.savefig(&#x27;./图片/5-梯度下降.jpg&#x27;,dpi = 200)
+函数的最优解是：5.75。你可以发现，随机赋值的变量 x ，无论大于5.75，还是小于5.75，经过梯度下降，最终都慢慢靠近5.75这个最优解！
+
+
+注意：
+
+梯度下降存在一定误差，不是完美解~
+在误差允许的范围内，梯度下降所求得的机器学习模型，是堪用的！
+梯度下降的步幅step，不能太大，俗话说步子不能迈的太大！
+精确度，可以根据实际情况调整
+while True循环里面，持续进行梯度下降：
+
+theta=theta−etafracpartialpartialthetaJ(theta)\\theta = \\theta - \\eta \\frac{\\partial}{\\partial \\theta}J(\\theta)theta=theta−etafracpartialpartialthetaJ(theta) 其中的 $\eta $ 叫做学习率
+x=x−etafracpartialpartialxf(x)x = x - \\eta\\frac{\\partial}{\\partial x}f(x)x=x−etafracpartialpartialxf(x)
+x = x - step\*\\frac{\\partial}{\\partial x} f(x) 其中的 $step $ 叫做学习率
+x = x - step \* f'(x)
+
+while 循环退出条件是：x更新之后和上一次相差绝对值小于特定精确度！
+
+2、梯度下降方法
+2.1、三种梯度下降不同
+梯度下降分三类：批量梯度下降BGD（Batch Gradient Descent）、小批量梯度下降MBGD（Mini-Batch Gradient Descent）、随机梯度下降SGD（Stochastic Gradient Descent）。
+
+三种梯度下降有什么不同呢？我们从梯度下降步骤开始讲起，梯度下降步骤分一下四步：
+
+
+1、随机赋值，Random 随机数生成 theta\\thetatheta，随机一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n
+
+
+2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
+
+
+3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
+
+
+4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
+收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
+
+
+三种梯度下降不同，体现在第二步中：
+
+
+BGD是指在每次迭代使用所有样本来进行梯度的更新
+
+
+MBGD是指在每次迭代使用一部分样本（所有样本500个，使用其中32个样本）来进行梯度的更新
+
+
+SGD是指每次迭代随机选择一个样本来进行梯度更新
+
+
+2.2、线性回归梯度更新公式
+回顾上一讲公式！
+最小二乘法公式如下：
+J(theta)=frac12sumlimitsi=1n(htheta(x(i))−y(i))2J(\\theta) = \\frac{1}{2}\\sum\\limits_{i = 1}^n(h_{\\theta}(x^{(i)}) - y^{(i)})^2J(theta)=frac12sumlimitsi=1n​(htheta​(x(i))−y(i))2
+矩阵写法：
+J(theta)=frac12(Xtheta−y)T(Xtheta−y)J(\\theta) = \\frac{1}{2}(X\\theta - y)^T(X\\theta - y)J(theta)=frac12(Xtheta−y)T(Xtheta−y)
+接着我们来讲解如何求解上面梯度下降的第 2 步，即我们要推导出损失函数的导函数来。
+
+
+\\theta\_j^{n + 1} = \\theta\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j} 其中 j 表示第 j 个系数
+
+
+fracpartialJ(theta)partialtheta_j=fracpartialpartialthetajfrac12(htheta(x)−y)2\\frac{\\partial J(\\theta)}{\\partial \\theta\_j} = \\frac{\\partial}{\\partial \\theta_j}\\frac{1}{2}(h_{\\theta}(x) - y)^2fracpartialJ(theta)partialtheta_j=fracpartialpartialthetaj​frac12(htheta​(x)−y)2
+
+
+= \\frac{1}{2}\*2(h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(h_{\\theta}(x) - y) (1)
+=(h_theta(x)−y)fracpartialpartialthetaj(sumlimitsi=0ntheta_ix_i−y)= (h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(\\sum\\limits_{i = 0}^n\\theta\_ix\_i - y)=(h_theta(x)−y)fracpartialpartialthetaj​(sumlimitsi=0n​theta_ix_i−y) (2)
+=(h_theta(x)−y)x_j= (h\_{\\theta}(x) - y)x\_j=(h_theta(x)−y)x_j (3)
+x2x^2x2的导数就是 2x，根据链式求导法则，我们可以推出上面第（1）步。然后是多元线性回归，所以 h_theta(x)h\_{\\theta}(x)h_theta(x) 就 是 thetaTx\\theta^TxthetaTx 即是w_0x_0+w_1x_1+……+w_nxnw\_0x\_0 + w\_1x\_1 + …… + w\_nx_nw_0x_0+w_1x_1+……+w_nxn​ 即sumlimitsi=0ntheta_ix_i\\sum\\limits_{i = 0}^n\\theta\_ix\_isumlimitsi=0n​theta_ix_i。到这里我们是对 theta_j\\theta\_jtheta_j 来求偏导，那么和 w_jw\_jw_j 没有关系的可以忽略不计，所以只剩下 x_jx\_jx_j。
+我们可以得到结论就是 theta_j\\theta\_jtheta_j 对应的梯度与预测值 haty\\hat{y}haty 和真实值 y 有关，这里 haty\\hat{y}haty 和 y 是列向量（即多个数据），同时还与 theta_j\\theta\_jtheta_j 对应的特征维度 x_jx\_jx_j 有关，这里 x_jx\_jx_j 是原始数据集矩阵的第 j 列。如果我们分别去对每个维度 theta_0、theta_1……theta_n\\theta\_0、\\theta\_1……\\theta\_ntheta_0、theta_1……theta_n 求偏导，即可得到所有维度对应的梯度值。
+
+g0=(htheta(x)−y)x_0g_0 = (h_{\\theta}(x) - y)x\_0g0​=(htheta​(x)−y)x_0
+g1=(htheta(x)−y)x_1g_1 = (h_{\\theta}(x) - y)x\_1g1​=(htheta​(x)−y)x_1
+……
+gj=(htheta(x)−y)x_jg_j = (h_{\\theta}(x) - y)x\_jgj​=(htheta​(x)−y)x_j
+
+总结：
+\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \* (h_{\\theta}(x) - y )x\_j
+2.3、批量梯度下降BGD
+批量梯度下降法是最原始的形式，它是指在每次迭代使用所有样本来进行梯度的更新。每次迭代参数更新公式如下：
+\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{n}\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
+去掉 frac1n\\frac{1}{n}frac1n 也可以，因为它是一个常量，可以和 eta\\etaeta 合并
+\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta\*\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
+
+矩阵写法：
+\\theta^{n + 1} = \\theta^{n} - \\eta \* X^T(X\\theta -y)
+其中 𝑖 = 1, 2, …, n 表示样本数， 𝑗 = 0, 1……表示特征数，这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。
+注意这里更新时存在一个求和函数，即为对所有样本进行计算处理！
+优点：   （1）一次迭代是对所有样本进行计算，此时利用矩阵进行操作，实现了并行。   （2）由全数据集确定的方向能够更好地代表样本总体，从而更准确地朝向极值所在的方向。当目标函数为凸函数时，BGD一定能够得到全局最优。 缺点：   （1）当样本数目 n 很大时，每迭代一步都需要对所有样本计算，训练过程会很慢。
+从迭代的次数上来看，BGD迭代的次数相对较少。其迭代的收敛曲线示意图可以表示如下：
+
+2.4、随机梯度下降SGD
+随机梯度下降法不同于批量梯度下降，随机梯度下降是每次迭代使用一个样本来对参数进行更新。使得训练速度加快。每次迭代参数更新公式如下：
+\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*(h_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
+批量梯度下降算法每次都会使用全部训练样本，因此这些计算是冗余的，因为每次都使用完全相同的样本集。而随机梯度下降算法每次只随机选择一个样本来更新模型参数，因此每次的学习是非常快速的。
+优点：   （1）由于不是在全部训练数据上的更新计算，而是在每轮迭代中，随机选择一条数据进行更新计算，这样每一轮参数的更新速度大大加快。   缺点：   （1）准确度下降。由于即使在目标函数为强凸函数的情况下，SGD仍旧无法做到线性收敛。   （2）可能会收敛到局部最优，由于单个样本并不能代表全体样本的趋势。
+解释一下为什么SGD收敛速度比BGD要快：
+
+这里我们假设有30W个样本，对于BGD而言，每次迭代需要计算30W个样本才能对参数进行一次更新，需要求得最小值可能需要多次迭代（假设这里是10）。
+而对于SGD，每次更新参数只需要一个样本，因此若使用这30W个样本进行参数更新，则参数会被迭代30W次，而这期间，SGD就能保证能够收敛到一个合适的最小值上了。
+也就是说，在收敛时，BGD计算了 10×30W 次，而SGD只计算了 1×30W 次。
+
+从迭代的次数上来看，SGD迭代的次数较多，在解空间的搜索过程就会盲目一些。其迭代的收敛曲线示意图可以表示如下：
+
+2.5、小批量梯度下降MBGD
+小批量梯度下降，是对批量梯度下降以及随机梯度下降的一个折中办法。其思想是：每次迭代使用总样本中的一部分（batch_size）样本来对参数进行更新。这里我们假设 batch_size = 20，样本数 n = 1000 。实现了更新速度与更新次数之间的平衡。每次迭代参数更新公式如下：
+\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{batch\_size}\\sum\\limits_{i = 1}^{batch\_size} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
+相对于随机梯度下降算法，小批量梯度下降算法降低了收敛波动性， 即降低了参数更新的方差，使得更新更加稳定。相对于全量梯度下降，其提高了每次学习的速度。并且其不用担心内存瓶颈从而可以利用矩阵运算进行高效计算。
+一般情况下，小批量梯度下降是梯度下降的推荐变体，特别是在深度学习中。每次随机选择2的幂数个样本来进行学习，例如：8、16、32、64、128、256。因为计算机的结构就是二进制的。但是也要根据具体问题而选择，实践中可以进行多次试验， 选择一个更新速度与更次次数都较适合的样本数。
+MBGD梯度下降迭代的收敛曲线更加温柔一些：
+
+2.6、梯度下降优化
+虽然梯度下降算法效果很好，并且广泛使用，但是不管用上面三种哪一种，都存在一些挑战与问题，我们可以从以下几点进行优化:
+
+
+选择一个合理的学习速率很难。如果学习速率过小，则会导致收敛速度很慢。如果学习速率过大，那么其会阻碍收敛，即在极值点附近会振荡。
+
+
+学习速率调整，试图在每次更新过程中， 改变学习速率。从经验上看，**学习率在一开始要保持大些来保证收敛速度，在收敛到最优点附近时要小些以避免来回震荡。**比较简单的学习率调整可以通过 **学习率衰减（Learning Rate Decay）**的方式来实现。假设初始化学习率为 eta_0\\eta\_0eta_0，在第 t 次迭代时的学习率 eta_t\\eta\_teta_t。常用的衰减方式为可以设置为 按迭代次数 进行衰减，迭代次数越大，学习率越小！
+
+
+
+模型所有的参数每次更新都是使用相同的学习速率。如果数据特征是稀疏的，或者每个特征有着不同的统计特征与空间，那么便不能在每次更新中每个参数使用相同的学习速率，那些很少出现的特征应该使用一个相对较大的学习速率。
+
+
+对于非凸目标函数，容易陷入那些次优的局部极值点中，如在神经网路中。那么如何避免呢。
+简单的问题，一般使用随机梯度下降即可解决。在深度学习里，对梯度下降进行了很多改进，比如：自适应梯度下降。在深度学习章节，我们会具体介绍。
+
+
+轮次和批次
+轮次：epoch，轮次顾名思义是把我们已有的训练集数据学习多少轮，迭代多少次。
+批次：batch，批次这里指的的我们已有的训练集数据比较多的时候，一轮要学习太多数据， 那就把一轮次要学习的数据分成多个批次，一批一批数据的学习。
+就好比，你要背诵一片《赤壁赋》，很长。你在背诵的时候，一段段的背诵，就是批次batch。花费了一天终于背诵下来了，以后的9天，每天都进行一轮背诵复习，这就是轮次epoch。这样，《赤壁赋》的背诵效果，就非常牢固了。
+在进行，机器学习训练时，我们也要合理选择轮次和批次~
+
+
+3、代码实战梯度下降
+3.1、批量梯度下降BGD
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 1000def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w)  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+3.2、随机梯度下降SGD
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 5)w = np.random.randint(1,10,size = (5,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(6, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+3.3、小批量梯度下降MBGD
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 100n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
+import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项 X_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 10000n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)]]></content>
       <categories>
         <category>program</category>
-        <category>一些题解</category>
+        <category>机器学习</category>
       </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
   </entry>
   <entry>
     <title>树状数组</title>
@@ -1643,283 +1910,22 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
       </tags>
   </entry>
   <entry>
-    <title>梯度下降</title>
-    <url>/posts/3c50d4b7.html</url>
-    <content><![CDATA[梯度下降
-线性回归预测房价
-
-数据加载
-数据介绍
-数据拆分
-数据建模
-数据预测
-数据评估
-
-1、无约束最优化问题
-1.1、无约束最优化
-无约束最优化问题（unconstrained optimizationproblem）指的是从一个问题的所有可能的备选方案中，选择出依某种指标来说是最优的解决方案。从数学上说，最优化是研究在一个给定的集合S上泛函J(theta)J(\\theta)J(theta)的极小化或极大化问题：广义上，最优化包括数学规划、图和网络、组合最优化、库存论、决策论、排队论、最优控制等。狭义上，最优化仅指数学规划。
-1.2、梯度下降
-梯度下降法(Gradient Descent)是一个算法，但不是像多元线性回归那样是一个具体做回归任务的算法，而是一个非常通用的优化算法来帮助一些机器学习算法（都是无约束最优化问题）求解出最优解， 所谓的通用就是很多机器学习算法都是用梯度下降，甚至深度学习也是用它来求解最优解。所有优化算法的目的都是期望以最快的速度把模型参数θ求解出来，梯度下降法就是一种经典常用的优化算法。
-之前利用正规方程求解的 θ 是最优解的原因是 MSE 这个损失函数是凸函数。但是，机器学习的损失函数并非都是凸函数，设置导数为 0 会得到很多个极值，不能确定唯一解。
-
-使用正规方程 theta=(XTX)−1XTy\\theta = (X^TX)^{-1}X^Tytheta=(XTX)−1XTy 求解的另一个限制是特征维度（X_1、X_2……、X_nX\_1、X\_2……、X\_nX_1、X_2……、X_n）不能太多，矩阵逆运算的时间复杂度通常为 O(n3)O(n^3)O(n3) 。换句话说，就是如果特征数量翻倍，你的计算时间大致为原来的 232^323 倍，也就是之前时间的8倍。举个例子，2 个特征 1 秒，4 个特征就是 8 秒，8 个特征就是 64 秒，16 个特征就是 512 秒，当特征更多的时候呢？运行时间会非常漫长~
-所以正规方程求出最优解并不是机器学习甚至深度学习常用的手段。
-之前我们令导数为 0，反过来求解最低点 θ 是多少，而梯度下降法是一点点去逼近最优解!
-
-其实这就跟生活中的情形很像，比如你问一个朋友的工资是多少，他说你猜？那就很难了，他说你猜完我告诉你是猜高了还是猜低了，这样你就可以奔着对的方向一直猜下去，最后总会猜对！梯度下降法就是这样的，多次尝试。并且，在试的过程中还得想办法知道是不是在猜对的路上，说白了就是得到正确的反馈再调整然后继续猜才有意义~
-这个就好比道士下山，我们把 Loss （或者称为Cost，即损失）曲线看成是山谷，如果走过了，就再往回返，所以是一个迭代的过程。
-1.3、梯度下降公式
-这里梯度下降法的公式就是一个式子指导计算机迭代过程中如何去调整theta\\thetatheta，可以通过泰勒公式一阶展开来进行推导和证明：
-
-
-\\theta^{n + 1} = \\theta^{n} - \\alpha \* gradient
-其中 alpha\\alphaalpha 表示学习率，gradient 表示梯度
-
-
-\\theta^{n + 1} = \\theta^{n} - \\alpha \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
-有些公式，使用其他字母表示：
-
-
-\\theta^{n + 1} = \\theta^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
-
-
-w\_j^{n + 1} = w\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j}
-
-
-这里的 w_jw\_jw_j 就是 theta\\thetatheta 中的某一个 j = 0…m，这里的 eta\\etaeta 就是梯度下降图里的 learning step，很多时候也叫学习率 learning rate，很多时候也用 alpha\\alphaalpha 表示，这个学习率我们可以看作是下山迈的步子的大小，步子迈的大下山就快。
-
-学习率一般都是正数，如果在山左侧（曲线左半边）梯度是负的，那么这个负号就会把 w_jw\_jw_j 往大了调， 如果在山右侧（曲线右半边）梯度就是正的，那么负号就会把 w_jw\_jw_j 往小了调。每次 w_jw\_jw_j 调整的幅度就是 \\eta \* gradient，就是横轴上移动的距离。
-因此，无论在左边，还是在右边，梯度下降都可以快速找到最优解，实现快速下山~
-如果特征或维度越多，那么这个公式用的次数就越多，也就是每次迭代要应用的这个式子多次（多少特征，就应用多少次），所以其实上面的图不是特别准，因为 theta\\thetatheta 对应的是很多维度，应该每一个维度都可以画一个这样的图，或者是一个多维空间的图。
-
-w\_0^{n + 1} = w\_0^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_0}
-w\_1^{n + 1} = w\_1^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_1}
-……
-w\_m^{n + 1} = w\_m^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_m}
-
-
-所以观察上图我们可以发现不是某一个 theta_0\\theta\_0theta_0 或 theta_1\\theta\_1theta_1 找到最小值就是最优解，而是它们一起找到 J(theta)J(\\theta)J(theta) 最小值才是最优解。
-1.4、学习率
-根据我们上面讲的梯度下降公式，我们知道 eta\\etaeta 是学习率，设置大的学习率 w_jw\_jw_j 每次调整的幅度就大，设置小的学习率 w_jw\_jw_j 每次调整的幅度就小，然而如果步子迈的太大也会有问题，俗话说步子大了容易扯着蛋！学习率大，可能一下子迈过了，到另一边去了（从曲线左半边跳到右半边），继续梯度下降又迈回来， 使得来来回回震荡。步子太小呢，就像蜗牛一步步往前挪，也会使得整体迭代次数增加。
-
-学习率的设置是门一门学问，一般我们会把它设置成一个比较小的正整数，0.1、0.01、0.001、0.0001，都是常见的设定数值（然后根据情况调整）。一般情况下学习率在整体迭代过程中是不变，但是也可以设置成随着迭代次数增多学习率逐渐变小，因为越靠近山谷我们就可以步子迈小点，可以更精准的走入最低点，同时防止走过。还有一些深度学习的优化算法会自己控制调整学习率这个值，后面学习过程中这些策略在讲解代码中我们会一一讲到。
-
-1.5、全局最优化
-
-上图显示了梯度下降的两个主要挑战：
-
-若随机初始化，算法从左侧起步，那么会收敛到一个局部最小值，而不是全局最小值；
-若随机初始化，算法从右侧起步，那么需要经过很长时间才能越过Plateau（函数停滞带，梯度很小），如果停下得太早，则永远达不到全局最小值；
-
-而线性回归的模型MSE损失函数恰好是个凸函数，凸函数保证了只有一个全局最小值，其次是个连续函数，斜率不会发生陡峭的变化，因此即便是乱走，梯度下降都可以趋近全局最小值。
-上图损失函数是非凸函数，梯度下降法是有可能落到局部最小值的，所以其实步长不能设置的太小太稳健，那样就很容易落入局部最优解，虽说局部最小值也没大问题， 因为模型只要是堪用的就好嘛，但是我们肯定还是尽量要奔着全局最优解去！
-1.6、梯度下降步骤
-梯度下降流程就是“猜”正确答案的过程:
-
-
-1、“瞎蒙”，Random 随机数生成 theta\\thetatheta，随机生成一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n ，期望 mu\\mumu 为 0 方差 sigma\\sigmasigma 为 1 的正太分布数据。
-
-
-2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
-
-
-3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
-
-
-4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
-收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
-
-
-
-1.7、代码模拟梯度下降
-
-
-梯度下降优化算法，比正规方程，应用更加广泛
-
-
-什么是梯度？
-
-梯度就是导数对应的值！
-
-
-
-下降？
-
-涉及到优化问题，最小二乘法
-
-
-
-梯度下降呢？
-
-梯度方向下降，速度最快的~
-
-
-
-接下来，我们使用代码来描述上面梯度下降的过程：
-方程如下：
-f(x)=(x−3.5)2−4.5x+10f(x) = (x - 3.5)^2 - 4.5x + 10f(x)=(x−3.5)2−4.5x+10
-
-使用梯度下降的思想，来一步步逼近，函数的最小值。
-import numpy as npimport matplotlib.pyplot as pltf = lambda x : (x - 3.5)**2 -4.5*x + 10# 导函数d = lambda x :2*(x - 3.5) - 4.5 # 梯度 == 导数# 梯度下降的步幅，比例，（学习率，幅度）step = 0.1# 求解当x等于多少的时候，函数值最小。求解目标值：随机生成的# 相等于：&#x27;瞎蒙&#x27; ----&gt; 方法 ----&gt; 优化x = np.random.randint(0,12,size = 1)[0]# 梯度下降，每下降一步，每走一步，目标值，都会更新。# 更新的这个新值和上一步的值，差异，如果差异很小（万分之一）# 梯度下降退出last_x = x + 0.02 # 记录上一步的值，首先让last_x和x有一定的差异！！！# 精确率，真实计算，都是有误差，自己定义precision = 1e-4print(&#x27;+++++++++++++++++++++&#x27;, x)x_ = [x]while True:    # 退出条件，精确度，满足了    if np.abs(x - last_x) &lt; precision:        break         # 更新    last_x = x    x -= step*d(x) # 更新，减法：最小值    x_.append(x)    print(&#x27;--------------------&#x27;,x)# 数据可视化plt.rcParams[&#x27;font.family&#x27;] = &#x27;Kaiti SC&#x27;plt.figure(figsize=(9,6))x = np.linspace(5.75 - 5, 5.75 + 5, 100)y = f(x)plt.plot(x,y,color = &#x27;green&#x27;)plt.title(&#x27;梯度下降&#x27;,size = 24,pad = 15)x_ = np.array(x_)y_ = f(x_)plt.scatter(x_, y_,color = &#x27;red&#x27;)plt.savefig(&#x27;./图片/5-梯度下降.jpg&#x27;,dpi = 200)
-函数的最优解是：5.75。你可以发现，随机赋值的变量 x ，无论大于5.75，还是小于5.75，经过梯度下降，最终都慢慢靠近5.75这个最优解！
-
-
-注意：
-
-梯度下降存在一定误差，不是完美解~
-在误差允许的范围内，梯度下降所求得的机器学习模型，是堪用的！
-梯度下降的步幅step，不能太大，俗话说步子不能迈的太大！
-精确度，可以根据实际情况调整
-while True循环里面，持续进行梯度下降：
-
-theta=theta−etafracpartialpartialthetaJ(theta)\\theta = \\theta - \\eta \\frac{\\partial}{\\partial \\theta}J(\\theta)theta=theta−etafracpartialpartialthetaJ(theta) 其中的 $\eta $ 叫做学习率
-x=x−etafracpartialpartialxf(x)x = x - \\eta\\frac{\\partial}{\\partial x}f(x)x=x−etafracpartialpartialxf(x)
-x = x - step\*\\frac{\\partial}{\\partial x} f(x) 其中的 $step $ 叫做学习率
-x = x - step \* f'(x)
-
-while 循环退出条件是：x更新之后和上一次相差绝对值小于特定精确度！
-
-2、梯度下降方法
-2.1、三种梯度下降不同
-梯度下降分三类：批量梯度下降BGD（Batch Gradient Descent）、小批量梯度下降MBGD（Mini-Batch Gradient Descent）、随机梯度下降SGD（Stochastic Gradient Descent）。
-
-三种梯度下降有什么不同呢？我们从梯度下降步骤开始讲起，梯度下降步骤分一下四步：
-
-
-1、随机赋值，Random 随机数生成 theta\\thetatheta，随机一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n
-
-
-2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
-
-
-3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
-
-
-4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
-收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
-
-
-三种梯度下降不同，体现在第二步中：
-
-
-BGD是指在每次迭代使用所有样本来进行梯度的更新
-
-
-MBGD是指在每次迭代使用一部分样本（所有样本500个，使用其中32个样本）来进行梯度的更新
-
-
-SGD是指每次迭代随机选择一个样本来进行梯度更新
-
-
-2.2、线性回归梯度更新公式
-回顾上一讲公式！
-最小二乘法公式如下：
-J(theta)=frac12sumlimitsi=1n(htheta(x(i))−y(i))2J(\\theta) = \\frac{1}{2}\\sum\\limits_{i = 1}^n(h_{\\theta}(x^{(i)}) - y^{(i)})^2J(theta)=frac12sumlimitsi=1n​(htheta​(x(i))−y(i))2
-矩阵写法：
-J(theta)=frac12(Xtheta−y)T(Xtheta−y)J(\\theta) = \\frac{1}{2}(X\\theta - y)^T(X\\theta - y)J(theta)=frac12(Xtheta−y)T(Xtheta−y)
-接着我们来讲解如何求解上面梯度下降的第 2 步，即我们要推导出损失函数的导函数来。
-
-
-\\theta\_j^{n + 1} = \\theta\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j} 其中 j 表示第 j 个系数
-
-
-fracpartialJ(theta)partialtheta_j=fracpartialpartialthetajfrac12(htheta(x)−y)2\\frac{\\partial J(\\theta)}{\\partial \\theta\_j} = \\frac{\\partial}{\\partial \\theta_j}\\frac{1}{2}(h_{\\theta}(x) - y)^2fracpartialJ(theta)partialtheta_j=fracpartialpartialthetaj​frac12(htheta​(x)−y)2
-
-
-= \\frac{1}{2}\*2(h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(h_{\\theta}(x) - y) (1)
-=(h_theta(x)−y)fracpartialpartialthetaj(sumlimitsi=0ntheta_ix_i−y)= (h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(\\sum\\limits_{i = 0}^n\\theta\_ix\_i - y)=(h_theta(x)−y)fracpartialpartialthetaj​(sumlimitsi=0n​theta_ix_i−y) (2)
-=(h_theta(x)−y)x_j= (h\_{\\theta}(x) - y)x\_j=(h_theta(x)−y)x_j (3)
-x2x^2x2的导数就是 2x，根据链式求导法则，我们可以推出上面第（1）步。然后是多元线性回归，所以 h_theta(x)h\_{\\theta}(x)h_theta(x) 就 是 thetaTx\\theta^TxthetaTx 即是w_0x_0+w_1x_1+……+w_nxnw\_0x\_0 + w\_1x\_1 + …… + w\_nx_nw_0x_0+w_1x_1+……+w_nxn​ 即sumlimitsi=0ntheta_ix_i\\sum\\limits_{i = 0}^n\\theta\_ix\_isumlimitsi=0n​theta_ix_i。到这里我们是对 theta_j\\theta\_jtheta_j 来求偏导，那么和 w_jw\_jw_j 没有关系的可以忽略不计，所以只剩下 x_jx\_jx_j。
-我们可以得到结论就是 theta_j\\theta\_jtheta_j 对应的梯度与预测值 haty\\hat{y}haty 和真实值 y 有关，这里 haty\\hat{y}haty 和 y 是列向量（即多个数据），同时还与 theta_j\\theta\_jtheta_j 对应的特征维度 x_jx\_jx_j 有关，这里 x_jx\_jx_j 是原始数据集矩阵的第 j 列。如果我们分别去对每个维度 theta_0、theta_1……theta_n\\theta\_0、\\theta\_1……\\theta\_ntheta_0、theta_1……theta_n 求偏导，即可得到所有维度对应的梯度值。
-
-g0=(htheta(x)−y)x_0g_0 = (h_{\\theta}(x) - y)x\_0g0​=(htheta​(x)−y)x_0
-g1=(htheta(x)−y)x_1g_1 = (h_{\\theta}(x) - y)x\_1g1​=(htheta​(x)−y)x_1
-……
-gj=(htheta(x)−y)x_jg_j = (h_{\\theta}(x) - y)x\_jgj​=(htheta​(x)−y)x_j
-
-总结：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \* (h_{\\theta}(x) - y )x\_j
-2.3、批量梯度下降BGD
-批量梯度下降法是最原始的形式，它是指在每次迭代使用所有样本来进行梯度的更新。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{n}\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-去掉 frac1n\\frac{1}{n}frac1n 也可以，因为它是一个常量，可以和 eta\\etaeta 合并
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta\*\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-
-矩阵写法：
-\\theta^{n + 1} = \\theta^{n} - \\eta \* X^T(X\\theta -y)
-其中 𝑖 = 1, 2, …, n 表示样本数， 𝑗 = 0, 1……表示特征数，这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。
-注意这里更新时存在一个求和函数，即为对所有样本进行计算处理！
-优点：   （1）一次迭代是对所有样本进行计算，此时利用矩阵进行操作，实现了并行。   （2）由全数据集确定的方向能够更好地代表样本总体，从而更准确地朝向极值所在的方向。当目标函数为凸函数时，BGD一定能够得到全局最优。 缺点：   （1）当样本数目 n 很大时，每迭代一步都需要对所有样本计算，训练过程会很慢。
-从迭代的次数上来看，BGD迭代的次数相对较少。其迭代的收敛曲线示意图可以表示如下：
-
-2.4、随机梯度下降SGD
-随机梯度下降法不同于批量梯度下降，随机梯度下降是每次迭代使用一个样本来对参数进行更新。使得训练速度加快。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*(h_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-批量梯度下降算法每次都会使用全部训练样本，因此这些计算是冗余的，因为每次都使用完全相同的样本集。而随机梯度下降算法每次只随机选择一个样本来更新模型参数，因此每次的学习是非常快速的。
-优点：   （1）由于不是在全部训练数据上的更新计算，而是在每轮迭代中，随机选择一条数据进行更新计算，这样每一轮参数的更新速度大大加快。   缺点：   （1）准确度下降。由于即使在目标函数为强凸函数的情况下，SGD仍旧无法做到线性收敛。   （2）可能会收敛到局部最优，由于单个样本并不能代表全体样本的趋势。
-解释一下为什么SGD收敛速度比BGD要快：
-
-这里我们假设有30W个样本，对于BGD而言，每次迭代需要计算30W个样本才能对参数进行一次更新，需要求得最小值可能需要多次迭代（假设这里是10）。
-而对于SGD，每次更新参数只需要一个样本，因此若使用这30W个样本进行参数更新，则参数会被迭代30W次，而这期间，SGD就能保证能够收敛到一个合适的最小值上了。
-也就是说，在收敛时，BGD计算了 10×30W 次，而SGD只计算了 1×30W 次。
-
-从迭代的次数上来看，SGD迭代的次数较多，在解空间的搜索过程就会盲目一些。其迭代的收敛曲线示意图可以表示如下：
-
-2.5、小批量梯度下降MBGD
-小批量梯度下降，是对批量梯度下降以及随机梯度下降的一个折中办法。其思想是：每次迭代使用总样本中的一部分（batch_size）样本来对参数进行更新。这里我们假设 batch_size = 20，样本数 n = 1000 。实现了更新速度与更新次数之间的平衡。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{batch\_size}\\sum\\limits_{i = 1}^{batch\_size} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-相对于随机梯度下降算法，小批量梯度下降算法降低了收敛波动性， 即降低了参数更新的方差，使得更新更加稳定。相对于全量梯度下降，其提高了每次学习的速度。并且其不用担心内存瓶颈从而可以利用矩阵运算进行高效计算。
-一般情况下，小批量梯度下降是梯度下降的推荐变体，特别是在深度学习中。每次随机选择2的幂数个样本来进行学习，例如：8、16、32、64、128、256。因为计算机的结构就是二进制的。但是也要根据具体问题而选择，实践中可以进行多次试验， 选择一个更新速度与更次次数都较适合的样本数。
-MBGD梯度下降迭代的收敛曲线更加温柔一些：
-
-2.6、梯度下降优化
-虽然梯度下降算法效果很好，并且广泛使用，但是不管用上面三种哪一种，都存在一些挑战与问题，我们可以从以下几点进行优化:
-
-
-选择一个合理的学习速率很难。如果学习速率过小，则会导致收敛速度很慢。如果学习速率过大，那么其会阻碍收敛，即在极值点附近会振荡。
-
-
-学习速率调整，试图在每次更新过程中， 改变学习速率。从经验上看，**学习率在一开始要保持大些来保证收敛速度，在收敛到最优点附近时要小些以避免来回震荡。**比较简单的学习率调整可以通过 **学习率衰减（Learning Rate Decay）**的方式来实现。假设初始化学习率为 eta_0\\eta\_0eta_0，在第 t 次迭代时的学习率 eta_t\\eta\_teta_t。常用的衰减方式为可以设置为 按迭代次数 进行衰减，迭代次数越大，学习率越小！
-
-
-
-模型所有的参数每次更新都是使用相同的学习速率。如果数据特征是稀疏的，或者每个特征有着不同的统计特征与空间，那么便不能在每次更新中每个参数使用相同的学习速率，那些很少出现的特征应该使用一个相对较大的学习速率。
-
-
-对于非凸目标函数，容易陷入那些次优的局部极值点中，如在神经网路中。那么如何避免呢。
-简单的问题，一般使用随机梯度下降即可解决。在深度学习里，对梯度下降进行了很多改进，比如：自适应梯度下降。在深度学习章节，我们会具体介绍。
-
-
-轮次和批次
-轮次：epoch，轮次顾名思义是把我们已有的训练集数据学习多少轮，迭代多少次。
-批次：batch，批次这里指的的我们已有的训练集数据比较多的时候，一轮要学习太多数据， 那就把一轮次要学习的数据分成多个批次，一批一批数据的学习。
-就好比，你要背诵一片《赤壁赋》，很长。你在背诵的时候，一段段的背诵，就是批次batch。花费了一天终于背诵下来了，以后的9天，每天都进行一轮背诵复习，这就是轮次epoch。这样，《赤壁赋》的背诵效果，就非常牢固了。
-在进行，机器学习训练时，我们也要合理选择轮次和批次~
-
-
-3、代码实战梯度下降
-3.1、批量梯度下降BGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 1000def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w)  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-3.2、随机梯度下降SGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 5)w = np.random.randint(1,10,size = (5,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(6, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-3.3、小批量梯度下降MBGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 100n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项 X_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 10000n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)]]></content>
+    <title>蓝桥杯-高塔</title>
+    <url>/posts/a38c4cc3.html</url>
+    <content><![CDATA[问题描述 小蓝正在玩一个攀登高塔的游戏。高塔的层数是无限的，但游戏最多只有 n n 回合。
+小蓝一开始拥有 m m 点能量，在每个回合都有一个值 A i A i ​ 表示小蓝的角色状态。小蓝每回合可以选择消费任意点能量 C i C i ​ （最低消费 1 1 点，没有上限），他在这回合将最多可以向上攀爬 A i ⋅ C i A i ​ ⋅C i ​ 层。实际攀爬的层数取决于小蓝自己在这回合的表现，不过最差也会向上爬一层。
+当某回合小蓝的能量点数耗尽，那么在完成这个回合后，游戏结束。 n n 回合结束后，不管能量还有没有剩余，游戏都会直接结束。
+给出小蓝每回合的 A i A i ​ 和自己一开始的能量点数 m m。小蓝想知道有多少种不同的可能出现的游玩过程。如果小蓝在两种游玩过程中的任一对应回合花费的能量点数不同或该回合结束时所处层数不同，那么这两种游玩过程就被视为不同。
+输入格式 输入的第一行包含两个整数 n n, m m，用一个空格分隔。
+第二行包含 n n 个整数 A i A i ​ ，相邻整数之间使用一个空格分隔，表示小蓝每回合的状态值。
+输出格式 输出一行包含一个整数表示给定条件下不同游玩过程的数量。由于答案可能很大，你只需要输出答案对 998244353 998244353 取模的结果。
+样例输入 9 15 3 2 5 7 1 4 6 8 3 copy 样例输出 392149233 copy 评测用例规模与约定 对于 40 40% 的评测用例， n ≤ 300 n≤300， m ≤ 500 m≤500；
+对于所有评测用例， 1 ≤ n ≤ 2 × 1 0 5 1≤n≤2×10 5 ， n ≤ m ≤ 1 0 18 n≤m≤10 18 ， 1 ≤ A i ≤ 1 0 9 1≤A i ​ ≤10 9 。
+]]></content>
       <categories>
         <category>program</category>
-        <category>机器学习</category>
+        <category>一些题解</category>
       </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
   </entry>
   <entry>
     <title>杂谈笔记</title>
@@ -1993,320 +1999,6 @@ m=Integer.parseInt(str[1])
         <category>program</category>
         <category>算法刷题路线</category>
       </categories>
-  </entry>
-  <entry>
-    <title>聚类算法</title>
-    <url>/posts/35f08535.html</url>
-    <content><![CDATA[聚类算法
-1、聚类介绍
-1.1、聚类作用
-
-
-知识发现 发现事物之间的潜在关系
-
-
-异常值检测
-
-
-特征提取 数据压缩的例子
-
-
-1.2、有监督与无监督学习
-有监督：
-
-
-给定训练集 X 和 标签Y
-
-
-选择模型
-
-学习（目标函数的最优化）
-生成模型（本质上是一组参数、方程）
-
-
-
-根据生成的一组参数进行预测分类等任务
-无监督：
-
-
-拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
-
-
-Clustering 聚类
-
-对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
-也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
-
-
-
-降维算法，数据特征变少
-
-
-1.3、聚类算法
-
-1.4、相似度
-
-1.5、数据间的相似度
-
-
-每一条数据都可以理解为多维空间中的一个点。
-
-
-可以根据点和点之间的距离来评价数据间的相似度
-
-
-近朱者赤近墨者黑！
-
-
-欧氏距离：
-
-二维空间：
-
-d=(x1−x2)2+(y1−y2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
-
-三维空间：
-
-d=(x1−x2)2+(y1−y2)2+(z1−z2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
-
-闵可夫斯基距离
-
-d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
-
-
-P = 1 曼哈顿距离
-
-d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
-在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
-
-
-
-P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
-
-
-P = 无穷，切比雪夫距离 ，哪个维度差值最大就是哪个差值作为距离。
-
-
-
-1.6、余弦距离
-将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
-计算过程如下：
-
-将数据映射为高维空间中的点（向量）
-计算向量间的余弦值
-取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
-
-cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
-cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
-
-余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
-
-2、Kmeans
-2.1、聚类原理
-
-
-将N个样本映射到K个簇中
-
-
-每个簇至少有一个样本
-
-
-基本思路：
-
-
-先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
-
-
-迭代若干次就能得到比较好的结果
-
-
-2.2、Kmeans算法原理
-算法步骤：
-
-
-选择K个初始的簇中心
-
-怎么选？
-
-
-
-逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
-
-
-每个簇内部计算平均值，更新簇中心
-
-
-开始迭代
-
-
-
-聚类过程如下：
-
-2.3、KMeans优缺点
-
-
-优点：
-
-简单，效果不错
-
-
-
-缺点
-
-对异常值敏感
-对初始值敏感
-对某些分布聚类效果不好
-
-
-
-2.4、Kmeans损失函数
-∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
-
-
-其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
-
-
-其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
-
-
-2.5、Kmeans执行过程
-
-2.6、Kmeans初步使用
-亚洲国家队划分：
-import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
-
-类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
-
-数据可视化：
-plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
-
-2.7、Kmeans聚类算法K值选择
-轮廓系数：
-针对某个样本的轮廓系数s为：s=b−amax(a,b)s= \frac{b - a}{max(a, b)}s=max(a,b)b−a​
-
-a：某个样本与其所在簇内其他样本的平均距离
-b：某个样本与其他簇样本的平均距离
-
-聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
-
-
-调整兰德系数：
-公式了解一下即可：
-RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
-用C表示实际的类别划分，K表示聚类结果。
-定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
-定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
-兰德系数范围是[0,1]
-调整兰德系数为：
-ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
-范围为[-1,1]
-from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-
-2.8、Kmeans图像压缩
-import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
-
-3、DBSCAN
-3.1、算法介绍
-DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
-
-下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
-
-基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
-3.2、DBSCAN算法原理
-
-网站动画解析
-3.3、DBSCAN参数解析
-参数一eps：
-DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
-参数二min_samples：
-DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
-参数与三metrics：
-
-3.4、DBSCAN使用示例
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
-
-# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-4、分层聚类
-4.1、算法介绍
-分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
-分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
-
-一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
-
-4.2、算法原理
-层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
-我们着重看一下自底向上的合并算法：
-
-两个组合数据点间的距离:
-
-Single Linkage
-
-方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
-
-
-Complete Linkage
-
-complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
-
-
-Average Linkage
-
-Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
-我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
-
-
-
-
-4.3、参数介绍
-
-
-n_clusters
-划分类别数目
-
-
-linkage
-度量两个子类的相似度时所依据的距离
-
-Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
-Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
-上述两种方法容易受到极端值的影响，计算大样本集效率较高。
-Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
-Ward：最小化簇内方差。
-
-
-
-connectivity
-连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
-
-
-4.4、算法案例
-导包
-import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
-创建数据
-X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
-
-Kmeans聚类效果
-# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-分层聚类
-agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
-分层聚类改进（连接性约束，对局部结构进行约束）
-from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
   </entry>
   <entry>
     <title>梯度下降优化</title>
@@ -2662,18 +2354,322 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
       </tags>
   </entry>
   <entry>
-    <title>音乐馆</title>
-    <url>/3.html</url>
-    <content><![CDATA[]]></content>
+    <title>聚类算法</title>
+    <url>/posts/35f08535.html</url>
+    <content><![CDATA[聚类算法
+1、聚类介绍
+1.1、聚类作用
+
+
+知识发现 发现事物之间的潜在关系
+
+
+异常值检测
+
+
+特征提取 数据压缩的例子
+
+
+1.2、有监督与无监督学习
+有监督：
+
+
+给定训练集 X 和 标签Y
+
+
+选择模型
+
+学习（目标函数的最优化）
+生成模型（本质上是一组参数、方程）
+
+
+
+根据生成的一组参数进行预测分类等任务
+无监督：
+
+
+拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
+
+
+Clustering 聚类
+
+对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
+也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
+
+
+
+降维算法，数据特征变少
+
+
+1.3、聚类算法
+
+1.4、相似度
+
+1.5、数据间的相似度
+
+
+每一条数据都可以理解为多维空间中的一个点。
+
+
+可以根据点和点之间的距离来评价数据间的相似度
+
+
+近朱者赤近墨者黑！
+
+
+欧氏距离：
+
+二维空间：
+
+d=(x1−x2)2+(y1−y2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
+
+三维空间：
+
+d=(x1−x2)2+(y1−y2)2+(z1−z2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
+
+闵可夫斯基距离
+
+d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
+
+
+P = 1 曼哈顿距离
+
+d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
+在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
+
+
+
+P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
+
+
+P = 无穷，切比雪夫距离 ，哪个维度差值最大就是哪个差值作为距离。
+
+
+
+1.6、余弦距离
+将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
+计算过程如下：
+
+将数据映射为高维空间中的点（向量）
+计算向量间的余弦值
+取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
+
+cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
+cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
+
+余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
+
+2、Kmeans
+2.1、聚类原理
+
+
+将N个样本映射到K个簇中
+
+
+每个簇至少有一个样本
+
+
+基本思路：
+
+
+先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
+
+
+迭代若干次就能得到比较好的结果
+
+
+2.2、Kmeans算法原理
+算法步骤：
+
+
+选择K个初始的簇中心
+
+怎么选？
+
+
+
+逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
+
+
+每个簇内部计算平均值，更新簇中心
+
+
+开始迭代
+
+
+
+聚类过程如下：
+
+2.3、KMeans优缺点
+
+
+优点：
+
+简单，效果不错
+
+
+
+缺点
+
+对异常值敏感
+对初始值敏感
+对某些分布聚类效果不好
+
+
+
+2.4、Kmeans损失函数
+∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
+
+
+其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
+
+
+其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
+
+
+2.5、Kmeans执行过程
+
+2.6、Kmeans初步使用
+亚洲国家队划分：
+import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
+
+类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
+
+数据可视化：
+plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
+
+2.7、Kmeans聚类算法K值选择
+轮廓系数：
+针对某个样本的轮廓系数s为：s=b−amax(a,b)s= \frac{b - a}{max(a, b)}s=max(a,b)b−a​
+
+a：某个样本与其所在簇内其他样本的平均距离
+b：某个样本与其他簇样本的平均距离
+
+聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
+
+
+调整兰德系数：
+公式了解一下即可：
+RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
+用C表示实际的类别划分，K表示聚类结果。
+定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
+定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
+兰德系数范围是[0,1]
+调整兰德系数为：
+ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
+范围为[-1,1]
+from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+
+2.8、Kmeans图像压缩
+import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
+
+3、DBSCAN
+3.1、算法介绍
+DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
+
+下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
+
+基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
+3.2、DBSCAN算法原理
+
+网站动画解析
+3.3、DBSCAN参数解析
+参数一eps：
+DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
+参数二min_samples：
+DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
+参数与三metrics：
+
+3.4、DBSCAN使用示例
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
+
+# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+4、分层聚类
+4.1、算法介绍
+分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
+分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
+
+一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
+
+4.2、算法原理
+层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
+我们着重看一下自底向上的合并算法：
+
+两个组合数据点间的距离:
+
+Single Linkage
+
+方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
+
+
+Complete Linkage
+
+complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
+
+
+Average Linkage
+
+Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
+我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
+
+
+
+
+4.3、参数介绍
+
+
+n_clusters
+划分类别数目
+
+
+linkage
+度量两个子类的相似度时所依据的距离
+
+Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
+Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
+上述两种方法容易受到极端值的影响，计算大样本集效率较高。
+Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
+Ward：最小化簇内方差。
+
+
+
+connectivity
+连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
+
+
+4.4、算法案例
+导包
+import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
+创建数据
+X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
+
+Kmeans聚类效果
+# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+分层聚类
+agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
+分层聚类改进（连接性约束，对局部结构进行约束）
+from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
   </entry>
   <entry>
     <title>闲言碎语</title>
     <url>/2.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>分类</title>
-    <url>/g.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -2682,9 +2678,14 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/manifest.json</url>
-    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
+    <title>音乐馆</title>
+    <url>/3.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>分类</title>
+    <url>/g.html</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>categories</title>
@@ -2692,50 +2693,9 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title>artitalk</title>
-    <url>/artitalk/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title></title>
-    <url>/css/fuction.css</url>
-    <content><![CDATA[.loading-img {
-  background: url(https://s21.ax1x.com/2025/05/12/pEXkRIO.jpg) no-repeat center center;
-  background-size: cover;
-}
-/* 返回顶部 */
-
-
-button#go-up span:nth-child(2) {
-    font-size: 12px!important;
-    margin-right: -1px;
-}
-/* 返回顶部 */
-button#go-up #percent {
-    display: none;
-    /*font-weight: bold;*/
-    font-size: 16px !important;
-}
-
-/* 鼠标滑动到按钮上时显示返回顶部图标 */
-button#go-up:hover i {
-    display: block !important;
-}
-
-button#go-up:hover #percent {
-    display: none !important;
-}
-
-#rightside > div > button,
-#rightside > div > a {
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    -webkit-box-align: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-}
-]]></content>
+    <url>/manifest.json</url>
+    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
   </entry>
   <entry>
     <title></title>
@@ -3423,6 +3383,52 @@ code.hljs {
   
 }
 ]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/css/fuction.css</url>
+    <content><![CDATA[.loading-img {
+  background: url(https://s21.ax1x.com/2025/05/12/pEXkRIO.jpg) no-repeat center center;
+  background-size: cover;
+}
+/* 返回顶部 */
+
+
+button#go-up span:nth-child(2) {
+    font-size: 12px!important;
+    margin-right: -1px;
+}
+/* 返回顶部 */
+button#go-up #percent {
+    display: none;
+    /*font-weight: bold;*/
+    font-size: 16px !important;
+}
+
+/* 鼠标滑动到按钮上时显示返回顶部图标 */
+button#go-up:hover i {
+    display: block !important;
+}
+
+button#go-up:hover #percent {
+    display: none !important;
+}
+
+#rightside > div > button,
+#rightside > div > a {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    -webkit-box-align: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+}
+]]></content>
+  </entry>
+  <entry>
+    <title>artitalk</title>
+    <url>/artitalk/index.html</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title></title>
@@ -4680,9 +4686,9 @@ button.swiper-pagination-bullet {
   }]]></content>
   </entry>
   <entry>
-    <title>友情链接</title>
-    <url>/link/index.html</url>
-    <content><![CDATA[]]></content>
+    <title></title>
+    <url>/js/ali_font.js</url>
+    <content><![CDATA[window._iconfont_svg_string_4902343='',(h=>{var c=(l=(l=document.getElementsByTagName("script"))[l.length-1]).getAttribute("data-injectcss"),l=l.getAttribute("data-disable-injectsvg");if(!l){var i,a,t,o,v,m=function(c,l){l.parentNode.insertBefore(c,l)};if(c&&!h.__iconfont__svg__cssinject__){h.__iconfont__svg__cssinject__=!0;try{document.write(".svgfont {display: inline-block;width: 1em;height: 1em;fill: currentColor;vertical-align: -0.1em;font-size:16px;}")}catch(c){console&&console.log(c)}}i=function(){var c,l=document.createElement("div");l.innerHTML=h._iconfont_svg_string_4902343,(l=l.getElementsByTagName("svg")[0])&&(l.setAttribute("aria-hidden","true"),l.style.position="absolute",l.style.width=0,l.style.height=0,l.style.overflow="hidden",l=l,(c=document.body).firstChild?m(l,c.firstChild):c.appendChild(l))},document.addEventListener?~["complete","loaded","interactive"].indexOf(document.readyState)?setTimeout(i,0):(a=function(){document.removeEventListener("DOMContentLoaded",a,!1),i()},document.addEventListener("DOMContentLoaded",a,!1)):document.attachEvent&&(t=i,o=h.document,v=!1,z(),o.onreadystatechange=function(){"complete"==o.readyState&&(o.onreadystatechange=null,s())})}function s(){v||(v=!0,t())}function z(){try{o.documentElement.doScroll("left")}catch(c){return void setTimeout(z,50)}s()}})(window);]]></content>
   </entry>
   <entry>
     <title></title>
@@ -4713,13 +4719,13 @@ function percent() {
     if (percentage ]]></content>
   </entry>
   <entry>
-    <title>music</title>
-    <url>/music/index.html</url>
+    <title>友情链接</title>
+    <url>/link/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/js/ali_font.js</url>
-    <content><![CDATA[window._iconfont_svg_string_4902343='',(h=>{var c=(l=(l=document.getElementsByTagName("script"))[l.length-1]).getAttribute("data-injectcss"),l=l.getAttribute("data-disable-injectsvg");if(!l){var i,a,t,o,v,m=function(c,l){l.parentNode.insertBefore(c,l)};if(c&&!h.__iconfont__svg__cssinject__){h.__iconfont__svg__cssinject__=!0;try{document.write(".svgfont {display: inline-block;width: 1em;height: 1em;fill: currentColor;vertical-align: -0.1em;font-size:16px;}")}catch(c){console&&console.log(c)}}i=function(){var c,l=document.createElement("div");l.innerHTML=h._iconfont_svg_string_4902343,(l=l.getElementsByTagName("svg")[0])&&(l.setAttribute("aria-hidden","true"),l.style.position="absolute",l.style.width=0,l.style.height=0,l.style.overflow="hidden",l=l,(c=document.body).firstChild?m(l,c.firstChild):c.appendChild(l))},document.addEventListener?~["complete","loaded","interactive"].indexOf(document.readyState)?setTimeout(i,0):(a=function(){document.removeEventListener("DOMContentLoaded",a,!1),i()},document.addEventListener("DOMContentLoaded",a,!1)):document.attachEvent&&(t=i,o=h.document,v=!1,z(),o.onreadystatechange=function(){"complete"==o.readyState&&(o.onreadystatechange=null,s())})}function s(){v||(v=!0,t())}function z(){try{o.documentElement.doScroll("left")}catch(c){return void setTimeout(z,50)}s()}})(window);]]></content>
+    <title>music</title>
+    <url>/music/index.html</url>
+    <content><![CDATA[]]></content>
   </entry>
 </search>
