@@ -245,391 +245,6 @@ pandas.cut()，分箱操作，面元化操作，其实就是分类
       </tags>
   </entry>
   <entry>
-    <title>SVC支持向量机综合案例</title>
-    <url>/posts/f219e09d.html</url>
-    <content><![CDATA[1、支持向量机原理可视化
-1.1、导包
-import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d import Axes3Dfrom sklearn.svm import SVC
-1.2、创建数据
-rs = np.random.RandomState(256)X = rs.randn(300,2)y = X[:,0]*X[:,1] &gt;=0plt.figure(figsize=(6,6))plt.scatter(X[:,0],X[:,1])
-
-1.3、创建测试数据
-x1 = np.linspace(-3,3,20)x2 = np.linspace(-3,3,18)X1,X2 = np.meshgrid(x1,x2)plt.figure(figsize=(6,6))plt.scatter(X1,X2)X_test = np.concatenate([X1.reshape(-1,1),X2.reshape(-1,1)],axis = 1)X_test.shape
-
-1.4、模型训练
-svc = SVC(kernel = &#x27;rbf&#x27;)svc.fit(X,y)y_ = svc.predict(X_test)plt.figure(figsize=(6,6))plt.scatter(X_test[:,0],X_test[:,1],c = y_)
-
-1.5、原理2D可视化
-# 二维 --------&gt; 三维# 分离平面，上面一类点，下面也是一类点# 这些点有的距离近，有的距离远d = svc.decision_function(X_test)# 等高面plt.figure(figsize=(5,5))plt.contourf(X1,X2,d.reshape(180,200))
-
-1.6、原理3D可视化
-plt.figure(figsize=(12,9))ax = plt.subplot(111,projection = &#x27;3d&#x27;)ax.contourf(X1,X2,d.reshape(180,200))ax.view_init(40,-60)
-
-2、SVC建模人脸识别
-2.1、导包
-import numpy as npfrom sklearn.svm import SVCfrom sklearn.model_selection import train_test_splitimport matplotlib.pyplot as pltfrom sklearn.decomposition import PCAfrom sklearn.model_selection import GridSearchCVfrom sklearn import datasets
-2.2、数据加载
-# 第一次加载，需要联网下载# 下载路径：C:\Users\likai\scikit_learn_data\lfw_homefaces = datasets.fetch_lfw_people(resize= 1,min_faces_per_person=70)# 形状是：(125,94)X  = faces[&#x27;data&#x27;]y = faces[&#x27;target&#x27;]display(X.shape,y.shape)
-2.3、数据降维与拆分
-pca = PCA(n_components=0.9)X_pca = pca.fit_transform(X)display(X_pca.shape)X_train,X_test,X_train_pca,X_test_pca,y_train,y_test = train_test_split(X,X_pca,y,test_size = 0.1)display(X_train.shape,X_test.shape)display(X_train_pca.shape,X_test_pca.shape)
-2.4、直接使用SVC建模预测
-svc = SVC()svc.fit(X_train_pca,y_train)svc.score(X_test_pca,y_test)# 输出：0.7984496124031008
-2.5、网格搜索确定最佳参数
-%%timesvc = SVC()params = &#123;&#x27;C&#x27;:np.logspace(-3,1,20),&#x27;kernel&#x27;:[&#x27;rbf&#x27;,&#x27;poly&#x27;,&#x27;sigmoid&#x27;,&#x27;linear&#x27;]&#125;gc = GridSearchCV(estimator = svc,param_grid = params)gc.fit(X_train_pca,y_train)print(&#x27;网格搜索确定最佳参数：&#x27;,gc.best_params_)print(&#x27;模型得分是：&#x27;,gc.score(X_test_pca,y_test))y_pred = gc.predict(X_test_pca)# 输出&#x27;&#x27;&#x27;网格搜索确定最佳参数： &#123;&#x27;C&#x27;: 3.792690190732246, &#x27;kernel&#x27;: &#x27;rbf&#x27;&#125;模型得分是： 0.8837209302325582Wall time: 36.2 s&#x27;&#x27;&#x27;
-2.6、数据可视化
-target_names = faces.target_namesprint(&#x27;目标任务名字如下：&#x27;,target_names)plt.figure(figsize=(5*2,10*3))for i in range(50):    plt.subplot(10,5,i + 1)    plt.imshow(X_test[i].reshape(125,-1),cmap = &#x27;gray&#x27;)    true_name = target_names[y_test[i]].split(&#x27; &#x27;)[-1]    pred_name = target_names[y_pred[i]].split(&#x27; &#x27;)[-1]    plt.title(&#x27;True:%s\nPred:%s&#x27; % (true_name,pred_name))    plt.axis(&#x27;off&#x27;)
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NumPy科学计算库</title>
-    <url>/posts/e1ca7594.html</url>
-    <content><![CDATA[[toc]
-NumPy科学计算库
-课程介绍
-NumPy（Numerical Python）是Python的一种开源的数值计算扩展。提供多维数组对象，各种派生对象（如掩码数组和矩阵），这种工具可用来存储和处理大型矩阵，比Python自身的嵌套列表（nested list structure)结构要高效的多（该结构也可以用来表示矩阵（matrix）），支持大量的维度数组与矩阵运算，此外也针对数组运算提供大量的数学函数库，包括数学、逻辑、形状操作、排序、选择、输入输出、离散傅立叶变换、基本线性代数，基本统计运算和随机模拟等等。
-
-
-几乎所有从事Python工作的数据分析师都利用NumPy的强大功能。
-
-强大的N维数组
-成熟的广播功能
-用于整合C/C++和Fortran代码的工具包
-NumPy提供了全面的数学功能、随机数生成器和线性代数功能
-
-
-
-安装Python库
-
-
-第一种方式：
-
-pip install jupyter -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple
-
-
-
-第二种方式：
-
-
-直接安装anaconda下载
-
-
-注意：Add Path！！！ 添加一下环境变量~
-
-
-
-
-百度网盘链接: https://pan.baidu.com/s/1sQ8LMH6q8ezVUzNjSCtgyQ 提取码: sm7m
-
-
-
-启动终端
-
-Windows----&gt; 快捷键：win + R -----&gt;输入：cmd回车------&gt;命令行出来
-
-
-Mac ----&gt;启动终端
-
-
-
-启动jupyter
-
-进入终端输入指令:jupyter notebook
-在哪里启动jupyter启动，浏览器上的目录，对应哪里，windows默认路径是：C:\Users\lufengkun
-C:\Users\xxx
-
-
-
-第一部分 基本操作
-第一节  数组创建
-创建数组的最简单的方法就是使用array函数，将Python下的list转换为ndarray。
-import numpy as npl = [1,3,5,7,9] # 列表arr = np.array(l) # 将列表转换为NumPy数组arr # 数据一样，NumPy数组的方法，功能更加强大# 输出为# array([1, 3, 5, 7, 9])
-我们可以利用np中的一些内置函数来创建数组，比如我们创建全0的数组，也可以创建全1数组，全是其他数字的数组，或者等差数列数组，正态分布数组，随机数。
-import numpy as nparr1 = np.ones(10) # 输出为：array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])arr2 = np.zeros(10) # 输出为： array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])arr3 = np.full(shape = [2,3],fill_value=2.718) # 输出为：# array([[2.718, 2.718, 2.718],#       [2.718, 2.718, 2.718]])arr4 = np.arange(start = 0,stop = 20,step = 2) # 等差数列 输出为：array([ 0,  2,  4,  6,  8, 10, 12, 14, 16, 18])arr5 = np.linspace(start =0,stop = 9,num = 10) # 等差数列 输出为：array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])arr6 = np.random.randint(0,100,size = 10) # int随机数 输出为：array([ 4,  8, 79, 62, 34, 35,  2, 65, 47, 18])arr7 = np.random.randn(5) # 正态分布 输出为：array([ 0.57807872,  0.37922855,  2.37936837, -0.28688769,  0.2882854 ])arr8 = np.random.random(size = 5) # float 随机数 输出为：array([0.59646412, 0.37960586, 0.38077327, 0.76983539, 0.22689201])
-第二节  查看操作
-
-jupyter扩展插件（不安装）
-
-pip install jupyter_contrib_nbextensions -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install jupyter_nbextensions_configurator -i https://pypi.tuna.tsinghua.edu.cn/simple
-jupyter contrib nbextension install --user
-jupyter nbextensions_configurator enable --user
-退出，重新进入jupyter notebook就可以了
-
-
-
-NumPy的数组类称为ndarray，也被称为别名 array。请注意，numpy.array这与标准Python库类不同array.array，后者仅处理一维数组且功能较少。ndarray对象的重要属性是
-1.2.1 数组的轴数、维度
-import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.ndim # 输出 3
-1.2.2 数组尺寸形状
-import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.shape # 输出 (3,4,5)
-1.2.3 数组元素的总数
-import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.size # 输出 3*4*5 = 60
-1.2.4 数据类型
-import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.dtype # 输出 dtype(&#x27;int64&#x27;)
-1.2.5 数组中每个元素的大小（以字节为单位）
-import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.itemsize #输出是 8 ，因为数据类型是int64，64位，一个字节是8位，所以64/8 = 8
-第三节 文件IO操作
-1.3.1 保存数组
-save方法保存ndarray到一个npy文件，也可以使用savez将多个array保存到一个.npz文件中
-x = np.random.randn(5)y = np.arange(0,10,1)#save方法可以存一个ndarraynp.save(&quot;x_arr&quot;,x)#如果要存多个数组，要是用savez方法，保存时以key-value形式保存，key任意（xarr、yarr）np.savez(&quot;some_array.npz&quot;,xarr = x,yarr=y)
-1.3.2 读取
-load方法来读取存储的数组，如果是.npz文件的话，读取之后相当于形成了一个key-value类型的变量，通过保存时定义的key来获取相应的array
-np.load(&#x27;x_arr.npy&#x27;) # 直接加载# 通过key获取保存的数组数据np.load(&#x27;some_array.npz&#x27;)[&#x27;yarr&#x27;]
-1.3.3 读写csv、txt文件
-arr = np.random.randint(0,10,size = (3,4))#储存数组到txt文件np.savetxt(&quot;arr.csv&quot;,arr,delimiter=&#x27;,&#x27;) # 文件后缀是txt也是一样的#读取txt文件，delimiter为分隔符，dtype为数据类型np.loadtxt(&quot;arr.csv&quot;,delimiter=&#x27;,&#x27;,dtype=np.int32)
-第二部分 数据类型
-ndarray的数据类型：
-
-int: int8、uint8、int16、int32、int64
-float: float16、float32、float64
-str
-
-array创建时，指定
-import numpy as npnp.array([1,2,5,8,2],dtype = &#x27;float32&#x27;) # 输出 ：array([1., 2., 5., 8., 2.], dtype=float32)
-asarray转换时指定
-import numpy as nparr = [1,3,5,7,2,9,0]# asarray 将列表进行变换np.asarray(arr,dtype = &#x27;float32&#x27;) # 输出：array([1., 3., 5., 7., 2., 9., 0.], dtype=float32)
-数据类型转换astype
-import numpy as nparr = np.random.randint(0,10,size = 5,dtype = &#x27;int16&#x27;) # 输出：array([6, 6, 6, 6, 3], dtype=int16)# 使用astype进行转换arr.astype(&#x27;float32&#x27;) # 输出：array([1., 4., 0., 6., 6.], dtype=float32)
-第三部分 数组运算
-加减乘除幂运算
-import numpy as nparr1 = np.array([1,2,3,4,5])arr2 = np.array([2,3,1,5,9])arr1 - arr2 # 减法arr1 * arr2 # 乘法arr1 / arr2 # 除法arr1**arr2 # 两个星号表示幂运算
-逻辑运算
-import numpy as nparr1 = np.array([1,2,3,4,5])arr2 = np.array([1,0,2,3,5])arr1 &lt; 5arr1 &gt;= 5arr1 == 5arr1 == arr2arr1 &gt; arr2
-数组与标量计算
-数组与标量的算术运算也会将标量值传播到各个元素
-import numpy as nparr = np.arange(1,10)1/arrarr+5arr*5
-*=、+=、-=操作
-某些操作（例如+=和*=）只会修改现有数组，而不是创建一个新数组。
-import numpy as nparr1 = np.arange(5)arr1 +=5arr1 -=5arr1 *=5# arr1 /=5 不支持运算
-第四部分 复制和视图
-在操作数组时，有时会将其数据复制到新数组中，有时不复制。
-对于初学者来说，这通常会引起混乱。有以下三种情况
-完全没有复制
-import numpy as npa = np.random.randint(0,100,size = (4,5))b = aa is b # 返回True a和b是两个不同名字对应同一个内存对象b[0,0] = 1024 # 命运共同体display(a,b)
-查看或浅拷贝
-不同的数组对象可以共享相同的数据。该view方法创建一个查看相同数据的新数组对象
-import numpy as npa = np.random.randint(0,100,size = (4,5))b = a.view() # 使用a中的数据创建一个新数组对象a is b # 返回False a和b是两个不同名字对应同一个内存对象b.base is a # 返回True，b视图的根数据和a一样b.flags.owndata # 返回False b中的数据不是其自己的a.flags.owndata # 返回True a中的数据是其自己的b[0,0] = 1024 # a和b的数据都发生改变display(a,b)
-深拷贝
-import numpy as npa = np.random.randint(0,100,size = (4,5))b = a.copy()b is a # 返回Falseb.base is a # 返回Falseb.flags.owndata # 返回Truea.flags.owndata # 返回Trueb[0,0] = 1024 # b改变，a不变，分道扬镳display(a,b)
-
-
-copy应该在不再需要原来的数组情况下，切片后调用。例如，假设a是一个巨大的中间结果，而最终结果b仅包含的一小部分a，则在b使用切片进行构造时应制作一个深拷贝：
-import numpy as npa = np.arange(1e8)b = a[::1000000].copy() # 每100万个数据中取一个数据del a # 不在需要a，删除占大内存的ab.shape # shape(100,)
-
-
-第五部分 索引、切片和迭代
-第一节 基本索引和切片
-numpy中数组切片是原始数组的视图，这意味着数据不会被复制，视图上任何数据的修改都会反映到原数组上
-arr = np.array([0,1,2,3,4,5,6,7,8,9])arr[5] #索引 输出 5arr[5:8] #切片输出：array([5, 6, 7])arr[2::2] # 从索引2开始每两个中取一个 输出 array([2, 4, 6, 8])arr[::3] # 不写索引默认从0开始，每3个中取一个 输出为 array([0, 3, 6, 9])arr[1:7:2] # 从索引1开始到索引7结束，左闭右开，每2个数中取一个 输出 array([1, 3, 5])arr[::-1] # 倒序 输出 array([9, 8, 7, 6, 5, 4, 3, 2, 1, 0])arr[::-2] # 倒序 每两个取一个 输出  array([9, 7, 5, 3, 1])arr[5:8]=12 # 切片赋值会赋值到每个元素上，与列表操作不同temp = arr[5:8]temp[1] = 1024arr # 输出：array([   0,    1,    2,    3,    4,   12, 1024,   12,    8,    9])
-对于二维数组或者高维数组，我们可以按照之前的知识来索引，当然也可以传入一个以逗号隔开的索引列表来选区单个或多个元素
-arr2d = np.array([[1,3,5],[2,4,6],[-2,-7,-9],[6,6,6]]) # 二维数组 shape(3,4)arr2d[0,-1] #索引 等于arr2d[0][-1] 输出 5arr2d[0,2]  #索引 等于arr2d[0][2] ==  arr2d[0][-1] 输出 5arr2d[:2,-2:] #切片 第一维和第二维都进行切片 等于arr2d[:2][:,1:] arr2d[:2,1:] #切片 1 == -2 一个是正序，另个一是倒序，对应相同的位置# 输出：#array([[3, 5],#       [4, 6]])
-第二节 花式索引和索引技巧
-
-整数数组进行索引即花式索引,其和切片不一样，它总是将数据复制到新数组中
-
-import numpy as np#一维arr1 = np.array([1,2,3,4,5,6,7,8,9,10])arr2 = arr1[[1,3,3,5,7,7,7]] # 输出 array([2, 4, 4, 6, 8, 8, 8])arr2[-1] = 1024 # 修改值，不影响arr1#二维arr2d = np.array([[1,3,5,7,9],[2,4,6,8,10],[12,18,22,23,37],[123,55,17,88,103]]) #shape(4,5)arr2d[[1,3]] # 获取第二行和第四行，索引从0开始的所以1对应第二行 # 输出 array([[  2,   4,   6,   8,  10],#            [123,  55,  17,  88, 103]])arr2d[([1,3],[2,4])] # 相当于arr2d[1,2]获取一个元素,arr2d[3,4]获取另一个元素# 输出为 array([  6, 103])# 选择一个区域arr2d[np.ix_([1,3,3,3],[2,4,4])] # 相当于 arr2d[[1,3,3,3]][:,[2,4,4]]arr2d[[1,3,3,3]][:,[2,4,4]]# ix_()函数可用于组合不同的向量# 第一个列表存的是待提取元素的行标，第二个列表存的是待提取元素的列标# 输出为# array([[  6,  10,  10],#        [ 17, 103, 103],#        [ 17, 103, 103],#        [ 17, 103, 103]])
-
-boolean值索引
-
-names = np.array([&#x27;softpo&#x27;,&#x27;Brandon&#x27;,&#x27;Will&#x27;,&#x27;Michael&#x27;,&#x27;Will&#x27;,&#x27;Ella&#x27;,&#x27;Daniel&#x27;,&#x27;softpo&#x27;,&#x27;Will&#x27;,&#x27;Brandon&#x27;])cond1 = names == &#x27;Will&#x27;cond1 # 输出array([False, False,  True, False,  True, False, False, False,  True, False])names[cond1] # array([&#x27;Will&#x27;, &#x27;Will&#x27;, &#x27;Will&#x27;], dtype=&#x27;&lt;U7&#x27;)arr = np.random.randint(0,100,size = (10,8)) # 0~100随机数cond2 = arr &gt; 90 # 找到所有大于90的索引，返回boolean类型的数组 shape(10,8)，大于返回True，否则Falsearr[cond2] # 返回数据全部是大于90的
-第六部分 形状操作
-数组变形
-import numpy as nparr1 = np.random.randint(0,10,size = (3,4,5))arr2 = arr1.reshape(12,5) # 形状改变，返回新数组arr3 = arr1.reshape(-1,5) # 自动“整形”，自动计算
-数组转置
-import numpy as nparr1 = np.random.randint(0,10,size = (3,5)) # shape(3,5)arr1.T # shape(5,3) 转置arr2 = np.random.randint(0,10,size = (3,6,4)) # shape(3,6,4)np.transpose(arr2,axes=(2,0,1)) # transpose改变数组维度 shape(4,3,6)
-数组堆叠
-import numpy as nparr1 = np.array([[1,2,3]])arr2 = np.array([[4,5,6]])np.concatenate([arr1,arr2],axis = 0) # 串联合并shape(2,3) axis = 0表示第一维串联 输出为# array([[1, 2, 3],#        [4, 5, 6]])np.concatenate([arr1,arr2],axis = 1) # shape(1,6) axis = 1表示第二维串联 输出为：array([[1, 2, 3, 4, 5, 6]])np.hstack((arr1,arr2)) # 水平方向堆叠 输出为：array([[1, 2, 3, 4, 5, 6]])np.vstack((arr1,arr2)) # 竖直方向堆叠，输出为：# array([[1, 2, 3],#        [4, 5, 6]])
-split数组拆分
-import numpy as nparr = np.random.randint(0,10,size = (6,5)) # shape(6,5)np.split(arr,indices_or_sections=2,axis = 0) # 在第一维（6）平均分成两份 np.split(arr,indices_or_sections=[2,3],axis = 1) # 在第二维（5）以索引2，3为断点分割成3份np.vsplit(arr,indices_or_sections=3) # 在竖直方向平均分割成3份np.hsplit(arr,indices_or_sections=[1,4]) # 在水平方向，以索引1，4为断点分割成3份
-第七部分 广播机制
-当两个数组的形状并不相同的时候，我们可以通过扩展数组的方法来实现相加、相减、相乘等操作，这种机制叫做广播（broadcasting）
-一维数组广播
-
-import numpy as nparr1 = np.sort(np.array([0,1,2,3]*3)).reshape(4,3) #shape(4,3)arr2 = np.array([1,2,3]) # shape(3,)arr3 = arr1 + arr2 # arr2进行广播复制4份 shape(4,3)arr3
-二维数组的广播
-
-import numpy as nparr1 = np.sort(np.array([0,1,2,3]*3)).reshape(4,3) # shape(4,3)arr2 = np.array([[1],[2],[3],[4]]) # shape(4,1)arr3 = arr1 + arr2 # arr2 进行广播复制3份 shape(4,3)arr3
-三维数组广播
-
-import numpy as nparr1 = np.array([0,1,2,3,4,5,6,7]*3).reshape(3,4,2) #shape(3,4,2)arr2 = np.array([0,1,2,3,4,5,6,7]).reshape(4,2) #shape(4,2)arr3 = arr1 + arr2 # arr2数组在0维上复制3份 shape(3,4,2)arr3
-
-第八部分 通用函数
-第一节 通用函数：元素级数字函数
-abs、sqrt、square、exp、log、sin、cos、tan，maxinmum、minimum、all、any、inner、clip、round、trace、ceil、floor
-import numpy as nparr1 = np.array([1,4,8,9,16,25])np.sqrt(arr1) # 开平方np.square(arr1) # 平方np.clip(arr1,2,16) # 输出 array([ 2,  4,  8,  9, 16, 16])x = np.array([1,5,2,9,3,6,8])y = np.array([2,4,3,7,1,9,0])np.maximum(x,y) # 返回两个数组中的比较大的值arr2 = np.random.randint(0,10,size = (5,5))np.inner(arr2[0],arr2) #返回一维数组向量内积
-第二节 where函数
-where 函数，三个参数，条件为真时选择值的数组，条件为假时选择值的数组
-import numpy as nparr1 = np.array([1,3,5,7,9])arr2 = np.array([2,4,6,8,10])cond = np.array([True,False,True,True,False])np.where(cond,arr1,arr2) # True选择arr1，False选择arr2的值# 输出 array([ 1,  4,  5,  7, 10])arr3 = np.random.randint(0,30,size = 20)np.where(arr3 &lt; 15,arr3,-15) # 小于15还是自身的值，大于15设置成-15
-第三节 排序方法
-np中还提供了排序方法，排序方法是就地排序，即直接改变原数组
-arr.sort()、np.sort()、arr.argsort()
-import numpy as nparr = np.array([9,3,11,6,17,5,4,15,1])arr.sort() # 直接改变原数组np.sort(arr) # 返回深拷贝排序结果arr = np.array([9,3,11,6,17,5,4,15,1])arr.argsort() # 返回从小到大排序索引 array([8, 1, 6, 5, 3, 0, 2, 7, 4])
-第四节 集合运算函数
-A = np.array([2,4,6,8])B = np.array([3,4,5,6])np.intersect1d(A,B) # 交集 array([4, 6])np.union1d(A,B) # 并集 array([2, 3, 4, 5, 6, 8])np.setdiff1d(A,B) #差集，A中有，B中没有 array([2, 8])
-第五节 数学和统计函数
-min、max、mean、median、sum、std、var、cumsum、cumprod、argmin、argmax、argwhere、cov、corrcoef
-import numpy as nparr1 = np.array([1,7,2,19,23,0,88,11,6,11])arr1.min() # 计算最小值 0arr1.argmax() # 计算最大值的索引 返回 6np.argwhere(arr1 &gt; 20) # 返回大于20的元素的索引np.cumsum(arr1) # 计算累加和arr2 = np.random.randint(0,10,size = (4,5))arr2.mean(axis = 0) # 计算列的平均值arr2.mean(axis = 1) # 计算行的平均值np.cov(arr2,rowvar=True) # 协方差矩阵np.corrcoef(arr2,rowvar=True) # 相关性系数
-第九部分 线性代数
-矩阵乘积
-#矩阵的乘积A = np.array([[4,2,3],              [1,3,1]]) # shape(2,3)B = np.array([[2,7],              [-5,-7],              [9,3]]) # shape(3,2)np.dot(A,B) # 矩阵运算 A的最后一维和B的第一维必须一致A @ B # 符号 @ 表示矩阵乘积运算
-矩阵其他计算
-下面可以计算矩阵的逆、行列式、特征值和特征向量、qr分解值，svd分解值
-#计算矩阵的逆from numpy.linalg import inv,det,eig,qr,svdA = np.array([[1,2,3],              [2,3,4],              [4,5,8]]) # shape(3,3)inv(t) # 逆矩阵det(t)#计算矩阵行列式
-第十部分 实战-用NumPy分析鸢尾花花萼属性各项指标
-案列：读取iris数据集中的花萼长度数据（已保存为csv格式）
-并对其进行排序、去重，并求出和、累积和、均值、标准差、方差、最小值、最大值。
-import numpy as np  # 导入类库 numpydata = np.loadtxt(&#x27;./iris.csv&#x27;,delimiter = &#x27;,&#x27;)  # 读取数据文件，data是二维的数组data.sort(axis = -1)  # 简单排序print(&#x27;简单排序后：&#x27;, data)print(&#x27;数据去重后：&#x27;, np.unique(data)) # 去除重复数据print(&#x27;数据求和：&#x27;, np.sum(data))  # 数组求和print(&#x27;元素求累加和&#x27;, np.cumsum(data))  # 元素求累加和print(&#x27;数据的均值：&#x27;, np.mean(data))  # 均值print(&#x27;数据的标准差：&#x27;, np.std(data))  # 标准差print(&#x27;数据的方差：&#x27;, np.var(data))  # 方差print(&#x27;数据的最小值：&#x27;, np.min(data))  # 最小值print(&#x27;数据的最大值：&#x27;, np.max(data))  # 最大值
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>Numpy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Seaborn数据可视化</title>
-    <url>/posts/2f304439.html</url>
-    <content><![CDATA[[toc]
-1、Seaborn介绍
-Seaborn是基于matplotlib的图形可视化python包。它提供了一种高度交互式界面，便于用户能够做出各种有吸引力的统计图表。
-Seaborn是在matplotlib的基础上进行了更高级的API封装，从而使得作图更加容易，在大多数情况下使用seaborn能做出很具有吸引力的图，而使用matplotlib就能制作具有更多特色的图。应该把Seaborn视为matplotlib的补充，而不是替代物。
-2、安装
-pip install seaborn -i https://pypi.tuna.tsinghua.edu.cn/simple
-教程
-3、快速上手
-3.1、样式设置
-import seaborn as snssns.set(style = &#x27;darkgrid&#x27;,context = &#x27;talk&#x27;,font = &#x27;STKaiti&#x27;)
-stlyle设置，修改主题风格，属性如下：
-
-
-
-style
-效果
-
-
-
-
-darkgrid
-黑色网格（默认）
-
-
-whitegrid
-白色网格
-
-
-dark
-黑色背景
-
-
-white
-白色背景
-
-
-ticks
-四周有刻度线的白背景
-
-
-
-context设置，修改大小，属性如下：
-
-
-
-context
-效果
-
-
-
-
-paper
-越来越大越来越粗
-
-
-notebook（默认）
-越来越大越来越粗
-
-
-talk
-越来越大越来越粗
-
-
-poster
-越来越大越来越粗
-
-
-
-3.2、线形图
-import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdimport numpy as npsns.set(style = &#x27;dark&#x27;,context = &#x27;poster&#x27;,font = &#x27;STKaiti&#x27;) # 设置样式plt.figure(figsize=(9,6))x = np.linspace(0,2*np.pi,20)y = np.sin(x)sns.lineplot(x = x,y = y,color = &#x27;green&#x27;,ls = &#x27;--&#x27;)sns.lineplot(x = x,y = np.cos(x),color = &#x27;red&#x27;,ls = &#x27;-.&#x27;)
-
-4、各种图形绘制
-4.1、调色板
-参数palette（调色板），用于调整颜色，系统默认提供了六种选择：deep, muted, bright, pastel, dark, colorblind
-参数palette调色板，可以有更多的颜色选择，Matplotlib为我们提供了多大178种，这足够绘图用，可以通过代码**print(plt.colormaps())**查看选择
-
-
-
-178种
-
-
-
-
-Accent
-
-
-Accent_r
-
-
-Blues
-
-
-Blues_r
-
-
-……
-
-
-
-4.2、线形图
-import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;dark&#x27;,context = &#x27;notebook&#x27;,font = &#x27;STKaiti&#x27;) # 设置样式plt.figure(figsize=(9,6))fmri = pd.read_csv(&#x27;./fmri.csv&#x27;) # fmri这一核磁共振数据ax = sns.lineplot(x = &#x27;timepoint&#x27;,y = &#x27;signal&#x27;,                  hue = &#x27;event&#x27;,style = &#x27;event&#x27; ,                  data= fmri,                  palette=&#x27;deep&#x27;,                  markers=True,                  markersize = 10)plt.xlabel(&#x27;时间节点&#x27;,fontsize = 30)plt.savefig(&#x27;./线形图.png&#x27;,dpi = 200)
-lineplot()函数作用是绘制线型图。参数x、y，表示横纵坐标；参数hue，表示根据属性分类绘制两条线（“event&quot;属性分两类&quot;stim”、“cue”）；参数style，表示根据属性分类设置样式，实线和虚线；参数data，表示数据；参数marker、markersize，分别表示画图标记点以及尺寸大小！
-
-4.3、散点图
-import matplotlib.pyplot as pltimport seaborn as snsdata = pd.read_csv(&#x27;./tips.csv&#x27;) # 小费plt.figure(figsize=(9,6))sns.set(style = &#x27;darkgrid&#x27;,context = &#x27;talk&#x27;)# 散点图fig = sns.scatterplot(x = &#x27;total_bill&#x27;, y = &#x27;tip&#x27;,                       hue = &#x27;time&#x27;, data = data,                       palette = &#x27;autumn&#x27;, s = 100)
-
-4.4、柱状图
-import seaborn as snsimport matplotlib.pyplot as pltplt.figure(figsize = (9,6))sns.set(style = &#x27;whitegrid&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;) # 小费ax = sns.barplot(x = &quot;day&quot;, y = &quot;total_bill&quot;,                  data = tips,hue = &#x27;sex&#x27;,                 palette = &#x27;colorblind&#x27;,                 capsize = 0.2)
-
-4.5、箱式图
-import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;ticks&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;)ax = sns.boxplot(x=&quot;day&quot;, y=&quot;total_bill&quot;, data=tips,palette=&#x27;colorblind&#x27;)
-
-4.6、直方图
-import seaborn as snsimport numpy as npimport matplotlib.pyplot as pltsns.set(style = &#x27;dark&#x27;)x = np.random.randn(5000)sns.histplot(x,kde = True)
-
-import seaborn as snsimport numpy as npimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;darkgrid&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;)sns.histplot(x = &#x27;total_bill&#x27;, data = tips, kde = True)
-
-4.7、分类散点图
-import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;darkgrid&#x27;)exercise = pd.read_csv(&#x27;./exercise.csv&#x27;)sns.catplot(x=&quot;time&quot;, y=&quot;pulse&quot;, hue=&quot;kind&quot;, data=exercise)
-
-4.8、热力图
-import matplotlib.pyplot as pltimport seaborn as snsplt.figure(figsize=(12,9))flights = pd.read_csv(&#x27;./flights.csv&#x27;)flights = flights.pivot(&quot;month&quot;, &quot;year&quot;, &quot;passengers&quot;)sns.heatmap(flights, annot=True,fmt = &#x27;d&#x27;,cmap = &#x27;RdBu_r&#x27;,            linewidths=0.5)
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Matplotlib数据可视化</title>
     <url>/posts/8b3e37aa.html</url>
     <content><![CDATA[[toc]
@@ -842,6 +457,391 @@ from matplotlib import gridspecworkYear_map = &#123;    &quot;5-10年&quot;: 5, 
       </categories>
   </entry>
   <entry>
+    <title>NumPy科学计算库</title>
+    <url>/posts/e1ca7594.html</url>
+    <content><![CDATA[[toc]
+NumPy科学计算库
+课程介绍
+NumPy（Numerical Python）是Python的一种开源的数值计算扩展。提供多维数组对象，各种派生对象（如掩码数组和矩阵），这种工具可用来存储和处理大型矩阵，比Python自身的嵌套列表（nested list structure)结构要高效的多（该结构也可以用来表示矩阵（matrix）），支持大量的维度数组与矩阵运算，此外也针对数组运算提供大量的数学函数库，包括数学、逻辑、形状操作、排序、选择、输入输出、离散傅立叶变换、基本线性代数，基本统计运算和随机模拟等等。
+
+
+几乎所有从事Python工作的数据分析师都利用NumPy的强大功能。
+
+强大的N维数组
+成熟的广播功能
+用于整合C/C++和Fortran代码的工具包
+NumPy提供了全面的数学功能、随机数生成器和线性代数功能
+
+
+
+安装Python库
+
+
+第一种方式：
+
+pip install jupyter -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+
+第二种方式：
+
+
+直接安装anaconda下载
+
+
+注意：Add Path！！！ 添加一下环境变量~
+
+
+
+
+百度网盘链接: https://pan.baidu.com/s/1sQ8LMH6q8ezVUzNjSCtgyQ 提取码: sm7m
+
+
+
+启动终端
+
+Windows----&gt; 快捷键：win + R -----&gt;输入：cmd回车------&gt;命令行出来
+
+
+Mac ----&gt;启动终端
+
+
+
+启动jupyter
+
+进入终端输入指令:jupyter notebook
+在哪里启动jupyter启动，浏览器上的目录，对应哪里，windows默认路径是：C:\Users\lufengkun
+C:\Users\xxx
+
+
+
+第一部分 基本操作
+第一节  数组创建
+创建数组的最简单的方法就是使用array函数，将Python下的list转换为ndarray。
+import numpy as npl = [1,3,5,7,9] # 列表arr = np.array(l) # 将列表转换为NumPy数组arr # 数据一样，NumPy数组的方法，功能更加强大# 输出为# array([1, 3, 5, 7, 9])
+我们可以利用np中的一些内置函数来创建数组，比如我们创建全0的数组，也可以创建全1数组，全是其他数字的数组，或者等差数列数组，正态分布数组，随机数。
+import numpy as nparr1 = np.ones(10) # 输出为：array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1.])arr2 = np.zeros(10) # 输出为： array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])arr3 = np.full(shape = [2,3],fill_value=2.718) # 输出为：# array([[2.718, 2.718, 2.718],#       [2.718, 2.718, 2.718]])arr4 = np.arange(start = 0,stop = 20,step = 2) # 等差数列 输出为：array([ 0,  2,  4,  6,  8, 10, 12, 14, 16, 18])arr5 = np.linspace(start =0,stop = 9,num = 10) # 等差数列 输出为：array([0., 1., 2., 3., 4., 5., 6., 7., 8., 9.])arr6 = np.random.randint(0,100,size = 10) # int随机数 输出为：array([ 4,  8, 79, 62, 34, 35,  2, 65, 47, 18])arr7 = np.random.randn(5) # 正态分布 输出为：array([ 0.57807872,  0.37922855,  2.37936837, -0.28688769,  0.2882854 ])arr8 = np.random.random(size = 5) # float 随机数 输出为：array([0.59646412, 0.37960586, 0.38077327, 0.76983539, 0.22689201])
+第二节  查看操作
+
+jupyter扩展插件（不安装）
+
+pip install jupyter_contrib_nbextensions -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install jupyter_nbextensions_configurator -i https://pypi.tuna.tsinghua.edu.cn/simple
+jupyter contrib nbextension install --user
+jupyter nbextensions_configurator enable --user
+退出，重新进入jupyter notebook就可以了
+
+
+
+NumPy的数组类称为ndarray，也被称为别名 array。请注意，numpy.array这与标准Python库类不同array.array，后者仅处理一维数组且功能较少。ndarray对象的重要属性是
+1.2.1 数组的轴数、维度
+import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.ndim # 输出 3
+1.2.2 数组尺寸形状
+import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.shape # 输出 (3,4,5)
+1.2.3 数组元素的总数
+import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.size # 输出 3*4*5 = 60
+1.2.4 数据类型
+import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.dtype # 输出 dtype(&#x27;int64&#x27;)
+1.2.5 数组中每个元素的大小（以字节为单位）
+import numpy as np arr = np.random.randint(0,100,size = (3,4,5))arr.itemsize #输出是 8 ，因为数据类型是int64，64位，一个字节是8位，所以64/8 = 8
+第三节 文件IO操作
+1.3.1 保存数组
+save方法保存ndarray到一个npy文件，也可以使用savez将多个array保存到一个.npz文件中
+x = np.random.randn(5)y = np.arange(0,10,1)#save方法可以存一个ndarraynp.save(&quot;x_arr&quot;,x)#如果要存多个数组，要是用savez方法，保存时以key-value形式保存，key任意（xarr、yarr）np.savez(&quot;some_array.npz&quot;,xarr = x,yarr=y)
+1.3.2 读取
+load方法来读取存储的数组，如果是.npz文件的话，读取之后相当于形成了一个key-value类型的变量，通过保存时定义的key来获取相应的array
+np.load(&#x27;x_arr.npy&#x27;) # 直接加载# 通过key获取保存的数组数据np.load(&#x27;some_array.npz&#x27;)[&#x27;yarr&#x27;]
+1.3.3 读写csv、txt文件
+arr = np.random.randint(0,10,size = (3,4))#储存数组到txt文件np.savetxt(&quot;arr.csv&quot;,arr,delimiter=&#x27;,&#x27;) # 文件后缀是txt也是一样的#读取txt文件，delimiter为分隔符，dtype为数据类型np.loadtxt(&quot;arr.csv&quot;,delimiter=&#x27;,&#x27;,dtype=np.int32)
+第二部分 数据类型
+ndarray的数据类型：
+
+int: int8、uint8、int16、int32、int64
+float: float16、float32、float64
+str
+
+array创建时，指定
+import numpy as npnp.array([1,2,5,8,2],dtype = &#x27;float32&#x27;) # 输出 ：array([1., 2., 5., 8., 2.], dtype=float32)
+asarray转换时指定
+import numpy as nparr = [1,3,5,7,2,9,0]# asarray 将列表进行变换np.asarray(arr,dtype = &#x27;float32&#x27;) # 输出：array([1., 3., 5., 7., 2., 9., 0.], dtype=float32)
+数据类型转换astype
+import numpy as nparr = np.random.randint(0,10,size = 5,dtype = &#x27;int16&#x27;) # 输出：array([6, 6, 6, 6, 3], dtype=int16)# 使用astype进行转换arr.astype(&#x27;float32&#x27;) # 输出：array([1., 4., 0., 6., 6.], dtype=float32)
+第三部分 数组运算
+加减乘除幂运算
+import numpy as nparr1 = np.array([1,2,3,4,5])arr2 = np.array([2,3,1,5,9])arr1 - arr2 # 减法arr1 * arr2 # 乘法arr1 / arr2 # 除法arr1**arr2 # 两个星号表示幂运算
+逻辑运算
+import numpy as nparr1 = np.array([1,2,3,4,5])arr2 = np.array([1,0,2,3,5])arr1 &lt; 5arr1 &gt;= 5arr1 == 5arr1 == arr2arr1 &gt; arr2
+数组与标量计算
+数组与标量的算术运算也会将标量值传播到各个元素
+import numpy as nparr = np.arange(1,10)1/arrarr+5arr*5
+*=、+=、-=操作
+某些操作（例如+=和*=）只会修改现有数组，而不是创建一个新数组。
+import numpy as nparr1 = np.arange(5)arr1 +=5arr1 -=5arr1 *=5# arr1 /=5 不支持运算
+第四部分 复制和视图
+在操作数组时，有时会将其数据复制到新数组中，有时不复制。
+对于初学者来说，这通常会引起混乱。有以下三种情况
+完全没有复制
+import numpy as npa = np.random.randint(0,100,size = (4,5))b = aa is b # 返回True a和b是两个不同名字对应同一个内存对象b[0,0] = 1024 # 命运共同体display(a,b)
+查看或浅拷贝
+不同的数组对象可以共享相同的数据。该view方法创建一个查看相同数据的新数组对象
+import numpy as npa = np.random.randint(0,100,size = (4,5))b = a.view() # 使用a中的数据创建一个新数组对象a is b # 返回False a和b是两个不同名字对应同一个内存对象b.base is a # 返回True，b视图的根数据和a一样b.flags.owndata # 返回False b中的数据不是其自己的a.flags.owndata # 返回True a中的数据是其自己的b[0,0] = 1024 # a和b的数据都发生改变display(a,b)
+深拷贝
+import numpy as npa = np.random.randint(0,100,size = (4,5))b = a.copy()b is a # 返回Falseb.base is a # 返回Falseb.flags.owndata # 返回Truea.flags.owndata # 返回Trueb[0,0] = 1024 # b改变，a不变，分道扬镳display(a,b)
+
+
+copy应该在不再需要原来的数组情况下，切片后调用。例如，假设a是一个巨大的中间结果，而最终结果b仅包含的一小部分a，则在b使用切片进行构造时应制作一个深拷贝：
+import numpy as npa = np.arange(1e8)b = a[::1000000].copy() # 每100万个数据中取一个数据del a # 不在需要a，删除占大内存的ab.shape # shape(100,)
+
+
+第五部分 索引、切片和迭代
+第一节 基本索引和切片
+numpy中数组切片是原始数组的视图，这意味着数据不会被复制，视图上任何数据的修改都会反映到原数组上
+arr = np.array([0,1,2,3,4,5,6,7,8,9])arr[5] #索引 输出 5arr[5:8] #切片输出：array([5, 6, 7])arr[2::2] # 从索引2开始每两个中取一个 输出 array([2, 4, 6, 8])arr[::3] # 不写索引默认从0开始，每3个中取一个 输出为 array([0, 3, 6, 9])arr[1:7:2] # 从索引1开始到索引7结束，左闭右开，每2个数中取一个 输出 array([1, 3, 5])arr[::-1] # 倒序 输出 array([9, 8, 7, 6, 5, 4, 3, 2, 1, 0])arr[::-2] # 倒序 每两个取一个 输出  array([9, 7, 5, 3, 1])arr[5:8]=12 # 切片赋值会赋值到每个元素上，与列表操作不同temp = arr[5:8]temp[1] = 1024arr # 输出：array([   0,    1,    2,    3,    4,   12, 1024,   12,    8,    9])
+对于二维数组或者高维数组，我们可以按照之前的知识来索引，当然也可以传入一个以逗号隔开的索引列表来选区单个或多个元素
+arr2d = np.array([[1,3,5],[2,4,6],[-2,-7,-9],[6,6,6]]) # 二维数组 shape(3,4)arr2d[0,-1] #索引 等于arr2d[0][-1] 输出 5arr2d[0,2]  #索引 等于arr2d[0][2] ==  arr2d[0][-1] 输出 5arr2d[:2,-2:] #切片 第一维和第二维都进行切片 等于arr2d[:2][:,1:] arr2d[:2,1:] #切片 1 == -2 一个是正序，另个一是倒序，对应相同的位置# 输出：#array([[3, 5],#       [4, 6]])
+第二节 花式索引和索引技巧
+
+整数数组进行索引即花式索引,其和切片不一样，它总是将数据复制到新数组中
+
+import numpy as np#一维arr1 = np.array([1,2,3,4,5,6,7,8,9,10])arr2 = arr1[[1,3,3,5,7,7,7]] # 输出 array([2, 4, 4, 6, 8, 8, 8])arr2[-1] = 1024 # 修改值，不影响arr1#二维arr2d = np.array([[1,3,5,7,9],[2,4,6,8,10],[12,18,22,23,37],[123,55,17,88,103]]) #shape(4,5)arr2d[[1,3]] # 获取第二行和第四行，索引从0开始的所以1对应第二行 # 输出 array([[  2,   4,   6,   8,  10],#            [123,  55,  17,  88, 103]])arr2d[([1,3],[2,4])] # 相当于arr2d[1,2]获取一个元素,arr2d[3,4]获取另一个元素# 输出为 array([  6, 103])# 选择一个区域arr2d[np.ix_([1,3,3,3],[2,4,4])] # 相当于 arr2d[[1,3,3,3]][:,[2,4,4]]arr2d[[1,3,3,3]][:,[2,4,4]]# ix_()函数可用于组合不同的向量# 第一个列表存的是待提取元素的行标，第二个列表存的是待提取元素的列标# 输出为# array([[  6,  10,  10],#        [ 17, 103, 103],#        [ 17, 103, 103],#        [ 17, 103, 103]])
+
+boolean值索引
+
+names = np.array([&#x27;softpo&#x27;,&#x27;Brandon&#x27;,&#x27;Will&#x27;,&#x27;Michael&#x27;,&#x27;Will&#x27;,&#x27;Ella&#x27;,&#x27;Daniel&#x27;,&#x27;softpo&#x27;,&#x27;Will&#x27;,&#x27;Brandon&#x27;])cond1 = names == &#x27;Will&#x27;cond1 # 输出array([False, False,  True, False,  True, False, False, False,  True, False])names[cond1] # array([&#x27;Will&#x27;, &#x27;Will&#x27;, &#x27;Will&#x27;], dtype=&#x27;&lt;U7&#x27;)arr = np.random.randint(0,100,size = (10,8)) # 0~100随机数cond2 = arr &gt; 90 # 找到所有大于90的索引，返回boolean类型的数组 shape(10,8)，大于返回True，否则Falsearr[cond2] # 返回数据全部是大于90的
+第六部分 形状操作
+数组变形
+import numpy as nparr1 = np.random.randint(0,10,size = (3,4,5))arr2 = arr1.reshape(12,5) # 形状改变，返回新数组arr3 = arr1.reshape(-1,5) # 自动“整形”，自动计算
+数组转置
+import numpy as nparr1 = np.random.randint(0,10,size = (3,5)) # shape(3,5)arr1.T # shape(5,3) 转置arr2 = np.random.randint(0,10,size = (3,6,4)) # shape(3,6,4)np.transpose(arr2,axes=(2,0,1)) # transpose改变数组维度 shape(4,3,6)
+数组堆叠
+import numpy as nparr1 = np.array([[1,2,3]])arr2 = np.array([[4,5,6]])np.concatenate([arr1,arr2],axis = 0) # 串联合并shape(2,3) axis = 0表示第一维串联 输出为# array([[1, 2, 3],#        [4, 5, 6]])np.concatenate([arr1,arr2],axis = 1) # shape(1,6) axis = 1表示第二维串联 输出为：array([[1, 2, 3, 4, 5, 6]])np.hstack((arr1,arr2)) # 水平方向堆叠 输出为：array([[1, 2, 3, 4, 5, 6]])np.vstack((arr1,arr2)) # 竖直方向堆叠，输出为：# array([[1, 2, 3],#        [4, 5, 6]])
+split数组拆分
+import numpy as nparr = np.random.randint(0,10,size = (6,5)) # shape(6,5)np.split(arr,indices_or_sections=2,axis = 0) # 在第一维（6）平均分成两份 np.split(arr,indices_or_sections=[2,3],axis = 1) # 在第二维（5）以索引2，3为断点分割成3份np.vsplit(arr,indices_or_sections=3) # 在竖直方向平均分割成3份np.hsplit(arr,indices_or_sections=[1,4]) # 在水平方向，以索引1，4为断点分割成3份
+第七部分 广播机制
+当两个数组的形状并不相同的时候，我们可以通过扩展数组的方法来实现相加、相减、相乘等操作，这种机制叫做广播（broadcasting）
+一维数组广播
+
+import numpy as nparr1 = np.sort(np.array([0,1,2,3]*3)).reshape(4,3) #shape(4,3)arr2 = np.array([1,2,3]) # shape(3,)arr3 = arr1 + arr2 # arr2进行广播复制4份 shape(4,3)arr3
+二维数组的广播
+
+import numpy as nparr1 = np.sort(np.array([0,1,2,3]*3)).reshape(4,3) # shape(4,3)arr2 = np.array([[1],[2],[3],[4]]) # shape(4,1)arr3 = arr1 + arr2 # arr2 进行广播复制3份 shape(4,3)arr3
+三维数组广播
+
+import numpy as nparr1 = np.array([0,1,2,3,4,5,6,7]*3).reshape(3,4,2) #shape(3,4,2)arr2 = np.array([0,1,2,3,4,5,6,7]).reshape(4,2) #shape(4,2)arr3 = arr1 + arr2 # arr2数组在0维上复制3份 shape(3,4,2)arr3
+
+第八部分 通用函数
+第一节 通用函数：元素级数字函数
+abs、sqrt、square、exp、log、sin、cos、tan，maxinmum、minimum、all、any、inner、clip、round、trace、ceil、floor
+import numpy as nparr1 = np.array([1,4,8,9,16,25])np.sqrt(arr1) # 开平方np.square(arr1) # 平方np.clip(arr1,2,16) # 输出 array([ 2,  4,  8,  9, 16, 16])x = np.array([1,5,2,9,3,6,8])y = np.array([2,4,3,7,1,9,0])np.maximum(x,y) # 返回两个数组中的比较大的值arr2 = np.random.randint(0,10,size = (5,5))np.inner(arr2[0],arr2) #返回一维数组向量内积
+第二节 where函数
+where 函数，三个参数，条件为真时选择值的数组，条件为假时选择值的数组
+import numpy as nparr1 = np.array([1,3,5,7,9])arr2 = np.array([2,4,6,8,10])cond = np.array([True,False,True,True,False])np.where(cond,arr1,arr2) # True选择arr1，False选择arr2的值# 输出 array([ 1,  4,  5,  7, 10])arr3 = np.random.randint(0,30,size = 20)np.where(arr3 &lt; 15,arr3,-15) # 小于15还是自身的值，大于15设置成-15
+第三节 排序方法
+np中还提供了排序方法，排序方法是就地排序，即直接改变原数组
+arr.sort()、np.sort()、arr.argsort()
+import numpy as nparr = np.array([9,3,11,6,17,5,4,15,1])arr.sort() # 直接改变原数组np.sort(arr) # 返回深拷贝排序结果arr = np.array([9,3,11,6,17,5,4,15,1])arr.argsort() # 返回从小到大排序索引 array([8, 1, 6, 5, 3, 0, 2, 7, 4])
+第四节 集合运算函数
+A = np.array([2,4,6,8])B = np.array([3,4,5,6])np.intersect1d(A,B) # 交集 array([4, 6])np.union1d(A,B) # 并集 array([2, 3, 4, 5, 6, 8])np.setdiff1d(A,B) #差集，A中有，B中没有 array([2, 8])
+第五节 数学和统计函数
+min、max、mean、median、sum、std、var、cumsum、cumprod、argmin、argmax、argwhere、cov、corrcoef
+import numpy as nparr1 = np.array([1,7,2,19,23,0,88,11,6,11])arr1.min() # 计算最小值 0arr1.argmax() # 计算最大值的索引 返回 6np.argwhere(arr1 &gt; 20) # 返回大于20的元素的索引np.cumsum(arr1) # 计算累加和arr2 = np.random.randint(0,10,size = (4,5))arr2.mean(axis = 0) # 计算列的平均值arr2.mean(axis = 1) # 计算行的平均值np.cov(arr2,rowvar=True) # 协方差矩阵np.corrcoef(arr2,rowvar=True) # 相关性系数
+第九部分 线性代数
+矩阵乘积
+#矩阵的乘积A = np.array([[4,2,3],              [1,3,1]]) # shape(2,3)B = np.array([[2,7],              [-5,-7],              [9,3]]) # shape(3,2)np.dot(A,B) # 矩阵运算 A的最后一维和B的第一维必须一致A @ B # 符号 @ 表示矩阵乘积运算
+矩阵其他计算
+下面可以计算矩阵的逆、行列式、特征值和特征向量、qr分解值，svd分解值
+#计算矩阵的逆from numpy.linalg import inv,det,eig,qr,svdA = np.array([[1,2,3],              [2,3,4],              [4,5,8]]) # shape(3,3)inv(t) # 逆矩阵det(t)#计算矩阵行列式
+第十部分 实战-用NumPy分析鸢尾花花萼属性各项指标
+案列：读取iris数据集中的花萼长度数据（已保存为csv格式）
+并对其进行排序、去重，并求出和、累积和、均值、标准差、方差、最小值、最大值。
+import numpy as np  # 导入类库 numpydata = np.loadtxt(&#x27;./iris.csv&#x27;,delimiter = &#x27;,&#x27;)  # 读取数据文件，data是二维的数组data.sort(axis = -1)  # 简单排序print(&#x27;简单排序后：&#x27;, data)print(&#x27;数据去重后：&#x27;, np.unique(data)) # 去除重复数据print(&#x27;数据求和：&#x27;, np.sum(data))  # 数组求和print(&#x27;元素求累加和&#x27;, np.cumsum(data))  # 元素求累加和print(&#x27;数据的均值：&#x27;, np.mean(data))  # 均值print(&#x27;数据的标准差：&#x27;, np.std(data))  # 标准差print(&#x27;数据的方差：&#x27;, np.var(data))  # 方差print(&#x27;数据的最小值：&#x27;, np.min(data))  # 最小值print(&#x27;数据的最大值：&#x27;, np.max(data))  # 最大值
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>Numpy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SVC支持向量机综合案例</title>
+    <url>/posts/f219e09d.html</url>
+    <content><![CDATA[1、支持向量机原理可视化
+1.1、导包
+import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d import Axes3Dfrom sklearn.svm import SVC
+1.2、创建数据
+rs = np.random.RandomState(256)X = rs.randn(300,2)y = X[:,0]*X[:,1] &gt;=0plt.figure(figsize=(6,6))plt.scatter(X[:,0],X[:,1])
+
+1.3、创建测试数据
+x1 = np.linspace(-3,3,20)x2 = np.linspace(-3,3,18)X1,X2 = np.meshgrid(x1,x2)plt.figure(figsize=(6,6))plt.scatter(X1,X2)X_test = np.concatenate([X1.reshape(-1,1),X2.reshape(-1,1)],axis = 1)X_test.shape
+
+1.4、模型训练
+svc = SVC(kernel = &#x27;rbf&#x27;)svc.fit(X,y)y_ = svc.predict(X_test)plt.figure(figsize=(6,6))plt.scatter(X_test[:,0],X_test[:,1],c = y_)
+
+1.5、原理2D可视化
+# 二维 --------&gt; 三维# 分离平面，上面一类点，下面也是一类点# 这些点有的距离近，有的距离远d = svc.decision_function(X_test)# 等高面plt.figure(figsize=(5,5))plt.contourf(X1,X2,d.reshape(180,200))
+
+1.6、原理3D可视化
+plt.figure(figsize=(12,9))ax = plt.subplot(111,projection = &#x27;3d&#x27;)ax.contourf(X1,X2,d.reshape(180,200))ax.view_init(40,-60)
+
+2、SVC建模人脸识别
+2.1、导包
+import numpy as npfrom sklearn.svm import SVCfrom sklearn.model_selection import train_test_splitimport matplotlib.pyplot as pltfrom sklearn.decomposition import PCAfrom sklearn.model_selection import GridSearchCVfrom sklearn import datasets
+2.2、数据加载
+# 第一次加载，需要联网下载# 下载路径：C:\Users\likai\scikit_learn_data\lfw_homefaces = datasets.fetch_lfw_people(resize= 1,min_faces_per_person=70)# 形状是：(125,94)X  = faces[&#x27;data&#x27;]y = faces[&#x27;target&#x27;]display(X.shape,y.shape)
+2.3、数据降维与拆分
+pca = PCA(n_components=0.9)X_pca = pca.fit_transform(X)display(X_pca.shape)X_train,X_test,X_train_pca,X_test_pca,y_train,y_test = train_test_split(X,X_pca,y,test_size = 0.1)display(X_train.shape,X_test.shape)display(X_train_pca.shape,X_test_pca.shape)
+2.4、直接使用SVC建模预测
+svc = SVC()svc.fit(X_train_pca,y_train)svc.score(X_test_pca,y_test)# 输出：0.7984496124031008
+2.5、网格搜索确定最佳参数
+%%timesvc = SVC()params = &#123;&#x27;C&#x27;:np.logspace(-3,1,20),&#x27;kernel&#x27;:[&#x27;rbf&#x27;,&#x27;poly&#x27;,&#x27;sigmoid&#x27;,&#x27;linear&#x27;]&#125;gc = GridSearchCV(estimator = svc,param_grid = params)gc.fit(X_train_pca,y_train)print(&#x27;网格搜索确定最佳参数：&#x27;,gc.best_params_)print(&#x27;模型得分是：&#x27;,gc.score(X_test_pca,y_test))y_pred = gc.predict(X_test_pca)# 输出&#x27;&#x27;&#x27;网格搜索确定最佳参数： &#123;&#x27;C&#x27;: 3.792690190732246, &#x27;kernel&#x27;: &#x27;rbf&#x27;&#125;模型得分是： 0.8837209302325582Wall time: 36.2 s&#x27;&#x27;&#x27;
+2.6、数据可视化
+target_names = faces.target_namesprint(&#x27;目标任务名字如下：&#x27;,target_names)plt.figure(figsize=(5*2,10*3))for i in range(50):    plt.subplot(10,5,i + 1)    plt.imshow(X_test[i].reshape(125,-1),cmap = &#x27;gray&#x27;)    true_name = target_names[y_test[i]].split(&#x27; &#x27;)[-1]    pred_name = target_names[y_pred[i]].split(&#x27; &#x27;)[-1]    plt.title(&#x27;True:%s\nPred:%s&#x27; % (true_name,pred_name))    plt.axis(&#x27;off&#x27;)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Seaborn数据可视化</title>
+    <url>/posts/2f304439.html</url>
+    <content><![CDATA[[toc]
+1、Seaborn介绍
+Seaborn是基于matplotlib的图形可视化python包。它提供了一种高度交互式界面，便于用户能够做出各种有吸引力的统计图表。
+Seaborn是在matplotlib的基础上进行了更高级的API封装，从而使得作图更加容易，在大多数情况下使用seaborn能做出很具有吸引力的图，而使用matplotlib就能制作具有更多特色的图。应该把Seaborn视为matplotlib的补充，而不是替代物。
+2、安装
+pip install seaborn -i https://pypi.tuna.tsinghua.edu.cn/simple
+教程
+3、快速上手
+3.1、样式设置
+import seaborn as snssns.set(style = &#x27;darkgrid&#x27;,context = &#x27;talk&#x27;,font = &#x27;STKaiti&#x27;)
+stlyle设置，修改主题风格，属性如下：
+
+
+
+style
+效果
+
+
+
+
+darkgrid
+黑色网格（默认）
+
+
+whitegrid
+白色网格
+
+
+dark
+黑色背景
+
+
+white
+白色背景
+
+
+ticks
+四周有刻度线的白背景
+
+
+
+context设置，修改大小，属性如下：
+
+
+
+context
+效果
+
+
+
+
+paper
+越来越大越来越粗
+
+
+notebook（默认）
+越来越大越来越粗
+
+
+talk
+越来越大越来越粗
+
+
+poster
+越来越大越来越粗
+
+
+
+3.2、线形图
+import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdimport numpy as npsns.set(style = &#x27;dark&#x27;,context = &#x27;poster&#x27;,font = &#x27;STKaiti&#x27;) # 设置样式plt.figure(figsize=(9,6))x = np.linspace(0,2*np.pi,20)y = np.sin(x)sns.lineplot(x = x,y = y,color = &#x27;green&#x27;,ls = &#x27;--&#x27;)sns.lineplot(x = x,y = np.cos(x),color = &#x27;red&#x27;,ls = &#x27;-.&#x27;)
+
+4、各种图形绘制
+4.1、调色板
+参数palette（调色板），用于调整颜色，系统默认提供了六种选择：deep, muted, bright, pastel, dark, colorblind
+参数palette调色板，可以有更多的颜色选择，Matplotlib为我们提供了多大178种，这足够绘图用，可以通过代码**print(plt.colormaps())**查看选择
+
+
+
+178种
+
+
+
+
+Accent
+
+
+Accent_r
+
+
+Blues
+
+
+Blues_r
+
+
+……
+
+
+
+4.2、线形图
+import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;dark&#x27;,context = &#x27;notebook&#x27;,font = &#x27;STKaiti&#x27;) # 设置样式plt.figure(figsize=(9,6))fmri = pd.read_csv(&#x27;./fmri.csv&#x27;) # fmri这一核磁共振数据ax = sns.lineplot(x = &#x27;timepoint&#x27;,y = &#x27;signal&#x27;,                  hue = &#x27;event&#x27;,style = &#x27;event&#x27; ,                  data= fmri,                  palette=&#x27;deep&#x27;,                  markers=True,                  markersize = 10)plt.xlabel(&#x27;时间节点&#x27;,fontsize = 30)plt.savefig(&#x27;./线形图.png&#x27;,dpi = 200)
+lineplot()函数作用是绘制线型图。参数x、y，表示横纵坐标；参数hue，表示根据属性分类绘制两条线（“event&quot;属性分两类&quot;stim”、“cue”）；参数style，表示根据属性分类设置样式，实线和虚线；参数data，表示数据；参数marker、markersize，分别表示画图标记点以及尺寸大小！
+
+4.3、散点图
+import matplotlib.pyplot as pltimport seaborn as snsdata = pd.read_csv(&#x27;./tips.csv&#x27;) # 小费plt.figure(figsize=(9,6))sns.set(style = &#x27;darkgrid&#x27;,context = &#x27;talk&#x27;)# 散点图fig = sns.scatterplot(x = &#x27;total_bill&#x27;, y = &#x27;tip&#x27;,                       hue = &#x27;time&#x27;, data = data,                       palette = &#x27;autumn&#x27;, s = 100)
+
+4.4、柱状图
+import seaborn as snsimport matplotlib.pyplot as pltplt.figure(figsize = (9,6))sns.set(style = &#x27;whitegrid&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;) # 小费ax = sns.barplot(x = &quot;day&quot;, y = &quot;total_bill&quot;,                  data = tips,hue = &#x27;sex&#x27;,                 palette = &#x27;colorblind&#x27;,                 capsize = 0.2)
+
+4.5、箱式图
+import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;ticks&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;)ax = sns.boxplot(x=&quot;day&quot;, y=&quot;total_bill&quot;, data=tips,palette=&#x27;colorblind&#x27;)
+
+4.6、直方图
+import seaborn as snsimport numpy as npimport matplotlib.pyplot as pltsns.set(style = &#x27;dark&#x27;)x = np.random.randn(5000)sns.histplot(x,kde = True)
+
+import seaborn as snsimport numpy as npimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;darkgrid&#x27;)tips = pd.read_csv(&#x27;./tips.csv&#x27;)sns.histplot(x = &#x27;total_bill&#x27;, data = tips, kde = True)
+
+4.7、分类散点图
+import seaborn as snsimport matplotlib.pyplot as pltimport pandas as pdsns.set(style = &#x27;darkgrid&#x27;)exercise = pd.read_csv(&#x27;./exercise.csv&#x27;)sns.catplot(x=&quot;time&quot;, y=&quot;pulse&quot;, hue=&quot;kind&quot;, data=exercise)
+
+4.8、热力图
+import matplotlib.pyplot as pltimport seaborn as snsplt.figure(figsize=(12,9))flights = pd.read_csv(&#x27;./flights.csv&#x27;)flights = flights.pivot(&quot;month&quot;, &quot;year&quot;, &quot;passengers&quot;)sns.heatmap(flights, annot=True,fmt = &#x27;d&#x27;,cmap = &#x27;RdBu_r&#x27;,            linewidths=0.5)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Dijkstra</title>
     <url>/posts/9c98f56c.html</url>
     <content><![CDATA[Dijkstra 最小花费
@@ -861,6 +861,97 @@ import java.util.*;public class Main&#123;    static int N=2010;    static int M
       <tags>
         <tag>最短路</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Floyd</title>
+    <url>/posts/97c8f9ac.html</url>
+    <content><![CDATA[星际旅行
+问题描述
+小明国庆节准备去某星系进行星际旅行，这个星系里一共有 n_n_ 个星球，其中布置了 m_m_ 道双向传送门，第 i_i_ 道传送门可以连接 ai,bi*ai_,_bi 两颗星球（ai≠bi_a**i\=_b**i* 且任意两颗星球之间最多只有一个传送门）。
+他看中了一款 “旅游盲盒”，一共有 Q_Q_ 个盲盒，第 i_i_ 个盲盒里的旅行方案规定了旅行的起始星球 xi*xi _和最多可以使用传送门的次数 yi_yi*。只要从起始星球出发，使用传送门不超过规定次数能到达的所有星球都可以去旅行。
+小明关心在每个方案中有多少个星球可以旅行到。小明只能在这些盲盒里随机选一个购买，他想知道能旅行到的不同星球的数量的期望是多少。
+输入格式
+输入共 m+Q+1_m_+Q+1 行。
+第一行为三个正整数 n,m,Q_n_,m,Q 。
+后面 m_m_ 行，每行两个正整数 ai,bi*ai_,_bi* 。
+后面 Q_Q_ 行，每行两个整数 xi,yi*xi_,_yi* 。
+输出格式
+输出共一行，一个浮点数（四舍五入保留两位小数）。
+样例输入
+3 2 31 22 32 12 01 1
+样例输出
+2.00
+样例说明
+第一个盲盒可以旅行到 1,2,31,2,3。
+第二个盲盒可以旅行到 22。
+第三个盲盒可以旅行到 1,21,2。
+所以期望是 (3+1+2)/3=2.00(3+1+2)/3=2.00。
+解决
+import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;  static int n,m,q;  static int[][]con;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n=sc.nextInt();        m=sc.nextInt();        q=sc.nextInt();        con=new int[n+1][n+1];        for(int i=1;i&lt;=n;i++)&#123;          Arrays.fill(con[i],3010);        &#125;        for(int i=1;i&lt;=n;i++)&#123;          con[i][i]=0;        &#125;        for(int i=0;i&lt;m;i++)&#123;          int a=sc.nextInt();          int b=sc.nextInt();          con[a][b]=1;          con[b][a]=1;        &#125;        for(int k=1;k&lt;=n;k++)&#123;          for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;              con[i][j]=Math.min(con[i][j],con[i][k]+con[k][j]);            &#125;          &#125;        &#125;        int ans=0;        for(int i=0;i&lt;q;i++)&#123;          int x=sc.nextInt();          int y=sc.nextInt();          int count=0;          for(int j=1;j&lt;=n;j++)&#123;            if(con[x][j]&lt;=y)count++;          &#125;            ans+=count;        &#125;          System.out.printf(&quot;%.2f&quot;,(double)ans/q);    &#125;&#125;
+牛的旅行
+题目链接
+牛的旅行
+问题描述
+农民John的农场里有很多牧区，有的路径连接一些特定的牧区。
+一片所有连通的牧区称为一个牧场。
+但是就目前而言，你能看到至少有两个牧区不连通。
+现在，John想在农场里添加一条路径（注意，恰好一条）。
+一个牧场的直径就是牧场中最远的两个牧区的距离（本题中所提到的所有距离指的都是最短的距离）。
+考虑如下的两个牧场，每一个牧区都有自己的坐标：
+
+图 1 是有 5 个牧区的牧场，牧区用“*”表示，路径用直线表示。
+图 1 所示的牧场的直径大约是 12.07106, 最远的两个牧区是 A 和 E，它们之间的最短路径是 A-B-E。
+图 2 是另一个牧场。
+这两个牧场都在John的农场上。
+John将会在两个牧场中各选一个牧区，然后用一条路径连起来，使得连通后这个新的更大的牧场有最小的直径。
+注意，如果两条路径中途相交，我们不认为它们是连通的。
+只有两条路径在同一个牧区相交，我们才认为它们是连通的。
+现在请你编程找出一条连接两个不同牧场的路径，使得连上这条路径后，所有牧场（生成的新牧场和原有牧场）中直径最大的牧场的直径尽可能小。
+输出这个直径最小可能值。
+输入格式
+第 1 行：一个整数 N, 表示牧区数；
+第 2 到 N+1 行：每行两个整数 X,Y， 表示 N 个牧区的坐标。每个牧区的坐标都是不一样的。
+第 N+2 行到第 2*N+1 行：每行包括 N 个数字 ( 0或1 ) 表示一个对称邻接矩阵。
+例如，题目描述中的两个牧场的矩阵描述如下：
+  A B C D E F G H A 0 1 0 0 0 0 0 0 B 1 0 1 1 1 0 0 0 C 0 1 0 0 1 0 0 0 D 0 1 0 0 1 0 0 0 E 0 1 1 1 0 0 0 0 F 0 0 0 0 0 0 1 0 G 0 0 0 0 0 1 0 1 H 0 0 0 0 0 0 1 0
+输入数据中至少包括两个不连通的牧区。
+输出格式
+只有一行，包括一个实数，表示所求答案。
+数字保留六位小数。
+数据范围
+1≤N≤1501≤N≤150, 0≤X,Y≤1050≤X,Y≤105
+输入样例：
+810 1015 1020 1015 1520 1530 1525 1030 100100000010111000010010000100100001110000000000100000010100000010
+输出样例：
+22.071068
+解决
+import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123;        this.x=x;        this.y=y;    &#125;&#125;public class Main&#123;    static int N=155,INF=(int)1e20;    static int n;    static PII[]q=new PII[N];    static char[][]g=new char[N][N];    static double[][]dist=new double[N][N];    static double[]maxd=new double[N];    public static double get_dist(PII i,PII j)&#123;        int dx=i.x-j.x,dy=i.y-j.y;        return (double)Math.sqrt(dx*dx+dy*dy);    &#125;    public static void floyd()&#123;        for(int k=1;k&lt;=n;k++)            for(int i=1;i&lt;=n;i++)                for(int j=1;j&lt;=n;j++)&#123;                    dist[i][j]=Math.min(dist[i][j],dist[i][k]+dist[k][j]);                &#125;    &#125;    public static void main(String[]args)&#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            int x=sc.nextInt();            int y=sc.nextInt();            q[i]=new PII(x,y);        &#125;        for(int i=1;i&lt;=n;i++)&#123;            String s=sc.next();            for(int j=1;j&lt;=n;j++)&#123;                g[i][j]=s.charAt(j-1);            &#125;        &#125;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(i!=j)&#123;                    if(g[i][j]==&#x27;1&#x27;)dist[i][j]=get_dist(q[i],q[j]);                    else dist[i][j]=INF;                &#125;            &#125;        &#125;        floyd();        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&lt;INF)                    maxd[i]=Math.max(maxd[i],dist[i][j]);            &#125;        &#125;        double res1=0;        for(int i=1;i&lt;=n;i++)res1=Math.max(res1,maxd[i]);        double res2=INF;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&gt;=INF)&#123;                    res2=Math.min(res2,get_dist(q[i],q[j])+maxd[i]+maxd[j]);                &#125;            &#125;        &#125;        System.out.printf(&quot;%.6f&quot;,Math.max(res1,res2));    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>Floyd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+Quick Start
+Create a new post
+$ hexo new &quot;My New Post&quot;
+More info: Writing
+Run server
+$ hexo server
+More info: Server
+Generate static files
+$ hexo generate
+More info: Generating
+Deploy to remote sites
+$ hexo deploy
+More info: Deployment
+]]></content>
   </entry>
   <entry>
     <title>二分</title>
@@ -1228,94 +1319,9 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
       </tags>
   </entry>
   <entry>
-    <title>Floyd</title>
-    <url>/posts/97c8f9ac.html</url>
-    <content><![CDATA[星际旅行
-问题描述
-小明国庆节准备去某星系进行星际旅行，这个星系里一共有 n_n_ 个星球，其中布置了 m_m_ 道双向传送门，第 i_i_ 道传送门可以连接 ai,bi*ai_,_bi 两颗星球（ai≠bi_a**i\=_b**i* 且任意两颗星球之间最多只有一个传送门）。
-他看中了一款 “旅游盲盒”，一共有 Q_Q_ 个盲盒，第 i_i_ 个盲盒里的旅行方案规定了旅行的起始星球 xi*xi _和最多可以使用传送门的次数 yi_yi*。只要从起始星球出发，使用传送门不超过规定次数能到达的所有星球都可以去旅行。
-小明关心在每个方案中有多少个星球可以旅行到。小明只能在这些盲盒里随机选一个购买，他想知道能旅行到的不同星球的数量的期望是多少。
-输入格式
-输入共 m+Q+1_m_+Q+1 行。
-第一行为三个正整数 n,m,Q_n_,m,Q 。
-后面 m_m_ 行，每行两个正整数 ai,bi*ai_,_bi* 。
-后面 Q_Q_ 行，每行两个整数 xi,yi*xi_,_yi* 。
-输出格式
-输出共一行，一个浮点数（四舍五入保留两位小数）。
-样例输入
-3 2 31 22 32 12 01 1
-样例输出
-2.00
-样例说明
-第一个盲盒可以旅行到 1,2,31,2,3。
-第二个盲盒可以旅行到 22。
-第三个盲盒可以旅行到 1,21,2。
-所以期望是 (3+1+2)/3=2.00(3+1+2)/3=2.00。
-解决
-import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;  static int n,m,q;  static int[][]con;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n=sc.nextInt();        m=sc.nextInt();        q=sc.nextInt();        con=new int[n+1][n+1];        for(int i=1;i&lt;=n;i++)&#123;          Arrays.fill(con[i],3010);        &#125;        for(int i=1;i&lt;=n;i++)&#123;          con[i][i]=0;        &#125;        for(int i=0;i&lt;m;i++)&#123;          int a=sc.nextInt();          int b=sc.nextInt();          con[a][b]=1;          con[b][a]=1;        &#125;        for(int k=1;k&lt;=n;k++)&#123;          for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;              con[i][j]=Math.min(con[i][j],con[i][k]+con[k][j]);            &#125;          &#125;        &#125;        int ans=0;        for(int i=0;i&lt;q;i++)&#123;          int x=sc.nextInt();          int y=sc.nextInt();          int count=0;          for(int j=1;j&lt;=n;j++)&#123;            if(con[x][j]&lt;=y)count++;          &#125;            ans+=count;        &#125;          System.out.printf(&quot;%.2f&quot;,(double)ans/q);    &#125;&#125;
-牛的旅行
-题目链接
-牛的旅行
-问题描述
-农民John的农场里有很多牧区，有的路径连接一些特定的牧区。
-一片所有连通的牧区称为一个牧场。
-但是就目前而言，你能看到至少有两个牧区不连通。
-现在，John想在农场里添加一条路径（注意，恰好一条）。
-一个牧场的直径就是牧场中最远的两个牧区的距离（本题中所提到的所有距离指的都是最短的距离）。
-考虑如下的两个牧场，每一个牧区都有自己的坐标：
-
-图 1 是有 5 个牧区的牧场，牧区用“*”表示，路径用直线表示。
-图 1 所示的牧场的直径大约是 12.07106, 最远的两个牧区是 A 和 E，它们之间的最短路径是 A-B-E。
-图 2 是另一个牧场。
-这两个牧场都在John的农场上。
-John将会在两个牧场中各选一个牧区，然后用一条路径连起来，使得连通后这个新的更大的牧场有最小的直径。
-注意，如果两条路径中途相交，我们不认为它们是连通的。
-只有两条路径在同一个牧区相交，我们才认为它们是连通的。
-现在请你编程找出一条连接两个不同牧场的路径，使得连上这条路径后，所有牧场（生成的新牧场和原有牧场）中直径最大的牧场的直径尽可能小。
-输出这个直径最小可能值。
-输入格式
-第 1 行：一个整数 N, 表示牧区数；
-第 2 到 N+1 行：每行两个整数 X,Y， 表示 N 个牧区的坐标。每个牧区的坐标都是不一样的。
-第 N+2 行到第 2*N+1 行：每行包括 N 个数字 ( 0或1 ) 表示一个对称邻接矩阵。
-例如，题目描述中的两个牧场的矩阵描述如下：
-  A B C D E F G H A 0 1 0 0 0 0 0 0 B 1 0 1 1 1 0 0 0 C 0 1 0 0 1 0 0 0 D 0 1 0 0 1 0 0 0 E 0 1 1 1 0 0 0 0 F 0 0 0 0 0 0 1 0 G 0 0 0 0 0 1 0 1 H 0 0 0 0 0 0 1 0
-输入数据中至少包括两个不连通的牧区。
-输出格式
-只有一行，包括一个实数，表示所求答案。
-数字保留六位小数。
-数据范围
-1≤N≤1501≤N≤150, 0≤X,Y≤1050≤X,Y≤105
-输入样例：
-810 1015 1020 1015 1520 1530 1525 1030 100100000010111000010010000100100001110000000000100000010100000010
-输出样例：
-22.071068
-解决
-import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123;        this.x=x;        this.y=y;    &#125;&#125;public class Main&#123;    static int N=155,INF=(int)1e20;    static int n;    static PII[]q=new PII[N];    static char[][]g=new char[N][N];    static double[][]dist=new double[N][N];    static double[]maxd=new double[N];    public static double get_dist(PII i,PII j)&#123;        int dx=i.x-j.x,dy=i.y-j.y;        return (double)Math.sqrt(dx*dx+dy*dy);    &#125;    public static void floyd()&#123;        for(int k=1;k&lt;=n;k++)            for(int i=1;i&lt;=n;i++)                for(int j=1;j&lt;=n;j++)&#123;                    dist[i][j]=Math.min(dist[i][j],dist[i][k]+dist[k][j]);                &#125;    &#125;    public static void main(String[]args)&#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            int x=sc.nextInt();            int y=sc.nextInt();            q[i]=new PII(x,y);        &#125;        for(int i=1;i&lt;=n;i++)&#123;            String s=sc.next();            for(int j=1;j&lt;=n;j++)&#123;                g[i][j]=s.charAt(j-1);            &#125;        &#125;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(i!=j)&#123;                    if(g[i][j]==&#x27;1&#x27;)dist[i][j]=get_dist(q[i],q[j]);                    else dist[i][j]=INF;                &#125;            &#125;        &#125;        floyd();        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&lt;INF)                    maxd[i]=Math.max(maxd[i],dist[i][j]);            &#125;        &#125;        double res1=0;        for(int i=1;i&lt;=n;i++)res1=Math.max(res1,maxd[i]);        double res2=INF;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&gt;=INF)&#123;                    res2=Math.min(res2,get_dist(q[i],q[j])+maxd[i]+maxd[j]);                &#125;            &#125;        &#125;        System.out.printf(&quot;%.6f&quot;,Math.max(res1,res2));    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>Floyd</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick Start
-Create a new post
-$ hexo new &quot;My New Post&quot;
-More info: Writing
-Run server
-$ hexo server
-More info: Server
-Generate static files
-$ hexo generate
-More info: Generating
-Deploy to remote sites
-$ hexo deploy
-More info: Deployment
+    <title>images</title>
+    <url>/posts/e01fbe6a.html</url>
+    <content><![CDATA[
 ]]></content>
   </entry>
   <entry>
@@ -1355,38 +1361,6 @@ More info: Deployment
         <tag>二分</tag>
         <tag>排序</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>数学</title>
-    <url>/posts/fe7e69f4.html</url>
-    <content><![CDATA[筛质数
-
-埃式筛
-
-const int N=10001;int primes[N],cnt=0;bool st[N];void get_p(int n)&#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=i+i;j&lt;=n;j+=i)&#123;                st[j]=true;        &#125;    &#125;&#125;
-
-线性筛
-
-const int N=10001;int primes[N],cnt=0;bool st[N];void get_prime(int n) &#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=0;primes[j]&lt;=n/i;j++)&#123;            st[primes[j]*i]=true;            if(i%primes[j]==0)break;        &#125;    &#125;&#125;
-费马逆元
-import java.util.*;public class Main &#123;    static long MOD = (long)1e9 + 7;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        int q = sc.nextInt();        int maxN = 0;        int[] nList = new int[q];        int[] mList = new int[q];        // 读取所有查询并找到最大的 n        for (int i = 0; i &lt; q; i++) &#123;            int n = sc.nextInt();            int m = sc.nextInt();            nList[i] = n;            mList[i] = m;            if (n &gt; maxN) &#123;                maxN = n;            &#125;        &#125;        // 预处理阶乘和逆元        long[] factorial = new long[maxN + 1];        long[] inverse = new long[maxN + 1];        factorial[0] = 1;        for (int i = 1; i &lt;= maxN; i++) &#123;            factorial[i] = (factorial[i - 1] * i) % MOD;        &#125;        // 使用费马小定理计算逆元        inverse[maxN] = fastPower(factorial[maxN], MOD - 2, MOD);        for (int i = maxN - 1; i &gt;= 0; i--) &#123;            inverse[i] = (inverse[i + 1] * (i + 1)) % MOD;        &#125;        // 处理每个查询        for (int i = 0; i &lt; q; i++) &#123;            int n = nList[i];            int m = mList[i];            if (m &lt; 0  m &gt; n) &#123;                System.out.println(0);                continue;            &#125;            long ans = (factorial[n] * inverse[m] % MOD) * inverse[n - m] % MOD;            System.out.println(ans);        &#125;        sc.close();    &#125;    // 快速幂算法    public static long fastPower(long base, long exponent, long mod) &#123;        long result = 1;        base %= mod;        while (exponent &gt; 0) &#123;            if ((exponent &amp; 1) == 1) &#123;                result = (result * base) % mod;            &#125;            base = (base * base) % mod;            exponent &gt;&gt;= 1;        &#125;        return result;    &#125;&#125;
-快速幂
-public class Main &#123;    public static void main(String[] args) &#123;        Solution solution = new Solution();        // 测试用例 1: 正指数        double result1 = solution.myPow(2.0, 10);        System.out.println(&quot;2^10 = &quot; + result1); // 输出: 1024.0        // 测试用例 2: 负指数        double result2 = solution.myPow(2.0, -2);        System.out.println(&quot;2^-2 = &quot; + result2); // 输出: 0.25        // 测试用例 3: 零指数        double result3 = solution.myPow(5.0, 0);        System.out.println(&quot;5^0 = &quot; + result3); // 输出: 1.0        // 测试用例 4: 边界条件 (0^0)        double result4 = solution.myPow(0.0, 0);        System.out.println(&quot;0^0 = &quot; + result4); // 输出: 1.0        // 测试用例 5: 整数溢出测试 (Integer.MIN_VALUE)        double result5 = solution.myPow(2.0, Integer.MIN_VALUE);        System.out.println(&quot;2^&quot; + Integer.MIN_VALUE + &quot; = &quot; + result5); // 输出一个非常小的数    &#125;&#125;class Solution &#123;    public double myPow(double x, int n) &#123;        long N = n; // 将指数转换为 long 类型以避免溢出        if (N &lt; 0) &#123;            x = 1 / x; // 处理负指数            N = -N;    // 将指数转为正数        &#125;        return powIterative(x, N);    &#125;    // 迭代实现快速幂    private double powIterative(double x, long n) &#123;        double result = 1.0; // 初始化结果        while (n &gt; 0) &#123;            if (n % 2 == 1) &#123; // 如果指数是奇数                result *= x;  // 将当前的 x 乘到结果中            &#125;            x *= x; // 平方 x            n /= 2; // 将指数减半        &#125;        return result;    &#125;&#125;
-欧几里得和欧拉
-import java.util.Scanner;public class Main&#123;    static int mod=9901; // 定义模数，用于结果取模    public static void main(String[] args)&#123;        Scanner scan=new Scanner(System.in);        int A=scan.nextInt(),B=scan.nextInt(); // 输入A和B        int res=1; // 初始化结果为1，用于累积各质因数等比和的乘积                // 质因数分解A，从2开始试除        for(int i=2;i*i&lt;=A;i++)&#123;            if(A%i==0)&#123;                int s=0; // 记录当前质因数i的指数                while(A%i==0)&#123;                    A/=i; // 除去所有i因子                    s++;                &#125;                // 计算i^(s*B)的等比和，并累积到结果中                res=res*sum(i,s*B+1)%mod; // s*B+1项（0次方到s*B次方）            &#125;        &#125;        // 处理剩余的质因数（当A是质数时）        if(A&gt;1)res=res*sum(A,B+1)%mod; // 指数为1*B，项数为B+1        if(A==0)res=0; // 特判A=0的情况，结果直接为0        System.out.println(res);    &#125;        // 快速幂算法：计算a^k % mod    public static int quic(int a,int k)&#123;        int res=1;        a%=mod; // 先取模，防止溢出        while(k&gt;0)&#123;            if((k&amp;1)==1)&#123; // 如果当前二进制位为1，乘入结果                res=(res*a)%mod;            &#125;            a=(a*a)%mod; // a自乘，相当于计算下一位的权值            k&gt;&gt;=1; // 右移一位，处理下一位二进制        &#125;        return res;    &#125;        // 分治法计算等比数列和：1 + p + p^2 + ... + p^(k-1)    public static int sum(int p,int k)&#123;        if(k==1)return 1; // 边界条件，只有1项        if(k%2==0)&#123; // 当k为偶数时，拆分成两部分            // sum(p,k) = (1 + p^(k/2)) * sum(p, k/2)            return ((1+quic(p,k/2))*sum(p,k/2))%mod;        &#125; else &#123; // 当k为奇数时，拆分为前k-1项和最后一项            // sum(p,k) = sum(p,k-1) + p^(k-1)            return (sum(p,k-1)+quic(p,k-1))%mod;        &#125;    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>数学</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>images</title>
-    <url>/posts/e01fbe6a.html</url>
-    <content><![CDATA[
-]]></content>
   </entry>
   <entry>
     <title>math</title>
@@ -1433,6 +1407,32 @@ import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public 
         <category>program</category>
         <category>算法模板</category>
       </categories>
+  </entry>
+  <entry>
+    <title>数学</title>
+    <url>/posts/fe7e69f4.html</url>
+    <content><![CDATA[筛质数
+
+埃式筛
+
+const int N=10001;int primes[N],cnt=0;bool st[N];void get_p(int n)&#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=i+i;j&lt;=n;j+=i)&#123;                st[j]=true;        &#125;    &#125;&#125;
+
+线性筛
+
+const int N=10001;int primes[N],cnt=0;bool st[N];void get_prime(int n) &#123;    for(int i=2;i&lt;=n;i++)&#123;        if(!st[i])primes[cnt++]=i;        for(int j=0;primes[j]&lt;=n/i;j++)&#123;            st[primes[j]*i]=true;            if(i%primes[j]==0)break;        &#125;    &#125;&#125;
+费马逆元
+import java.util.*;public class Main &#123;    static long MOD = (long)1e9 + 7;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        int q = sc.nextInt();        int maxN = 0;        int[] nList = new int[q];        int[] mList = new int[q];        // 读取所有查询并找到最大的 n        for (int i = 0; i &lt; q; i++) &#123;            int n = sc.nextInt();            int m = sc.nextInt();            nList[i] = n;            mList[i] = m;            if (n &gt; maxN) &#123;                maxN = n;            &#125;        &#125;        // 预处理阶乘和逆元        long[] factorial = new long[maxN + 1];        long[] inverse = new long[maxN + 1];        factorial[0] = 1;        for (int i = 1; i &lt;= maxN; i++) &#123;            factorial[i] = (factorial[i - 1] * i) % MOD;        &#125;        // 使用费马小定理计算逆元        inverse[maxN] = fastPower(factorial[maxN], MOD - 2, MOD);        for (int i = maxN - 1; i &gt;= 0; i--) &#123;            inverse[i] = (inverse[i + 1] * (i + 1)) % MOD;        &#125;        // 处理每个查询        for (int i = 0; i &lt; q; i++) &#123;            int n = nList[i];            int m = mList[i];            if (m &lt; 0  m &gt; n) &#123;                System.out.println(0);                continue;            &#125;            long ans = (factorial[n] * inverse[m] % MOD) * inverse[n - m] % MOD;            System.out.println(ans);        &#125;        sc.close();    &#125;    // 快速幂算法    public static long fastPower(long base, long exponent, long mod) &#123;        long result = 1;        base %= mod;        while (exponent &gt; 0) &#123;            if ((exponent &amp; 1) == 1) &#123;                result = (result * base) % mod;            &#125;            base = (base * base) % mod;            exponent &gt;&gt;= 1;        &#125;        return result;    &#125;&#125;
+快速幂
+public class Main &#123;    public static void main(String[] args) &#123;        Solution solution = new Solution();        // 测试用例 1: 正指数        double result1 = solution.myPow(2.0, 10);        System.out.println(&quot;2^10 = &quot; + result1); // 输出: 1024.0        // 测试用例 2: 负指数        double result2 = solution.myPow(2.0, -2);        System.out.println(&quot;2^-2 = &quot; + result2); // 输出: 0.25        // 测试用例 3: 零指数        double result3 = solution.myPow(5.0, 0);        System.out.println(&quot;5^0 = &quot; + result3); // 输出: 1.0        // 测试用例 4: 边界条件 (0^0)        double result4 = solution.myPow(0.0, 0);        System.out.println(&quot;0^0 = &quot; + result4); // 输出: 1.0        // 测试用例 5: 整数溢出测试 (Integer.MIN_VALUE)        double result5 = solution.myPow(2.0, Integer.MIN_VALUE);        System.out.println(&quot;2^&quot; + Integer.MIN_VALUE + &quot; = &quot; + result5); // 输出一个非常小的数    &#125;&#125;class Solution &#123;    public double myPow(double x, int n) &#123;        long N = n; // 将指数转换为 long 类型以避免溢出        if (N &lt; 0) &#123;            x = 1 / x; // 处理负指数            N = -N;    // 将指数转为正数        &#125;        return powIterative(x, N);    &#125;    // 迭代实现快速幂    private double powIterative(double x, long n) &#123;        double result = 1.0; // 初始化结果        while (n &gt; 0) &#123;            if (n % 2 == 1) &#123; // 如果指数是奇数                result *= x;  // 将当前的 x 乘到结果中            &#125;            x *= x; // 平方 x            n /= 2; // 将指数减半        &#125;        return result;    &#125;&#125;
+欧几里得和欧拉
+import java.util.Scanner;public class Main&#123;    static int mod=9901; // 定义模数，用于结果取模    public static void main(String[] args)&#123;        Scanner scan=new Scanner(System.in);        int A=scan.nextInt(),B=scan.nextInt(); // 输入A和B        int res=1; // 初始化结果为1，用于累积各质因数等比和的乘积                // 质因数分解A，从2开始试除        for(int i=2;i*i&lt;=A;i++)&#123;            if(A%i==0)&#123;                int s=0; // 记录当前质因数i的指数                while(A%i==0)&#123;                    A/=i; // 除去所有i因子                    s++;                &#125;                // 计算i^(s*B)的等比和，并累积到结果中                res=res*sum(i,s*B+1)%mod; // s*B+1项（0次方到s*B次方）            &#125;        &#125;        // 处理剩余的质因数（当A是质数时）        if(A&gt;1)res=res*sum(A,B+1)%mod; // 指数为1*B，项数为B+1        if(A==0)res=0; // 特判A=0的情况，结果直接为0        System.out.println(res);    &#125;        // 快速幂算法：计算a^k % mod    public static int quic(int a,int k)&#123;        int res=1;        a%=mod; // 先取模，防止溢出        while(k&gt;0)&#123;            if((k&amp;1)==1)&#123; // 如果当前二进制位为1，乘入结果                res=(res*a)%mod;            &#125;            a=(a*a)%mod; // a自乘，相当于计算下一位的权值            k&gt;&gt;=1; // 右移一位，处理下一位二进制        &#125;        return res;    &#125;        // 分治法计算等比数列和：1 + p + p^2 + ... + p^(k-1)    public static int sum(int p,int k)&#123;        if(k==1)return 1; // 边界条件，只有1项        if(k%2==0)&#123; // 当k为偶数时，拆分成两部分            // sum(p,k) = (1 + p^(k/2)) * sum(p, k/2)            return ((1+quic(p,k/2))*sum(p,k/2))%mod;        &#125; else &#123; // 当k为奇数时，拆分为前k-1项和最后一项            // sum(p,k) = sum(p,k-1) + p^(k-1)            return (sum(p,k-1)+quic(p,k-1))%mod;        &#125;    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>数学</tag>
+      </tags>
   </entry>
   <entry>
     <title>前缀和与差分</title>
@@ -2256,7 +2256,7 @@ f = np.sort(X_train[:,11])gini_lower = 1best_split = &#123;&#125;for i in range(
   </entry>
   <entry>
     <title>决策树算法</title>
-    <url>/posts/3c50d4b7.html</url>
+    <url>/posts/ef296a07.html</url>
     <content><![CDATA[1、决策树概述
 决策树是属于有监督机器学习的一种，起源非常早，符合直觉并且非常直观，模仿人类做决策的过程，早期人工智能模型中有很多应用，现在更多的是使用基于决策树的一些集成学习的算法。这一章我们把决策树算法理解透彻了，非常有利于后面去学习集成学习。
 1.1、示例一
@@ -2542,79 +2542,6 @@ model.feature_importances_
       <tags>
         <tag>AI</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>杂谈笔记</title>
-    <url>/posts/5f473243.html</url>
-    <content><![CDATA[之前一些函数名笔记
-一些matlab函数名；
-可能python也适合用
-矩阵运算操作求矩阵的转置 (A)'；
-求矩阵的逆 inv(A)；
-求矩阵的模det(A)；
-2.数运算操作e的次方 exp(A)指数函数；
-exp(x) 以e为底数 ；对数函数 log(x) 自然对数，即以e为底数的对数；
-log10(x) 常用对数，即以10为底数的对数； log2(x) 以2为底数的x的对数；
-开方函数 sqrt(x) 表示x的算术平方根； 绝对值函数 abs(x) 表示实数的绝对值以及复数的模；
-三角函数（自变量的单位为弧度）
-sin(x) 正弦函数 ；cos(x) 余弦函数； tan(x) 正切函数 ；cot(x) 余切函数 ；sec(x) 正割函数 ；csc(x) 余割函数；
-反三角函数 asin(x) 反正弦函数； acos(x) 反余弦函数 ；atan(x) 反正切函数 ；acot(x) 反余切函数 ；asec(x) 反正割函数； acsc(x) 反余割函数；
-双曲函数 sinh(x) 双曲正弦函数； cosh(x) 双曲余弦函数； tanh(x) 双曲正切函数； coth(x) 双曲余切函数； sech(x) 双曲正割函数 ；csch(x) 双曲余割函数； 反双曲函数 asinh(x) 反双曲正弦函数； acosh(x) 反双曲余弦函数； atanh(x) 反双曲正切函数； acoth(x) 反双曲余切函数 ；asech(x) 反双曲正割函数； acsch(x) 反双曲余割函数 ；
-求角度函数 atan2(y,x) 以坐标原点为顶点，x轴正半轴为始边，从原点到点（x，y）的射线为终边的角，其单位为弧度；
-数论函数 gcd(a,b) 两个整数的最大公约数 ；lcm(a,b) 两个整数的最小公倍数 ；
-排列组合函数 factorial(n) 阶乘函数，表示n的阶乘；
-复数函数 real(z) 实部函数；imag(z) 虚部函数 ；abs(z) 求复数z的模； angle(z) 求复数z的辐角；conj(z) 求复数z的共轭复数 ；
-求整函数与截尾函数 ceil(x) 表示大于或等于实数x的最小整数 ；
-floor(x) 表示小于或等于实数x的最大整数；
-round(x) 最接近x的整数；
-最大、最小函数 max([a，b，c，．．．])
-求最大数 ；min([a，b，c，．．])
-求最小数 ；符号函数 sign(x)
-一些简短的算法笔记
-n第k位数字：n&gt;&gt;k&amp;1
-返回n的最后一位1：lowbit(n) = n &amp; -n
-C++的nth_element函数，cin.tie(0)或者ios::sync_with_stdio(false);
-KMP扩展：BM算法;Sunday算法。
-并查集按秩合并
-Arrays.fill(arr,-1);C++memset();memcopy
-c++reference
-Character.isDigit(‘c’)—false
-需要注意的是 在windows中按一下回车键 一共有两个字符 “\n\r” 而read()只能读取一个字符，所以如要要用read来达到吸收回车的目的，需要用两个read(); 如果用readLine()的话会将&quot;\n\r&quot;全部吸收 ， 所以只需要一个readLine()来吸收回车.
-readLine()用回车来进行下一步操作//cin.sval;只适合吸收非数字字符，不吸收空格。
-int num2 = Integer.parseInt(str);
-String ss = String.valueOf(n);
-数字字符串用BufferedReader
-//字符串转化字符数组过程中从下表零开始
-并查集按秩合并
-cin.nextToken();
-String st=cin.sval;
-str=st.toCharArray();
-int res = Integer.MAX_VALUE;
-g[i][j] = Integer.parseInt(String.valueOf(s.charAt(j)));
-in.readLine();
-g[i][j] = s.charAt(j) - '0';
-
-
-
-浮点数
-//double a;
-//String str=String.format(&quot;%.2f&quot;,a)//!!!!!!!
-//cout.print(str);
-//或者 cout,printf(&quot;%.6f&quot;,a);
-
-//检查Segm fault错误
-System.exit(0);
-
-//全新输入 
-String []str=in.readLine().split(&quot; &quot;);
-n=Integer.parseInt(str[0]);
-m=Integer.parseInt(str[1])
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法刷题路线</category>
-      </categories>
   </entry>
   <entry>
     <title>多元线性回归</title>
@@ -2964,6 +2891,79 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
       <categories>
         <category>program</category>
         <category>机器学习</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>杂谈笔记</title>
+    <url>/posts/104fd864.html</url>
+    <content><![CDATA[之前一些函数名笔记
+一些matlab函数名；
+可能python也适合用
+矩阵运算操作求矩阵的转置 (A)'；
+求矩阵的逆 inv(A)；
+求矩阵的模det(A)；
+2.数运算操作e的次方 exp(A)指数函数；
+exp(x) 以e为底数 ；对数函数 log(x) 自然对数，即以e为底数的对数；
+log10(x) 常用对数，即以10为底数的对数； log2(x) 以2为底数的x的对数；
+开方函数 sqrt(x) 表示x的算术平方根； 绝对值函数 abs(x) 表示实数的绝对值以及复数的模；
+三角函数（自变量的单位为弧度）
+sin(x) 正弦函数 ；cos(x) 余弦函数； tan(x) 正切函数 ；cot(x) 余切函数 ；sec(x) 正割函数 ；csc(x) 余割函数；
+反三角函数 asin(x) 反正弦函数； acos(x) 反余弦函数 ；atan(x) 反正切函数 ；acot(x) 反余切函数 ；asec(x) 反正割函数； acsc(x) 反余割函数；
+双曲函数 sinh(x) 双曲正弦函数； cosh(x) 双曲余弦函数； tanh(x) 双曲正切函数； coth(x) 双曲余切函数； sech(x) 双曲正割函数 ；csch(x) 双曲余割函数； 反双曲函数 asinh(x) 反双曲正弦函数； acosh(x) 反双曲余弦函数； atanh(x) 反双曲正切函数； acoth(x) 反双曲余切函数 ；asech(x) 反双曲正割函数； acsch(x) 反双曲余割函数 ；
+求角度函数 atan2(y,x) 以坐标原点为顶点，x轴正半轴为始边，从原点到点（x，y）的射线为终边的角，其单位为弧度；
+数论函数 gcd(a,b) 两个整数的最大公约数 ；lcm(a,b) 两个整数的最小公倍数 ；
+排列组合函数 factorial(n) 阶乘函数，表示n的阶乘；
+复数函数 real(z) 实部函数；imag(z) 虚部函数 ；abs(z) 求复数z的模； angle(z) 求复数z的辐角；conj(z) 求复数z的共轭复数 ；
+求整函数与截尾函数 ceil(x) 表示大于或等于实数x的最小整数 ；
+floor(x) 表示小于或等于实数x的最大整数；
+round(x) 最接近x的整数；
+最大、最小函数 max([a，b，c，．．．])
+求最大数 ；min([a，b，c，．．])
+求最小数 ；符号函数 sign(x)
+一些简短的算法笔记
+n第k位数字：n&gt;&gt;k&amp;1
+返回n的最后一位1：lowbit(n) = n &amp; -n
+C++的nth_element函数，cin.tie(0)或者ios::sync_with_stdio(false);
+KMP扩展：BM算法;Sunday算法。
+并查集按秩合并
+Arrays.fill(arr,-1);C++memset();memcopy
+c++reference
+Character.isDigit(‘c’)—false
+需要注意的是 在windows中按一下回车键 一共有两个字符 “\n\r” 而read()只能读取一个字符，所以如要要用read来达到吸收回车的目的，需要用两个read(); 如果用readLine()的话会将&quot;\n\r&quot;全部吸收 ， 所以只需要一个readLine()来吸收回车.
+readLine()用回车来进行下一步操作//cin.sval;只适合吸收非数字字符，不吸收空格。
+int num2 = Integer.parseInt(str);
+String ss = String.valueOf(n);
+数字字符串用BufferedReader
+//字符串转化字符数组过程中从下表零开始
+并查集按秩合并
+cin.nextToken();
+String st=cin.sval;
+str=st.toCharArray();
+int res = Integer.MAX_VALUE;
+g[i][j] = Integer.parseInt(String.valueOf(s.charAt(j)));
+in.readLine();
+g[i][j] = s.charAt(j) - '0';
+
+
+
+浮点数
+//double a;
+//String str=String.format(&quot;%.2f&quot;,a)//!!!!!!!
+//cout.print(str);
+//或者 cout,printf(&quot;%.6f&quot;,a);
+
+//检查Segm fault错误
+System.exit(0);
+
+//全新输入 
+String []str=in.readLine().split(&quot; &quot;);
+n=Integer.parseInt(str[0]);
+m=Integer.parseInt(str[1])
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法刷题路线</category>
       </categories>
   </entry>
   <entry>
@@ -3425,320 +3425,6 @@ import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.ran
       </tags>
   </entry>
   <entry>
-    <title>聚类算法</title>
-    <url>/posts/3c50d4b7.html</url>
-    <content><![CDATA[聚类算法
-1、聚类介绍
-1.1、聚类作用
-
-
-知识发现 发现事物之间的潜在关系
-
-
-异常值检测
-
-
-特征提取 数据压缩的例子
-
-
-1.2、有监督与无监督学习
-有监督：
-
-
-给定训练集 X 和 标签Y
-
-
-选择模型
-
-学习（目标函数的最优化）
-生成模型（本质上是一组参数、方程）
-
-
-
-根据生成的一组参数进行预测分类等任务
-无监督：
-
-
-拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
-
-
-Clustering 聚类
-
-对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
-也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
-
-
-
-降维算法，数据特征变少
-
-
-1.3、聚类算法
-
-1.4、相似度
-
-1.5、数据间的相似度
-
-
-每一条数据都可以理解为多维空间中的一个点。
-
-
-可以根据点和点之间的距离来评价数据间的相似度
-
-
-近朱者赤近墨者黑！
-
-
-欧氏距离：
-
-二维空间：
-
-d=(x1−x2)2+(y1−y2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
-
-三维空间：
-
-d=(x1−x2)2+(y1−y2)2+(z1−z2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
-
-闵可夫斯基距离
-
-d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
-
-
-P = 1 曼哈顿距离
-
-d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
-在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
-
-
-
-P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
-
-
-P = 无穷，切比雪夫距离 ，哪个维度差值最大就是那个差值作为距离。
-
-
-
-1.6、余弦距离
-将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
-计算过程如下：
-
-将数据映射为高维空间中的点（向量）
-计算向量间的余弦值
-取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
-
-cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
-cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
-
-余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
-
-2、Kmeans
-2.1、聚类原理
-
-
-将N个样本映射到K个簇中
-
-
-每个簇至少有一个样本
-
-
-基本思路：
-
-
-先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
-
-
-迭代若干次就能得到比较好的结果
-
-
-2.2、Kmeans算法原理
-算法步骤：
-
-
-选择K个初始的簇中心
-
-怎么选？
-
-
-
-逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
-
-
-每个簇内部计算平均值，更新簇中心
-
-
-开始迭代
-
-
-
-聚类过程如下：
-
-2.3、KMeans优缺点
-
-
-优点：
-
-简单，效果不错
-
-
-
-缺点
-
-对异常值敏感
-对初始值敏感
-对某些分布聚类效果不好
-
-
-
-2.4、Kmeans损失函数
-∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
-
-
-其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
-
-
-其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
-
-
-2.5、Kmeans执行过程
-
-2.6、Kmeans初步使用
-亚洲国家队划分：
-import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
-
-类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
-
-数据可视化：
-plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
-
-2.7、Kmeans聚类算法K值选择
-轮廓系数：
-针对某个样本的轮廓系数s为：$ s= \frac{b - a}{max(a, b)}$
-
-a：某个样本与其所在簇内其他样本的平均距离
-b：某个样本与其他簇样本的平均距离
-
-聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
-
-
-调整兰德系数：
-公式了解一下即可：
-RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
-用C表示实际的类别划分（y_true），K表示聚类结果（y_pred）。
-定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
-定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
-兰德系数范围是[0,1]
-调整兰德系数为：
-ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
-范围为[-1,1]
-from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-
-2.8、Kmeans图像压缩
-import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
-
-3、DBSCAN
-3.1、算法介绍
-DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
-
-下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
-
-基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
-3.2、DBSCAN算法原理
-
-网站动画解析
-3.3、DBSCAN参数解析
-参数一eps：
-DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
-参数二min_samples：
-DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
-参数与三metrics：
-
-3.4、DBSCAN使用示例
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
-
-# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-4、分层聚类
-4.1、算法介绍
-分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
-分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
-
-一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
-
-4.2、算法原理
-层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
-我们着重看一下自底向上的合并算法：
-
-两个组合数据点间的距离:
-
-Single Linkage
-
-方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
-
-
-Complete Linkage
-
-complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
-
-
-Average Linkage
-
-Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
-我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
-
-
-
-
-4.3、参数介绍
-
-
-n_clusters
-划分类别数目
-
-
-linkage
-度量两个子类的相似度时所依据的距离
-
-Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
-Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
-上述两种方法容易受到极端值的影响，计算大样本集效率较高。
-Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
-Ward：最小化簇内方差。
-
-
-
-connectivity
-连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
-
-
-4.4、算法案例
-导包
-import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
-创建数据
-X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
-
-Kmeans聚类效果
-# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-分层聚类
-agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
-分层聚类改进（连接性约束，对局部结构进行约束）
-from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>梯度下降优化</title>
     <url>/posts/2d61ce16.html</url>
     <content><![CDATA[梯度下降优化
@@ -4092,8 +3778,322 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
       </tags>
   </entry>
   <entry>
+    <title>聚类算法</title>
+    <url>/posts/35f08535.html</url>
+    <content><![CDATA[聚类算法
+1、聚类介绍
+1.1、聚类作用
+
+
+知识发现 发现事物之间的潜在关系
+
+
+异常值检测
+
+
+特征提取 数据压缩的例子
+
+
+1.2、有监督与无监督学习
+有监督：
+
+
+给定训练集 X 和 标签Y
+
+
+选择模型
+
+学习（目标函数的最优化）
+生成模型（本质上是一组参数、方程）
+
+
+
+根据生成的一组参数进行预测分类等任务
+无监督：
+
+
+拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
+
+
+Clustering 聚类
+
+对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
+也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
+
+
+
+降维算法，数据特征变少
+
+
+1.3、聚类算法
+
+1.4、相似度
+
+1.5、数据间的相似度
+
+
+每一条数据都可以理解为多维空间中的一个点。
+
+
+可以根据点和点之间的距离来评价数据间的相似度
+
+
+近朱者赤近墨者黑！
+
+
+欧氏距离：
+
+二维空间：
+
+d=(x1−x2)2+(y1−y2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
+
+三维空间：
+
+d=(x1−x2)2+(y1−y2)2+(z1−z2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
+
+闵可夫斯基距离
+
+d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
+
+
+P = 1 曼哈顿距离
+
+d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
+在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
+
+
+
+P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
+
+
+P = 无穷，切比雪夫距离 ，哪个维度差值最大就是那个差值作为距离。
+
+
+
+1.6、余弦距离
+将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
+计算过程如下：
+
+将数据映射为高维空间中的点（向量）
+计算向量间的余弦值
+取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
+
+cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
+cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
+
+余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
+
+2、Kmeans
+2.1、聚类原理
+
+
+将N个样本映射到K个簇中
+
+
+每个簇至少有一个样本
+
+
+基本思路：
+
+
+先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
+
+
+迭代若干次就能得到比较好的结果
+
+
+2.2、Kmeans算法原理
+算法步骤：
+
+
+选择K个初始的簇中心
+
+怎么选？
+
+
+
+逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
+
+
+每个簇内部计算平均值，更新簇中心
+
+
+开始迭代
+
+
+
+聚类过程如下：
+
+2.3、KMeans优缺点
+
+
+优点：
+
+简单，效果不错
+
+
+
+缺点
+
+对异常值敏感
+对初始值敏感
+对某些分布聚类效果不好
+
+
+
+2.4、Kmeans损失函数
+∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
+
+
+其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
+
+
+其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
+
+
+2.5、Kmeans执行过程
+
+2.6、Kmeans初步使用
+亚洲国家队划分：
+import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
+
+类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
+
+数据可视化：
+plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
+
+2.7、Kmeans聚类算法K值选择
+轮廓系数：
+针对某个样本的轮廓系数s为：$ s= \frac{b - a}{max(a, b)}$
+
+a：某个样本与其所在簇内其他样本的平均距离
+b：某个样本与其他簇样本的平均距离
+
+聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
+
+
+调整兰德系数：
+公式了解一下即可：
+RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
+用C表示实际的类别划分（y_true），K表示聚类结果（y_pred）。
+定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
+定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
+兰德系数范围是[0,1]
+调整兰德系数为：
+ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
+范围为[-1,1]
+from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+
+2.8、Kmeans图像压缩
+import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
+
+3、DBSCAN
+3.1、算法介绍
+DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
+
+下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
+
+基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
+3.2、DBSCAN算法原理
+
+网站动画解析
+3.3、DBSCAN参数解析
+参数一eps：
+DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
+参数二min_samples：
+DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
+参数与三metrics：
+
+3.4、DBSCAN使用示例
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
+
+# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+4、分层聚类
+4.1、算法介绍
+分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
+分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
+
+一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
+
+4.2、算法原理
+层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
+我们着重看一下自底向上的合并算法：
+
+两个组合数据点间的距离:
+
+Single Linkage
+
+方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
+
+
+Complete Linkage
+
+complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
+
+
+Average Linkage
+
+Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
+我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
+
+
+
+
+4.3、参数介绍
+
+
+n_clusters
+划分类别数目
+
+
+linkage
+度量两个子类的相似度时所依据的距离
+
+Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
+Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
+上述两种方法容易受到极端值的影响，计算大样本集效率较高。
+Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
+Ward：最小化簇内方差。
+
+
+
+connectivity
+连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
+
+
+4.4、算法案例
+导包
+import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
+创建数据
+X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
+
+Kmeans聚类效果
+# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+分层聚类
+agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
+分层聚类改进（连接性约束，对局部结构进行约束）
+from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>逻辑回归</title>
-    <url>/posts/3c50d4b7.html</url>
+    <url>/posts/f9b01ad8.html</url>
     <content><![CDATA[[toc]
 逻辑回归
 1,广义线性回归到逻辑回归
@@ -4500,6 +4500,273 @@ lung Cancer 简记为 C，Bronchitis 简记为 B，Dyspnoea 简记为 D，且 C 
       </tags>
   </entry>
   <entry>
+    <title>降维算法</title>
+    <url>/posts/189a1a64.html</url>
+    <content><![CDATA[[TOC]
+相关背景
+
+在许多领域的研究与应用中，通常需要对含有多个变量的数据进行观测，收集大量数据后进行分析研究寻找规律。多变量大数据集无疑会为研究和应用提供丰富的信息，但是也在一定程度上增加了数据采集的工作量。更重要的是在很多情形下，多变量之间可能存在相关性，从而增加了问题分析的复杂性。如果分别对每个指标进行分析，分析往往是孤立的，不能完全利用数据中的信息，因此盲目减少指标会损失很多有用的信息，从而产生错误的结论。
+
+因此需要找到一种合理的方法，在减少需要分析的指标同时，尽量减少原指标包含信息的损失，以达到对所收集数据进行全面分析的目的。由于各变量之间存在一定的相关关系，因此可以考虑将关系紧密的变量变成尽可能少的新变量，使这些新变量是两两不相关的，那么就可以用较少的综合指标分别代表存在于各个变量中的各类信息。
+
+数据的形式是多种多样的，维度也是各不相同的，当实际问题中遇到很高的维度时，如何给他降到较低的维度上？进行属性选择，当然这是一种很好的方法，这里另外提供一种从高维特征空间向低纬特征空间映射的思路。
+
+数据降维
+
+降维就是一种对高维度特征数据预处理方法。降维是将高维度的数据保留下最重要的一些特征，去除噪声和不重要的特征，从而实现提升数据处理速度的目的。在实际的生产和应用中，降维在一定的信息损失范围内，可以为我们节省大量的时间和成本。降维也成为应用非常广泛的数据预处理方法。
+数据降维，直观地好处是维度降低了，便于计算和可视化，其更深层次的意义在于有效信息的提取综合及无用信息的摈弃。
+
+跟射人先射马，擒贼先擒王一样的道理。抓住主要的，忽略次要的。
+
+
+
+人的消化系统就是数据（食物）降维过程，变成基本的葡萄糖和氨基酸以及维生素。
+
+
+
+降维具有如下一些优点：
+
+
+
+减少所需的存储空间
+
+
+
+
+加快计算速度(例如在机器学习算法中)，更少的维数意味着更少的计算，并且更少的维数可以允许使用不适合大量维数的算法。
+
+
+3)去除冗余特征，例如在以平方米和平方公里在存储地形尺寸方面，两者一起用没有意义(数据收集有缺陷)。
+
+
+将数据的维数降低到2D或3D可以允许我们绘制和可视化它，可能观察模式，给我们提供直观感受。
+
+
+
+
+太多的特征或太复杂的模型可以导致过拟合。
+
+
+
+
+较简单的模型在小数据集上有更强的鲁棒性
+
+
+
+
+
+数据降维的方法
+
+主要的方法是线性映射和非线性映射方法两大类。
+线性映射方法的代表方法有：PCA（Principal Component Analysis），LDA（Discriminant Analysis）
+非线性映射方法的代表方法有：核方法（KernelPCA）、流形学习（ISOMap，LLE）
+非负矩阵分解（NMF）是在矩阵中所有元素均为非负数的约束条件之下的矩阵分解方法
+
+PCA降维
+
+
+PCA（Principal Components Analysis）即主成分分析，是图像处理中经常用到的降维方法。它不仅仅是对高维数据进行降维，更重要的是经过降维去除了噪声，发现了数据中的模式。PCA把原先的n个特征用数目更少的m个特征取代，新特征是旧特征的线性组合，这些线性组合最大化样本方差，尽量使新的m个特征互不相关。
+
+
+PCA方法通过消除数据的相关性，找到一个空间，使得各个类别的数据在该空间上能够很好地分离。在下图中，有一些离散的二维分布点，其中棕色表示一类集合，黄色表示另一类集合，假设这两个类别可以用特征X和特征Y进行描述，由图可知，在X轴和Y轴上这两个类别的投影是重叠的，表明这些点的两个特征X和Y没有表现出突出的识别性。但是两个类的投影在Z轴上区分度较大，显示出很好的识别性。PCA就是这样的一个工具，它可以产生非常好的降维效果。
+
+
+
+PCA(Principal Component Analysis)，即主成分分析方法，是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。PCA的工作就是从原始的空间中顺序地找一组相互正交的坐标轴，新的坐标轴的选择与数据本身是密切相关的。其中，第一个新坐标轴选择是原始数据中方差最大的方向，第二个新坐标轴选取是与第一个坐标轴正交的平面中使得方差最大的，第三个轴是与第1,2个轴正交的平面中方差最大的。依次类推，可以得到n个这样的坐标轴。通过这种方式获得的新的坐标轴，我们发现，大部分方差都包含在前面k个坐标轴中，后面的坐标轴所含的方差几乎为0。于是，我们可以忽略余下的坐标轴，只保留前面k个含有绝大部分方差的坐标轴。事实上，这相当于只保留包含绝大部分方差的维度特征，而忽略包含方差几乎为0的特征维度，实现对数据特征的降维处理。
+
+思考：我们如何得到这些包含最大差异性的主成分方向呢？
+通过计算数据矩阵的协方差矩阵，然后得到协方差矩阵的特征值特征向量，选择特征值最大(即方差最大)的k个特征所对应的特征向量组成的矩阵。这样就可以将数据矩阵转换到新的空间当中，实现数据特征的降维。
+由于得到协方差矩阵的特征值特征向量有两种方法：特征值分解协方差矩阵、奇异值分解协方差矩阵，所以PCA算法有两种实现方法：基于特征值分解协方差矩阵实现PCA算法、基于SVD分解协方差矩阵实现PCA算法。
+
+
+pca降维原理
+4.1. 协方差和散度矩阵
+样本均值
+xˉ=1n∑i=1nxi\bar x = \frac{1}{n}\sum_{i=1}^nx_i
+xˉ=n1​i=1∑n​xi​
+样本方差
+S2=1n−1∑i=1n(xi−xˉ)2S^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar x)^2
+S2=n−11​i=1∑n​(xi​−xˉ)2
+样本X和样本Y的协方差
+Conv(X,Y)=E[(X−E(X))(Y−E(Y))]Conv(X,Y) = E[(X - E(X))(Y - E(Y))]
+Conv(X,Y)=E[(X−E(X))(Y−E(Y))]
+​						$$=\frac{1}{n-1}\sum_{i=1}^n(x_i - \bar x)(y_i - \bar y)$$
+由上面的公式，我们可以得到以下结论：
+
+
+方差的计算公式是针对一维特征，即针对同一特征不同样本的取值来进行计算得到；而协方差则必须要求至少满足二维特征；方差是协方差的特殊情况。
+
+
+方差和协方差的除数是n-1,这是为了得到方差和协方差的无偏估计。
+
+
+协方差为正时，说明X和Y是正相关关系；协方差为负时，说明X和Y是负相关关系；协方差为0时，说明X和Y是相互独立。Cov(X,X)就是X的方差。
+
+
+当样本是n维数据时，它们的协方差实际上是协方差矩阵(对称方阵)。例如，对于3维数据(x,y,z)，计算它的协方差就是：
+
+
+
+对于数据X的散度矩阵为Scatter matrix。其实协方差矩阵和散度矩阵关系密切，散度矩阵就是协方差矩阵乘以（总数据量n-1）。因此它们的特征值和特征向量是一样的。这里值得注意的是，散度矩阵是SVD奇异值分解的一步，因此PCA和SVD是有很大联系。
+
+A = np.random.randint(0,10,size = (3,3))# 协方差cov = np.cov(A,rowvar=True)# 散度矩阵B = (A - A.mean(axis = 1).reshape(-1,1))scatter = B.dot(B.T)display(A,cov,scatter)
+4.2.特征值分解矩阵原理
+
+
+特征值与特征向量
+Av=λvAv = \lambda v
+Av=λv
+其中，λ是特征向量v对应的特征值，一个矩阵的一组特征向量是一组正交向量
+
+
+特征值分解矩阵
+对于矩阵A，有一组特征向量v，将这组向量进行正交化单位化，就能得到一组正交单位向量。特征值分解，就是将矩阵A分解为如下式：
+A=P∧P−1A = P \wedge P^{-1}
+A=P∧P−1
+矩阵相似对角化
+其中，P是矩阵A的特征向量组成的矩阵，$$\wedge$$则是一个对角阵，对角线上的元素就是特征值。
+
+
+4.3.SVD分解矩阵原理
+
+
+是一种因子分解运算，将一个矩阵分解为3个矩阵的乘积
+
+
+3个矩阵: U, Σ 和 V，其中U和V是正交矩阵，分别称为左奇异值、右奇异值，Σ 为奇异值
+
+
+奇异值分解是一个能适用于任意矩阵的一种分解的方法，对于任意矩阵A总是存在一个奇异值分解：
+
+
+​	$$A \approx UΣV^T$$
+
+
+full_matrices=True时，表示U和V是全矩阵
+​	$$A_{m \times n} \approx U_{m \times m}Σ_{n \times n}V_{n \times n}^T$$
+​	假设A是一个$$mn$$的矩阵，那么得到的U是一个$$mm$$的方阵，U里面的正交向量被称为左奇异向量。Σ是一个$$mn$$的矩阵，Σ除了对角线其它元素都为0，对角线上的元素称为奇异值。v的转置矩阵，是一个$$nn$$的矩阵，它里面的正交向量被称为右奇异值向量。而且一般来讲，我们会将Σ上的值按从大到小的顺序排列。
+
+
+full_matrices=False时，表示U和V不是全矩阵
+Am×n≈Um×kΣk×kVk×nTA_{m \times n} \approx U_{m \times k}Σ_{k \times k}V_{k \times n}^T
+Am×n​≈Um×k​Σk×k​Vk×nT​
+​	假设A是一个$$mn$$的矩阵，那么得到的U是一个$$mk$$的方阵，U里面的正交向量被称为左奇异向量。Σ是一个$$kk$$的矩阵，Σ除了对角线其它元素都为0，对角线上的元素称为奇异值。v的转置矩阵，是一个$$ kn$$的矩阵，它里面的正交向量被称为右奇异值向量。而且一般来讲，我们会将Σ上的值按从大到小的顺序排列。
+
+
+
+
+PCA算法两种实现方式：
+5.1.基于特征值分解协方差矩阵实现PCA算法:
+
+去平均值(即去中心化)，即每一位特征减去各自的平均值
+计算协方差矩阵
+用特征值分解方法求协方差矩阵的特征值与特征向量
+对特征值从大到小排序，选择其中最大的k个。然后将其对应的k个特征向量分别作为行向量组成特征向量矩阵ev
+将数据转换到k个特征向量构建的新空间中，即X_pca= X⋅evX \cdot evX⋅ev
+
+# 1、去中心化B = X - X.mean(axis = 0)B[:5]# 2、协方差# 方差是协方差特殊形式# 协方差矩阵V = np.cov(B,rowvar=False,bias = True)# 3、协方差矩阵的特征值和特征向量# 特征值和特征向量矩阵的概念eigen,ev = np.linalg.eig(V)display(eigen,ev)# 4、降维标准，2个特征，选取两个最大的特征值所对应的特征的特征向量#  百分比，计算各特征值，占权重，累加可以cond = (eigen/eigen.sum()).cumsum() &gt;= 0.98index = cond.argmax()ev = ev[:,:index + 1]# 5、进行矩阵运算pca_result = B.dot(ev)# 6、标准化pca_result = (pca_result -pca_result.mean(axis = 0))/pca_result.std(axis = 0)pca_result[:5]
+5.2.基于SVD分解协方差矩阵实现PCA算法
+
+去平均值(即去中心化)，即每一位特征减去各自的平均值
+通过SVD对第一步结果进行奇异值分解
+特征值默认从大到小排列，选择k个作为降维特征，对左奇异值矩阵进行切片即可（U[:,:k]）
+归一化处理（无偏差、偏差）
+无偏估计
+S=1n∑i=1n(xi−μ)2S = \sqrt{\frac{1}{n}\sum\limits_{i = 1}^n(x_i - \mu)^2}S=n1​i=1∑n​(xi​−μ)2​  总体标准差
+S=1n−1∑i=1n(xi−X‾)2S = \sqrt{\frac{1}{n-1}\sum\limits_{i = 1}^n(x_i - \overline{X})^2}S=n−11​i=1∑n​(xi​−X)2​ 样本标准差
+
+from scipy import linalgn_components_ = 3X,y = datasets.load_iris(return_X_y = True)# 1、去中心化mean_ = np.mean(X, axis=0)X -= mean_# 2、奇异值分解U, S, Vt = linalg.svd(X, full_matrices=False)# 3、符号翻转（如果为负数，那么变成正直）max_abs_cols = np.argmax(np.abs(U), axis=0)signs = np.sign(U[max_abs_cols, range(U.shape[1])])U *= signs# 4、降维特征筛选U = U[:, :n_components_]# 5、归一化# U = (U - U.mean(axis = 0))/U.std(axis = 0)U *= np.sqrt(X.shape[0] - 1)U[:5]
+
+
+PCA降维手写数字，支持向量机SVC进行训练和预测
+7.1.PCA降维手写数字数据，保留95%的重要特征
+7.2.使用降维数据和原始数据分别进行训练和预测
+7.3.对比算法学习降维数据和原始数据准确率与运行时间
+
+
+LDA线性判别
+
+
+LDA线性判别分析也是一种经典的降维方法，LDA是一种监督学习的降维技术，也就是说它的数据集的每个样本是有类别输出的。这点和PCA不同。PCA是不考虑样本类别输出的无监督降维技术。LDA的思想可以用一句话概括，就是“投影后类内方差最小，类间方差最大”。什么意思呢？ 我们要将数据在低维度上进行投影，投影后希望每一种类别数据的投影点尽可能的接近，而不同类别的数据的类别中心之间的距离尽可能的大。
+可能还是有点抽象，我们先看看最简单的情况。假设我们有两类数据分别为红色和蓝色，如下图所示，这些数据特征是二维的，我们希望将这些数据投影到一维的一条直线，让每一种类别数据的投影点尽可能的接近，而红色和蓝色数据中心之间的距离尽可能的大。
+
+
+
+给定训练集样例，设法将样例投影到一条直线上，使得同类样例的投影尽可能接近，异类样例的投影点尽可能原理；在对新的样本进行分类时，将其投影到同样的这条直线上，再根据投影点的位置来确定新样本的类别
+
+
+
+LDA算法实现方式
+
+计算数据总的散度矩阵$$S_t$$
+计算数据类内散度矩阵$$S_w$$
+计算类间散度矩阵$$S_b$$
+特征值和特征向量计算
+筛选特征向量，进行矩阵运算返回输出结果
+
+import numpy as npfrom sklearn.discriminant_analysis import LinearDiscriminantAnalysisfrom sklearn import datasets# scipy这个模块下的线性代数子模块from scipy import linalg# 加载数据X,y = datasets.load_iris(return_X_y=True)X[:5]# 1、总的散度矩阵# 协方差St = np.cov(X.T,bias = 1)St# 2、类内的散度矩阵# Scatter散点图，within（内）Sw = np.full(shape = (4,4),fill_value=0,dtype=np.float64)for i in range(3):    Sw += np.cov(X[y == i],rowvar = False,bias = 1)Sw/=3Sw# 3、计算类间的散度矩阵# Scatter  between Sb = St - SwSb# 4、特征值，和特征向量eigen,ev = linalg.eigh(Sb,Sw)ev = ev[:, np.argsort(eigen)[::-1]][:,:2]ev# 5、删选特征向量，进行矩阵运算X.dot(ev)[:5]
+
+
+NMF非负矩阵分解
+
+
+NMF的基本思想可以简单描述为：对于任意给定的一个非负矩阵A，NMF算法能够寻找到一个非负矩阵U和一个非负矩阵V，使得满足 ，从而将一个非负的矩阵分解为左右两个非负矩阵的乘积。
+
+
+
+解前后可理解为：原始矩阵V的列向量是对左矩阵W中所有列向量的加权和，而权重系数就是右矩阵对应列向量的元素，故称W为基矩阵，H为系数矩阵。一般情况下$$k$$(W矩阵的列数）的选择要比N小，满足$$(F+N)k &lt; FN$$，这时用系数矩阵W代替原始矩阵，就可以实现对原始矩阵进行降维，得到数据特征的降维矩阵，从而减少存储空间，减少计算机资源。
+
+
+原矩阵V中的一列向量可以解释为对左矩阵W中所有列向量(称为基向量)的加权和，而权重系数为右矩阵H中对应列向量中的元素。这种基于基向量组合的表示形式具有很直观的语义解释，它反映了人类思维中“局部构成整体”的概念。
+
+
+虽然NMF是一个很厉害的算法，但其实质是加权和，我们可以在原理上等效为基本的线性方程：
+y=a1x1+a2x2+……+anxny = a_1x_1 + a_2x_2 +……+ a_nx_n
+y=a1​x1​+a2​x2​+……+an​xn​
+y$$构成了原矩阵中的元素，$$a$$是权重，$$x$$是特征。矩阵乘法中特征用列向量表示，权重系数用行向量表示，所以成了图中所看到的样子。
+
+
+import numpy as npfrom sklearn import datasetsfrom sklearn.decomposition import NMF# 加载数据X,y = datasets.load_iris(return_X_y=True)# 声明算法nmf = NMF(n_components=2,init = &#x27;nndsvda&#x27;,max_iter=1000)# 降维之后的数据W = nmf.fit_transform(X)display(W[:5])# NMF另一半矩阵HH = nmf.components_# X ≈ W • H
+
+
+LLE局部线性嵌入降维算法
+
+
+所谓LLE（局部线性嵌入）即”Locally Linear Embedding”的降维算法，在处理所谓流形降维的时候，效果比PCA要好很多。首先，所谓流形，我们脑海里最直观的印象就是Swiss roll,在吃它的时候喜欢把它整个摊开成一张饼再吃，其实这个过程就实现了对瑞士卷的降维操作，即从三维降到了两维。降维前，我们看到相邻的卷层之间看着距离很近，但其实摊开成饼状后才发现其实距离很远，所以如果不进行降维操作，而是直接根据近邻原则去判断相似性其实是不准确的。
+
+
+
+和传统的PCA，LDA等关注样本方差的降维方法相比，LLE关注于降维时保持样本局部的线性特征（保持原有拓扑结构），由于LLE在降维时保持了样本的局部特征，它广泛的用于图像识别，高维数据可视化等领域。LLE是非线性降维技术，可以说是流形学习方法最经典的算法之一。很多后续的流形学习、降维方法都与LLE有密切联系。
+
+
+
+3.传统的机器学习方法中，数据点和数据点之间的距离和映射函数都是定义在欧式空间中的，然而在实际情况中，这些数据点可能不是分布在欧式空间中的（比如黎曼空间），因此传统欧式空间的度量难以用于真实世界的非线性数据，从而需要对数据的分布引入新的假设。黎曼空间就是弯曲的空间
+
+4.LLE的降维实现过程，直观的可视化效果如下图所示
+
+5.LLE算法认为每一个数据点都可以由其近邻点的线性加权组合构造得到，LLE算法主要步骤：
+
+寻找每个样本点的k个近邻点；
+由每个样本点的近邻点计算出该样本点的局部重建权值矩阵；
+由该样本点的局部重建权值矩阵和其近邻点计算出该样本点的输出值。
+
+6.LLE算法示例：
+  # 降维，高维数据降成低维的数据# manifold 流形from sklearn.manifold import LocallyLinearEmbeddingfrom sklearn.decomposition import PCAfrom sklearn import datasetsimport matplotlib.pyplot as plt%matplotlib inlinefrom mpl_toolkits.mplot3d.axes3d import Axes3DX,t = datasets.make_swiss_roll(n_samples=1500,noise=0.05,random_state= 1024)fig = plt.figure(figsize=(12,9))# axes3D = Axes3D(fig)axes3D = fig.add_subplot(projection = &#x27;3d&#x27;)axes3D.view_init(7,-80)axes3D.scatter(X[:,0],X[:,1],X[:,2],c = t)
+  
+  pca = PCA(n_components= 2)X_pca = pca.fit_transform(X)plt.scatter(X_pca[:,0],X_pca[:,1],c = t)
+  
+  lle = LocallyLinearEmbedding(n_neighbors=10,n_components=2)lle.fit(X)X_lle = lle.transform(X)plt.scatter(X_lle[:,0],X_lle[:,1],c = t)
+  
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>隐马尔科夫模型HMM</title>
     <url>/posts/5f267e56.html</url>
     <content><![CDATA[1、马尔科夫链
@@ -4816,271 +5083,9 @@ print(&#x27;Transition matrix&#x27;)print(model.transmat_.round(3))&#x27;&#x27;&
       </tags>
   </entry>
   <entry>
-    <title>降维算法</title>
-    <url>/posts/3c50d4b7.html</url>
-    <content><![CDATA[[TOC]
-相关背景
-
-在许多领域的研究与应用中，通常需要对含有多个变量的数据进行观测，收集大量数据后进行分析研究寻找规律。多变量大数据集无疑会为研究和应用提供丰富的信息，但是也在一定程度上增加了数据采集的工作量。更重要的是在很多情形下，多变量之间可能存在相关性，从而增加了问题分析的复杂性。如果分别对每个指标进行分析，分析往往是孤立的，不能完全利用数据中的信息，因此盲目减少指标会损失很多有用的信息，从而产生错误的结论。
-
-因此需要找到一种合理的方法，在减少需要分析的指标同时，尽量减少原指标包含信息的损失，以达到对所收集数据进行全面分析的目的。由于各变量之间存在一定的相关关系，因此可以考虑将关系紧密的变量变成尽可能少的新变量，使这些新变量是两两不相关的，那么就可以用较少的综合指标分别代表存在于各个变量中的各类信息。
-
-数据的形式是多种多样的，维度也是各不相同的，当实际问题中遇到很高的维度时，如何给他降到较低的维度上？进行属性选择，当然这是一种很好的方法，这里另外提供一种从高维特征空间向低纬特征空间映射的思路。
-
-数据降维
-
-降维就是一种对高维度特征数据预处理方法。降维是将高维度的数据保留下最重要的一些特征，去除噪声和不重要的特征，从而实现提升数据处理速度的目的。在实际的生产和应用中，降维在一定的信息损失范围内，可以为我们节省大量的时间和成本。降维也成为应用非常广泛的数据预处理方法。
-数据降维，直观地好处是维度降低了，便于计算和可视化，其更深层次的意义在于有效信息的提取综合及无用信息的摈弃。
-
-跟射人先射马，擒贼先擒王一样的道理。抓住主要的，忽略次要的。
-
-
-
-人的消化系统就是数据（食物）降维过程，变成基本的葡萄糖和氨基酸以及维生素。
-
-
-
-降维具有如下一些优点：
-
-
-
-减少所需的存储空间
-
-
-
-
-加快计算速度(例如在机器学习算法中)，更少的维数意味着更少的计算，并且更少的维数可以允许使用不适合大量维数的算法。
-
-
-3)去除冗余特征，例如在以平方米和平方公里在存储地形尺寸方面，两者一起用没有意义(数据收集有缺陷)。
-
-
-将数据的维数降低到2D或3D可以允许我们绘制和可视化它，可能观察模式，给我们提供直观感受。
-
-
-
-
-太多的特征或太复杂的模型可以导致过拟合。
-
-
-
-
-较简单的模型在小数据集上有更强的鲁棒性
-
-
-
-
-
-数据降维的方法
-
-主要的方法是线性映射和非线性映射方法两大类。
-线性映射方法的代表方法有：PCA（Principal Component Analysis），LDA（Discriminant Analysis）
-非线性映射方法的代表方法有：核方法（KernelPCA）、流形学习（ISOMap，LLE）
-非负矩阵分解（NMF）是在矩阵中所有元素均为非负数的约束条件之下的矩阵分解方法
-
-PCA降维
-
-
-PCA（Principal Components Analysis）即主成分分析，是图像处理中经常用到的降维方法。它不仅仅是对高维数据进行降维，更重要的是经过降维去除了噪声，发现了数据中的模式。PCA把原先的n个特征用数目更少的m个特征取代，新特征是旧特征的线性组合，这些线性组合最大化样本方差，尽量使新的m个特征互不相关。
-
-
-PCA方法通过消除数据的相关性，找到一个空间，使得各个类别的数据在该空间上能够很好地分离。在下图中，有一些离散的二维分布点，其中棕色表示一类集合，黄色表示另一类集合，假设这两个类别可以用特征X和特征Y进行描述，由图可知，在X轴和Y轴上这两个类别的投影是重叠的，表明这些点的两个特征X和Y没有表现出突出的识别性。但是两个类的投影在Z轴上区分度较大，显示出很好的识别性。PCA就是这样的一个工具，它可以产生非常好的降维效果。
-
-
-
-PCA(Principal Component Analysis)，即主成分分析方法，是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。PCA的工作就是从原始的空间中顺序地找一组相互正交的坐标轴，新的坐标轴的选择与数据本身是密切相关的。其中，第一个新坐标轴选择是原始数据中方差最大的方向，第二个新坐标轴选取是与第一个坐标轴正交的平面中使得方差最大的，第三个轴是与第1,2个轴正交的平面中方差最大的。依次类推，可以得到n个这样的坐标轴。通过这种方式获得的新的坐标轴，我们发现，大部分方差都包含在前面k个坐标轴中，后面的坐标轴所含的方差几乎为0。于是，我们可以忽略余下的坐标轴，只保留前面k个含有绝大部分方差的坐标轴。事实上，这相当于只保留包含绝大部分方差的维度特征，而忽略包含方差几乎为0的特征维度，实现对数据特征的降维处理。
-
-思考：我们如何得到这些包含最大差异性的主成分方向呢？
-通过计算数据矩阵的协方差矩阵，然后得到协方差矩阵的特征值特征向量，选择特征值最大(即方差最大)的k个特征所对应的特征向量组成的矩阵。这样就可以将数据矩阵转换到新的空间当中，实现数据特征的降维。
-由于得到协方差矩阵的特征值特征向量有两种方法：特征值分解协方差矩阵、奇异值分解协方差矩阵，所以PCA算法有两种实现方法：基于特征值分解协方差矩阵实现PCA算法、基于SVD分解协方差矩阵实现PCA算法。
-
-
-pca降维原理
-4.1. 协方差和散度矩阵
-样本均值
-xˉ=1n∑i=1nxi\bar x = \frac{1}{n}\sum_{i=1}^nx_i
-xˉ=n1​i=1∑n​xi​
-样本方差
-S2=1n−1∑i=1n(xi−xˉ)2S^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar x)^2
-S2=n−11​i=1∑n​(xi​−xˉ)2
-样本X和样本Y的协方差
-Conv(X,Y)=E[(X−E(X))(Y−E(Y))]Conv(X,Y) = E[(X - E(X))(Y - E(Y))]
-Conv(X,Y)=E[(X−E(X))(Y−E(Y))]
-​						$$=\frac{1}{n-1}\sum_{i=1}^n(x_i - \bar x)(y_i - \bar y)$$
-由上面的公式，我们可以得到以下结论：
-
-
-方差的计算公式是针对一维特征，即针对同一特征不同样本的取值来进行计算得到；而协方差则必须要求至少满足二维特征；方差是协方差的特殊情况。
-
-
-方差和协方差的除数是n-1,这是为了得到方差和协方差的无偏估计。
-
-
-协方差为正时，说明X和Y是正相关关系；协方差为负时，说明X和Y是负相关关系；协方差为0时，说明X和Y是相互独立。Cov(X,X)就是X的方差。
-
-
-当样本是n维数据时，它们的协方差实际上是协方差矩阵(对称方阵)。例如，对于3维数据(x,y,z)，计算它的协方差就是：
-
-
-
-对于数据X的散度矩阵为Scatter matrix。其实协方差矩阵和散度矩阵关系密切，散度矩阵就是协方差矩阵乘以（总数据量n-1）。因此它们的特征值和特征向量是一样的。这里值得注意的是，散度矩阵是SVD奇异值分解的一步，因此PCA和SVD是有很大联系。
-
-A = np.random.randint(0,10,size = (3,3))# 协方差cov = np.cov(A,rowvar=True)# 散度矩阵B = (A - A.mean(axis = 1).reshape(-1,1))scatter = B.dot(B.T)display(A,cov,scatter)
-4.2.特征值分解矩阵原理
-
-
-特征值与特征向量
-Av=λvAv = \lambda v
-Av=λv
-其中，λ是特征向量v对应的特征值，一个矩阵的一组特征向量是一组正交向量
-
-
-特征值分解矩阵
-对于矩阵A，有一组特征向量v，将这组向量进行正交化单位化，就能得到一组正交单位向量。特征值分解，就是将矩阵A分解为如下式：
-A=P∧P−1A = P \wedge P^{-1}
-A=P∧P−1
-矩阵相似对角化
-其中，P是矩阵A的特征向量组成的矩阵，$$\wedge$$则是一个对角阵，对角线上的元素就是特征值。
-
-
-4.3.SVD分解矩阵原理
-
-
-是一种因子分解运算，将一个矩阵分解为3个矩阵的乘积
-
-
-3个矩阵: U, Σ 和 V，其中U和V是正交矩阵，分别称为左奇异值、右奇异值，Σ 为奇异值
-
-
-奇异值分解是一个能适用于任意矩阵的一种分解的方法，对于任意矩阵A总是存在一个奇异值分解：
-
-
-​	$$A \approx UΣV^T$$
-
-
-full_matrices=True时，表示U和V是全矩阵
-​	$$A_{m \times n} \approx U_{m \times m}Σ_{n \times n}V_{n \times n}^T$$
-​	假设A是一个$$mn$$的矩阵，那么得到的U是一个$$mm$$的方阵，U里面的正交向量被称为左奇异向量。Σ是一个$$mn$$的矩阵，Σ除了对角线其它元素都为0，对角线上的元素称为奇异值。v的转置矩阵，是一个$$nn$$的矩阵，它里面的正交向量被称为右奇异值向量。而且一般来讲，我们会将Σ上的值按从大到小的顺序排列。
-
-
-full_matrices=False时，表示U和V不是全矩阵
-Am×n≈Um×kΣk×kVk×nTA_{m \times n} \approx U_{m \times k}Σ_{k \times k}V_{k \times n}^T
-Am×n​≈Um×k​Σk×k​Vk×nT​
-​	假设A是一个$$mn$$的矩阵，那么得到的U是一个$$mk$$的方阵，U里面的正交向量被称为左奇异向量。Σ是一个$$kk$$的矩阵，Σ除了对角线其它元素都为0，对角线上的元素称为奇异值。v的转置矩阵，是一个$$ kn$$的矩阵，它里面的正交向量被称为右奇异值向量。而且一般来讲，我们会将Σ上的值按从大到小的顺序排列。
-
-
-
-
-PCA算法两种实现方式：
-5.1.基于特征值分解协方差矩阵实现PCA算法:
-
-去平均值(即去中心化)，即每一位特征减去各自的平均值
-计算协方差矩阵
-用特征值分解方法求协方差矩阵的特征值与特征向量
-对特征值从大到小排序，选择其中最大的k个。然后将其对应的k个特征向量分别作为行向量组成特征向量矩阵ev
-将数据转换到k个特征向量构建的新空间中，即X_pca= X⋅evX \cdot evX⋅ev
-
-# 1、去中心化B = X - X.mean(axis = 0)B[:5]# 2、协方差# 方差是协方差特殊形式# 协方差矩阵V = np.cov(B,rowvar=False,bias = True)# 3、协方差矩阵的特征值和特征向量# 特征值和特征向量矩阵的概念eigen,ev = np.linalg.eig(V)display(eigen,ev)# 4、降维标准，2个特征，选取两个最大的特征值所对应的特征的特征向量#  百分比，计算各特征值，占权重，累加可以cond = (eigen/eigen.sum()).cumsum() &gt;= 0.98index = cond.argmax()ev = ev[:,:index + 1]# 5、进行矩阵运算pca_result = B.dot(ev)# 6、标准化pca_result = (pca_result -pca_result.mean(axis = 0))/pca_result.std(axis = 0)pca_result[:5]
-5.2.基于SVD分解协方差矩阵实现PCA算法
-
-去平均值(即去中心化)，即每一位特征减去各自的平均值
-通过SVD对第一步结果进行奇异值分解
-特征值默认从大到小排列，选择k个作为降维特征，对左奇异值矩阵进行切片即可（U[:,:k]）
-归一化处理（无偏差、偏差）
-无偏估计
-S=1n∑i=1n(xi−μ)2S = \sqrt{\frac{1}{n}\sum\limits_{i = 1}^n(x_i - \mu)^2}S=n1​i=1∑n​(xi​−μ)2​  总体标准差
-S=1n−1∑i=1n(xi−X‾)2S = \sqrt{\frac{1}{n-1}\sum\limits_{i = 1}^n(x_i - \overline{X})^2}S=n−11​i=1∑n​(xi​−X)2​ 样本标准差
-
-from scipy import linalgn_components_ = 3X,y = datasets.load_iris(return_X_y = True)# 1、去中心化mean_ = np.mean(X, axis=0)X -= mean_# 2、奇异值分解U, S, Vt = linalg.svd(X, full_matrices=False)# 3、符号翻转（如果为负数，那么变成正直）max_abs_cols = np.argmax(np.abs(U), axis=0)signs = np.sign(U[max_abs_cols, range(U.shape[1])])U *= signs# 4、降维特征筛选U = U[:, :n_components_]# 5、归一化# U = (U - U.mean(axis = 0))/U.std(axis = 0)U *= np.sqrt(X.shape[0] - 1)U[:5]
-
-
-PCA降维手写数字，支持向量机SVC进行训练和预测
-7.1.PCA降维手写数字数据，保留95%的重要特征
-7.2.使用降维数据和原始数据分别进行训练和预测
-7.3.对比算法学习降维数据和原始数据准确率与运行时间
-
-
-LDA线性判别
-
-
-LDA线性判别分析也是一种经典的降维方法，LDA是一种监督学习的降维技术，也就是说它的数据集的每个样本是有类别输出的。这点和PCA不同。PCA是不考虑样本类别输出的无监督降维技术。LDA的思想可以用一句话概括，就是“投影后类内方差最小，类间方差最大”。什么意思呢？ 我们要将数据在低维度上进行投影，投影后希望每一种类别数据的投影点尽可能的接近，而不同类别的数据的类别中心之间的距离尽可能的大。
-可能还是有点抽象，我们先看看最简单的情况。假设我们有两类数据分别为红色和蓝色，如下图所示，这些数据特征是二维的，我们希望将这些数据投影到一维的一条直线，让每一种类别数据的投影点尽可能的接近，而红色和蓝色数据中心之间的距离尽可能的大。
-
-
-
-给定训练集样例，设法将样例投影到一条直线上，使得同类样例的投影尽可能接近，异类样例的投影点尽可能原理；在对新的样本进行分类时，将其投影到同样的这条直线上，再根据投影点的位置来确定新样本的类别
-
-
-
-LDA算法实现方式
-
-计算数据总的散度矩阵$$S_t$$
-计算数据类内散度矩阵$$S_w$$
-计算类间散度矩阵$$S_b$$
-特征值和特征向量计算
-筛选特征向量，进行矩阵运算返回输出结果
-
-import numpy as npfrom sklearn.discriminant_analysis import LinearDiscriminantAnalysisfrom sklearn import datasets# scipy这个模块下的线性代数子模块from scipy import linalg# 加载数据X,y = datasets.load_iris(return_X_y=True)X[:5]# 1、总的散度矩阵# 协方差St = np.cov(X.T,bias = 1)St# 2、类内的散度矩阵# Scatter散点图，within（内）Sw = np.full(shape = (4,4),fill_value=0,dtype=np.float64)for i in range(3):    Sw += np.cov(X[y == i],rowvar = False,bias = 1)Sw/=3Sw# 3、计算类间的散度矩阵# Scatter  between Sb = St - SwSb# 4、特征值，和特征向量eigen,ev = linalg.eigh(Sb,Sw)ev = ev[:, np.argsort(eigen)[::-1]][:,:2]ev# 5、删选特征向量，进行矩阵运算X.dot(ev)[:5]
-
-
-NMF非负矩阵分解
-
-
-NMF的基本思想可以简单描述为：对于任意给定的一个非负矩阵A，NMF算法能够寻找到一个非负矩阵U和一个非负矩阵V，使得满足 ，从而将一个非负的矩阵分解为左右两个非负矩阵的乘积。
-
-
-
-解前后可理解为：原始矩阵V的列向量是对左矩阵W中所有列向量的加权和，而权重系数就是右矩阵对应列向量的元素，故称W为基矩阵，H为系数矩阵。一般情况下$$k$$(W矩阵的列数）的选择要比N小，满足$$(F+N)k &lt; FN$$，这时用系数矩阵W代替原始矩阵，就可以实现对原始矩阵进行降维，得到数据特征的降维矩阵，从而减少存储空间，减少计算机资源。
-
-
-原矩阵V中的一列向量可以解释为对左矩阵W中所有列向量(称为基向量)的加权和，而权重系数为右矩阵H中对应列向量中的元素。这种基于基向量组合的表示形式具有很直观的语义解释，它反映了人类思维中“局部构成整体”的概念。
-
-
-虽然NMF是一个很厉害的算法，但其实质是加权和，我们可以在原理上等效为基本的线性方程：
-y=a1x1+a2x2+……+anxny = a_1x_1 + a_2x_2 +……+ a_nx_n
-y=a1​x1​+a2​x2​+……+an​xn​
-y$$构成了原矩阵中的元素，$$a$$是权重，$$x$$是特征。矩阵乘法中特征用列向量表示，权重系数用行向量表示，所以成了图中所看到的样子。
-
-
-import numpy as npfrom sklearn import datasetsfrom sklearn.decomposition import NMF# 加载数据X,y = datasets.load_iris(return_X_y=True)# 声明算法nmf = NMF(n_components=2,init = &#x27;nndsvda&#x27;,max_iter=1000)# 降维之后的数据W = nmf.fit_transform(X)display(W[:5])# NMF另一半矩阵HH = nmf.components_# X ≈ W • H
-
-
-LLE局部线性嵌入降维算法
-
-
-所谓LLE（局部线性嵌入）即”Locally Linear Embedding”的降维算法，在处理所谓流形降维的时候，效果比PCA要好很多。首先，所谓流形，我们脑海里最直观的印象就是Swiss roll,在吃它的时候喜欢把它整个摊开成一张饼再吃，其实这个过程就实现了对瑞士卷的降维操作，即从三维降到了两维。降维前，我们看到相邻的卷层之间看着距离很近，但其实摊开成饼状后才发现其实距离很远，所以如果不进行降维操作，而是直接根据近邻原则去判断相似性其实是不准确的。
-
-
-
-和传统的PCA，LDA等关注样本方差的降维方法相比，LLE关注于降维时保持样本局部的线性特征（保持原有拓扑结构），由于LLE在降维时保持了样本的局部特征，它广泛的用于图像识别，高维数据可视化等领域。LLE是非线性降维技术，可以说是流形学习方法最经典的算法之一。很多后续的流形学习、降维方法都与LLE有密切联系。
-
-
-
-3.传统的机器学习方法中，数据点和数据点之间的距离和映射函数都是定义在欧式空间中的，然而在实际情况中，这些数据点可能不是分布在欧式空间中的（比如黎曼空间），因此传统欧式空间的度量难以用于真实世界的非线性数据，从而需要对数据的分布引入新的假设。黎曼空间就是弯曲的空间
-
-4.LLE的降维实现过程，直观的可视化效果如下图所示
-
-5.LLE算法认为每一个数据点都可以由其近邻点的线性加权组合构造得到，LLE算法主要步骤：
-
-寻找每个样本点的k个近邻点；
-由每个样本点的近邻点计算出该样本点的局部重建权值矩阵；
-由该样本点的局部重建权值矩阵和其近邻点计算出该样本点的输出值。
-
-6.LLE算法示例：
-  # 降维，高维数据降成低维的数据# manifold 流形from sklearn.manifold import LocallyLinearEmbeddingfrom sklearn.decomposition import PCAfrom sklearn import datasetsimport matplotlib.pyplot as plt%matplotlib inlinefrom mpl_toolkits.mplot3d.axes3d import Axes3DX,t = datasets.make_swiss_roll(n_samples=1500,noise=0.05,random_state= 1024)fig = plt.figure(figsize=(12,9))# axes3D = Axes3D(fig)axes3D = fig.add_subplot(projection = &#x27;3d&#x27;)axes3D.view_init(7,-80)axes3D.scatter(X[:,0],X[:,1],X[:,2],c = t)
-  
-  pca = PCA(n_components= 2)X_pca = pca.fit_transform(X)plt.scatter(X_pca[:,0],X_pca[:,1],c = t)
-  
-  lle = LocallyLinearEmbedding(n_neighbors=10,n_components=2)lle.fit(X)X_lle = lle.transform(X)plt.scatter(X_lle[:,0],X_lle[:,1],c = t)
-  
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
+    <title>闲言碎语</title>
+    <url>/2.html</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>分类</title>
@@ -5088,8 +5093,8 @@ LLE局部线性嵌入降维算法
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title>音乐馆</title>
-    <url>/3.html</url>
+    <title>about</title>
+    <url>/about/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -5098,13 +5103,8 @@ LLE局部线性嵌入降维算法
     <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
   </entry>
   <entry>
-    <title>闲言碎语</title>
-    <url>/2.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>about</title>
-    <url>/about/index.html</url>
+    <title>categories</title>
+    <url>/categories/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -5149,8 +5149,77 @@ button#go-up:hover #percent {
 ]]></content>
   </entry>
   <entry>
-    <title>categories</title>
-    <url>/categories/index.html</url>
+    <title></title>
+    <url>/css/progress_bar.css</url>
+    <content><![CDATA[.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  z-index: 2000;
+  position: fixed;
+  margin: auto;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  border-radius: 8px;
+  width: 4rem;
+  background: #eaecf2;
+  border: 1px #e3e8f7;
+  overflow: hidden;
+}
+
+.pace-inactive .pace-progress {
+  opacity: 0;
+  transition: 0.3s ease-in;
+}
+
+.pace .pace-progress {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  max-width: 200px;
+  position: absolute;
+  z-index: 2000;
+  display: block;
+  top: 0;
+  right: 100%;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  animation: gradient 1.5s ease infinite;
+  background-size: 200%;
+}
+
+.pace.pace-inactive {
+  opacity: 0;
+  transition: 0.3s;
+  top: -8px;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}]]></content>
+  </entry>
+  <entry>
+    <title>artitalk</title>
+    <url>/artitalk/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -5837,73 +5906,9 @@ code.hljs {
 }]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/css/progress_bar.css</url>
-    <content><![CDATA[.pace {
-  -webkit-pointer-events: none;
-  pointer-events: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  z-index: 2000;
-  position: fixed;
-  margin: auto;
-  top: 10px;
-  left: 0;
-  right: 0;
-  height: 8px;
-  border-radius: 8px;
-  width: 4rem;
-  background: #eaecf2;
-  border: 1px #e3e8f7;
-  overflow: hidden;
-}
-
-.pace-inactive .pace-progress {
-  opacity: 0;
-  transition: 0.3s ease-in;
-}
-
-.pace .pace-progress {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-  -webkit-transform: translate3d(0, 0, 0);
-  -moz-transform: translate3d(0, 0, 0);
-  -ms-transform: translate3d(0, 0, 0);
-  -o-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  max-width: 200px;
-  position: absolute;
-  z-index: 2000;
-  display: block;
-  top: 0;
-  right: 100%;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  animation: gradient 1.5s ease infinite;
-  background-size: 200%;
-}
-
-.pace.pace-inactive {
-  opacity: 0;
-  transition: 0.3s;
-  top: -8px;
-}
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}]]></content>
+    <title>友情链接</title>
+    <url>/link/index.html</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title></title>
@@ -7092,11 +7097,6 @@ button.swiper-pagination-bullet {
   }]]></content>
   </entry>
   <entry>
-    <title>artitalk</title>
-    <url>/artitalk/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title></title>
     <url>/js/fuction.js</url>
     <content><![CDATA[// 分享本页
@@ -7125,18 +7125,18 @@ function percent() {
     if (percentage ]]></content>
   </entry>
   <entry>
-    <title>友情链接</title>
-    <url>/link/index.html</url>
+    <title>images</title>
+    <url>/images/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>音乐馆</title>
+    <url>/3.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>music</title>
     <url>/music/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>images</title>
-    <url>/images/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
