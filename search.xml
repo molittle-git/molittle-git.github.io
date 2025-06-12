@@ -457,6 +457,50 @@ from matplotlib import gridspecworkYear_map = &#123;    &quot;5-10年&quot;: 5, 
       </categories>
   </entry>
   <entry>
+    <title>SVC支持向量机综合案例</title>
+    <url>/posts/f219e09d.html</url>
+    <content><![CDATA[1、支持向量机原理可视化
+1.1、导包
+import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d import Axes3Dfrom sklearn.svm import SVC
+1.2、创建数据
+rs = np.random.RandomState(256)X = rs.randn(300,2)y = X[:,0]*X[:,1] &gt;=0plt.figure(figsize=(6,6))plt.scatter(X[:,0],X[:,1])
+
+1.3、创建测试数据
+x1 = np.linspace(-3,3,20)x2 = np.linspace(-3,3,18)X1,X2 = np.meshgrid(x1,x2)plt.figure(figsize=(6,6))plt.scatter(X1,X2)X_test = np.concatenate([X1.reshape(-1,1),X2.reshape(-1,1)],axis = 1)X_test.shape
+
+1.4、模型训练
+svc = SVC(kernel = &#x27;rbf&#x27;)svc.fit(X,y)y_ = svc.predict(X_test)plt.figure(figsize=(6,6))plt.scatter(X_test[:,0],X_test[:,1],c = y_)
+
+1.5、原理2D可视化
+# 二维 --------&gt; 三维# 分离平面，上面一类点，下面也是一类点# 这些点有的距离近，有的距离远d = svc.decision_function(X_test)# 等高面plt.figure(figsize=(5,5))plt.contourf(X1,X2,d.reshape(180,200))
+
+1.6、原理3D可视化
+plt.figure(figsize=(12,9))ax = plt.subplot(111,projection = &#x27;3d&#x27;)ax.contourf(X1,X2,d.reshape(180,200))ax.view_init(40,-60)
+
+2、SVC建模人脸识别
+2.1、导包
+import numpy as npfrom sklearn.svm import SVCfrom sklearn.model_selection import train_test_splitimport matplotlib.pyplot as pltfrom sklearn.decomposition import PCAfrom sklearn.model_selection import GridSearchCVfrom sklearn import datasets
+2.2、数据加载
+# 第一次加载，需要联网下载# 下载路径：C:\Users\likai\scikit_learn_data\lfw_homefaces = datasets.fetch_lfw_people(resize= 1,min_faces_per_person=70)# 形状是：(125,94)X  = faces[&#x27;data&#x27;]y = faces[&#x27;target&#x27;]display(X.shape,y.shape)
+2.3、数据降维与拆分
+pca = PCA(n_components=0.9)X_pca = pca.fit_transform(X)display(X_pca.shape)X_train,X_test,X_train_pca,X_test_pca,y_train,y_test = train_test_split(X,X_pca,y,test_size = 0.1)display(X_train.shape,X_test.shape)display(X_train_pca.shape,X_test_pca.shape)
+2.4、直接使用SVC建模预测
+svc = SVC()svc.fit(X_train_pca,y_train)svc.score(X_test_pca,y_test)# 输出：0.7984496124031008
+2.5、网格搜索确定最佳参数
+%%timesvc = SVC()params = &#123;&#x27;C&#x27;:np.logspace(-3,1,20),&#x27;kernel&#x27;:[&#x27;rbf&#x27;,&#x27;poly&#x27;,&#x27;sigmoid&#x27;,&#x27;linear&#x27;]&#125;gc = GridSearchCV(estimator = svc,param_grid = params)gc.fit(X_train_pca,y_train)print(&#x27;网格搜索确定最佳参数：&#x27;,gc.best_params_)print(&#x27;模型得分是：&#x27;,gc.score(X_test_pca,y_test))y_pred = gc.predict(X_test_pca)# 输出&#x27;&#x27;&#x27;网格搜索确定最佳参数： &#123;&#x27;C&#x27;: 3.792690190732246, &#x27;kernel&#x27;: &#x27;rbf&#x27;&#125;模型得分是： 0.8837209302325582Wall time: 36.2 s&#x27;&#x27;&#x27;
+2.6、数据可视化
+target_names = faces.target_namesprint(&#x27;目标任务名字如下：&#x27;,target_names)plt.figure(figsize=(5*2,10*3))for i in range(50):    plt.subplot(10,5,i + 1)    plt.imshow(X_test[i].reshape(125,-1),cmap = &#x27;gray&#x27;)    true_name = target_names[y_test[i]].split(&#x27; &#x27;)[-1]    pred_name = target_names[y_pred[i]].split(&#x27; &#x27;)[-1]    plt.title(&#x27;True:%s\nPred:%s&#x27; % (true_name,pred_name))    plt.axis(&#x27;off&#x27;)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>NumPy科学计算库</title>
     <url>/posts/e1ca7594.html</url>
     <content><![CDATA[[toc]
@@ -666,47 +710,24 @@ import numpy as np  # 导入类库 numpydata = np.loadtxt(&#x27;./iris.csv&#x27;
       </tags>
   </entry>
   <entry>
-    <title>SVC支持向量机综合案例</title>
-    <url>/posts/f219e09d.html</url>
-    <content><![CDATA[1、支持向量机原理可视化
-1.1、导包
-import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d import Axes3Dfrom sklearn.svm import SVC
-1.2、创建数据
-rs = np.random.RandomState(256)X = rs.randn(300,2)y = X[:,0]*X[:,1] &gt;=0plt.figure(figsize=(6,6))plt.scatter(X[:,0],X[:,1])
-
-1.3、创建测试数据
-x1 = np.linspace(-3,3,20)x2 = np.linspace(-3,3,18)X1,X2 = np.meshgrid(x1,x2)plt.figure(figsize=(6,6))plt.scatter(X1,X2)X_test = np.concatenate([X1.reshape(-1,1),X2.reshape(-1,1)],axis = 1)X_test.shape
-
-1.4、模型训练
-svc = SVC(kernel = &#x27;rbf&#x27;)svc.fit(X,y)y_ = svc.predict(X_test)plt.figure(figsize=(6,6))plt.scatter(X_test[:,0],X_test[:,1],c = y_)
-
-1.5、原理2D可视化
-# 二维 --------&gt; 三维# 分离平面，上面一类点，下面也是一类点# 这些点有的距离近，有的距离远d = svc.decision_function(X_test)# 等高面plt.figure(figsize=(5,5))plt.contourf(X1,X2,d.reshape(180,200))
-
-1.6、原理3D可视化
-plt.figure(figsize=(12,9))ax = plt.subplot(111,projection = &#x27;3d&#x27;)ax.contourf(X1,X2,d.reshape(180,200))ax.view_init(40,-60)
-
-2、SVC建模人脸识别
-2.1、导包
-import numpy as npfrom sklearn.svm import SVCfrom sklearn.model_selection import train_test_splitimport matplotlib.pyplot as pltfrom sklearn.decomposition import PCAfrom sklearn.model_selection import GridSearchCVfrom sklearn import datasets
-2.2、数据加载
-# 第一次加载，需要联网下载# 下载路径：C:\Users\likai\scikit_learn_data\lfw_homefaces = datasets.fetch_lfw_people(resize= 1,min_faces_per_person=70)# 形状是：(125,94)X  = faces[&#x27;data&#x27;]y = faces[&#x27;target&#x27;]display(X.shape,y.shape)
-2.3、数据降维与拆分
-pca = PCA(n_components=0.9)X_pca = pca.fit_transform(X)display(X_pca.shape)X_train,X_test,X_train_pca,X_test_pca,y_train,y_test = train_test_split(X,X_pca,y,test_size = 0.1)display(X_train.shape,X_test.shape)display(X_train_pca.shape,X_test_pca.shape)
-2.4、直接使用SVC建模预测
-svc = SVC()svc.fit(X_train_pca,y_train)svc.score(X_test_pca,y_test)# 输出：0.7984496124031008
-2.5、网格搜索确定最佳参数
-%%timesvc = SVC()params = &#123;&#x27;C&#x27;:np.logspace(-3,1,20),&#x27;kernel&#x27;:[&#x27;rbf&#x27;,&#x27;poly&#x27;,&#x27;sigmoid&#x27;,&#x27;linear&#x27;]&#125;gc = GridSearchCV(estimator = svc,param_grid = params)gc.fit(X_train_pca,y_train)print(&#x27;网格搜索确定最佳参数：&#x27;,gc.best_params_)print(&#x27;模型得分是：&#x27;,gc.score(X_test_pca,y_test))y_pred = gc.predict(X_test_pca)# 输出&#x27;&#x27;&#x27;网格搜索确定最佳参数： &#123;&#x27;C&#x27;: 3.792690190732246, &#x27;kernel&#x27;: &#x27;rbf&#x27;&#125;模型得分是： 0.8837209302325582Wall time: 36.2 s&#x27;&#x27;&#x27;
-2.6、数据可视化
-target_names = faces.target_namesprint(&#x27;目标任务名字如下：&#x27;,target_names)plt.figure(figsize=(5*2,10*3))for i in range(50):    plt.subplot(10,5,i + 1)    plt.imshow(X_test[i].reshape(125,-1),cmap = &#x27;gray&#x27;)    true_name = target_names[y_test[i]].split(&#x27; &#x27;)[-1]    pred_name = target_names[y_pred[i]].split(&#x27; &#x27;)[-1]    plt.title(&#x27;True:%s\nPred:%s&#x27; % (true_name,pred_name))    plt.axis(&#x27;off&#x27;)
-
-]]></content>
+    <title>Dijkstra</title>
+    <url>/posts/9c98f56c.html</url>
+    <content><![CDATA[Dijkstra 最小花费
+题目描述
+在 n 个人中，某些人的银行账号之间可以互相转账。这些人之间转账的手续费各不相同。给定这些人之间转账时需要从转账金额里扣除百分之几的手续费，请问 A 最少需要多少钱使得转账后 B 收到 100 元。
+输入格式
+第一行输入两个正整数 n,m，分别表示总人数和可以互相转账的人的对数。以下 m 行每行输入三个正整数 x,y,z，表示标号为 x 的人和标号为 y 的人之间互相转账需要扣除 z% 的手续费 ( z&lt;100 )。最后一行输入两个正整数 A,B。数据保证 A 与 B 之间可以直接或间接地转账。**
+输出格式
+输出 A 使得 B 到账 100 元最少需要的总费用。 精确到小数点后 8 位。
+数据范围
+1≤n≤2000, m≤105
+import java.util.*;public class Main&#123;    static int N=2010;    static int M=100010;    static int INF=0x3f3f3f3f;    static int n,m,idx;    static int A,B;    static int []h=new int[N],e=new int[M*2];    static int []ne=new int[M*2];    static double []w=new double[M*2];    static double []dist=new double[N];    static boolean[]st=new boolean[N];    public static void add(int a,int b,double c)&#123;        e[idx]=b;        w[idx]=c;        ne[idx]=h[a];        h[a]=idx++;    &#125;    public static double dj()&#123;        Arrays.fill(dist,INF);        dist[A]=100;        PriorityQueue&lt;PII&gt;q=new PriorityQueue&lt;&gt;();        q.offer(new PII(A,100));        while(q.size()!=0)&#123;            PII t=q.poll();            int num=t.num;            double distence=t.distence;            if(st[num])continue;            st[num]=true;            for(int i=h[num];i!=-1;i=ne[i])&#123;                int j=e[i];                if(dist[j]&gt;distence/w[i])&#123;                    dist[j]=distence/w[i];                    q.offer(new PII(j,dist[j]));                &#125;            &#125;        &#125;        return dist[B];    &#125;    public static void main(String[]args)&#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        m=scan.nextInt();        Arrays.fill(h,-1);        while(m--&gt;0)&#123;            int a=scan.nextInt();            int b=scan.nextInt();            int c=scan.nextInt();            double w=(1-(double)c/100);            add(a,b,w);            add(b,a,w);        &#125;        A=scan.nextInt();        B=scan.nextInt();        double t=dj();        System.out.printf(&quot;%.8f&quot;,t);    &#125;&#125;class PII implements Comparable&lt;PII&gt;&#123;    int num;    double distence;    public PII(int num,double distence)&#123;        this.num=num;        this.distence=distence;    &#125;    public int compareTo(PII o)&#123;        return Double.compare(distence,o.distence);    &#125;&#125;]]></content>
       <categories>
         <category>program</category>
-        <category>机器学习</category>
+        <category>算法模板</category>
       </categories>
       <tags>
-        <tag>AI</tag>
+        <tag>最短路</tag>
       </tags>
   </entry>
   <entry>
@@ -840,118 +861,6 @@ import matplotlib.pyplot as pltimport seaborn as snsplt.figure(figsize=(12,9))fl
         <category>program</category>
         <category>机器学习</category>
       </categories>
-  </entry>
-  <entry>
-    <title>Dijkstra</title>
-    <url>/posts/9c98f56c.html</url>
-    <content><![CDATA[Dijkstra 最小花费
-题目描述
-在 n 个人中，某些人的银行账号之间可以互相转账。这些人之间转账的手续费各不相同。给定这些人之间转账时需要从转账金额里扣除百分之几的手续费，请问 A 最少需要多少钱使得转账后 B 收到 100 元。
-输入格式
-第一行输入两个正整数 n,m，分别表示总人数和可以互相转账的人的对数。以下 m 行每行输入三个正整数 x,y,z，表示标号为 x 的人和标号为 y 的人之间互相转账需要扣除 z% 的手续费 ( z&lt;100 )。最后一行输入两个正整数 A,B。数据保证 A 与 B 之间可以直接或间接地转账。**
-输出格式
-输出 A 使得 B 到账 100 元最少需要的总费用。 精确到小数点后 8 位。
-数据范围
-1≤n≤2000, m≤105
-import java.util.*;public class Main&#123;    static int N=2010;    static int M=100010;    static int INF=0x3f3f3f3f;    static int n,m,idx;    static int A,B;    static int []h=new int[N],e=new int[M*2];    static int []ne=new int[M*2];    static double []w=new double[M*2];    static double []dist=new double[N];    static boolean[]st=new boolean[N];    public static void add(int a,int b,double c)&#123;        e[idx]=b;        w[idx]=c;        ne[idx]=h[a];        h[a]=idx++;    &#125;    public static double dj()&#123;        Arrays.fill(dist,INF);        dist[A]=100;        PriorityQueue&lt;PII&gt;q=new PriorityQueue&lt;&gt;();        q.offer(new PII(A,100));        while(q.size()!=0)&#123;            PII t=q.poll();            int num=t.num;            double distence=t.distence;            if(st[num])continue;            st[num]=true;            for(int i=h[num];i!=-1;i=ne[i])&#123;                int j=e[i];                if(dist[j]&gt;distence/w[i])&#123;                    dist[j]=distence/w[i];                    q.offer(new PII(j,dist[j]));                &#125;            &#125;        &#125;        return dist[B];    &#125;    public static void main(String[]args)&#123;        Scanner scan=new Scanner(System.in);        n=scan.nextInt();        m=scan.nextInt();        Arrays.fill(h,-1);        while(m--&gt;0)&#123;            int a=scan.nextInt();            int b=scan.nextInt();            int c=scan.nextInt();            double w=(1-(double)c/100);            add(a,b,w);            add(b,a,w);        &#125;        A=scan.nextInt();        B=scan.nextInt();        double t=dj();        System.out.printf(&quot;%.8f&quot;,t);    &#125;&#125;class PII implements Comparable&lt;PII&gt;&#123;    int num;    double distence;    public PII(int num,double distence)&#123;        this.num=num;        this.distence=distence;    &#125;    public int compareTo(PII o)&#123;        return Double.compare(distence,o.distence);    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>最短路</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Floyd</title>
-    <url>/posts/97c8f9ac.html</url>
-    <content><![CDATA[星际旅行
-问题描述
-小明国庆节准备去某星系进行星际旅行，这个星系里一共有 n_n_ 个星球，其中布置了 m_m_ 道双向传送门，第 i_i_ 道传送门可以连接 ai,bi*ai_,_bi 两颗星球（ai≠bi_a**i\=_b**i* 且任意两颗星球之间最多只有一个传送门）。
-他看中了一款 “旅游盲盒”，一共有 Q_Q_ 个盲盒，第 i_i_ 个盲盒里的旅行方案规定了旅行的起始星球 xi*xi _和最多可以使用传送门的次数 yi_yi*。只要从起始星球出发，使用传送门不超过规定次数能到达的所有星球都可以去旅行。
-小明关心在每个方案中有多少个星球可以旅行到。小明只能在这些盲盒里随机选一个购买，他想知道能旅行到的不同星球的数量的期望是多少。
-输入格式
-输入共 m+Q+1_m_+Q+1 行。
-第一行为三个正整数 n,m,Q_n_,m,Q 。
-后面 m_m_ 行，每行两个正整数 ai,bi*ai_,_bi* 。
-后面 Q_Q_ 行，每行两个整数 xi,yi*xi_,_yi* 。
-输出格式
-输出共一行，一个浮点数（四舍五入保留两位小数）。
-样例输入
-3 2 31 22 32 12 01 1
-样例输出
-2.00
-样例说明
-第一个盲盒可以旅行到 1,2,31,2,3。
-第二个盲盒可以旅行到 22。
-第三个盲盒可以旅行到 1,21,2。
-所以期望是 (3+1+2)/3=2.00(3+1+2)/3=2.00。
-解决
-import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;  static int n,m,q;  static int[][]con;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n=sc.nextInt();        m=sc.nextInt();        q=sc.nextInt();        con=new int[n+1][n+1];        for(int i=1;i&lt;=n;i++)&#123;          Arrays.fill(con[i],3010);        &#125;        for(int i=1;i&lt;=n;i++)&#123;          con[i][i]=0;        &#125;        for(int i=0;i&lt;m;i++)&#123;          int a=sc.nextInt();          int b=sc.nextInt();          con[a][b]=1;          con[b][a]=1;        &#125;        for(int k=1;k&lt;=n;k++)&#123;          for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;              con[i][j]=Math.min(con[i][j],con[i][k]+con[k][j]);            &#125;          &#125;        &#125;        int ans=0;        for(int i=0;i&lt;q;i++)&#123;          int x=sc.nextInt();          int y=sc.nextInt();          int count=0;          for(int j=1;j&lt;=n;j++)&#123;            if(con[x][j]&lt;=y)count++;          &#125;            ans+=count;        &#125;          System.out.printf(&quot;%.2f&quot;,(double)ans/q);    &#125;&#125;
-牛的旅行
-题目链接
-牛的旅行
-问题描述
-农民John的农场里有很多牧区，有的路径连接一些特定的牧区。
-一片所有连通的牧区称为一个牧场。
-但是就目前而言，你能看到至少有两个牧区不连通。
-现在，John想在农场里添加一条路径（注意，恰好一条）。
-一个牧场的直径就是牧场中最远的两个牧区的距离（本题中所提到的所有距离指的都是最短的距离）。
-考虑如下的两个牧场，每一个牧区都有自己的坐标：
-
-图 1 是有 5 个牧区的牧场，牧区用“*”表示，路径用直线表示。
-图 1 所示的牧场的直径大约是 12.07106, 最远的两个牧区是 A 和 E，它们之间的最短路径是 A-B-E。
-图 2 是另一个牧场。
-这两个牧场都在John的农场上。
-John将会在两个牧场中各选一个牧区，然后用一条路径连起来，使得连通后这个新的更大的牧场有最小的直径。
-注意，如果两条路径中途相交，我们不认为它们是连通的。
-只有两条路径在同一个牧区相交，我们才认为它们是连通的。
-现在请你编程找出一条连接两个不同牧场的路径，使得连上这条路径后，所有牧场（生成的新牧场和原有牧场）中直径最大的牧场的直径尽可能小。
-输出这个直径最小可能值。
-输入格式
-第 1 行：一个整数 N, 表示牧区数；
-第 2 到 N+1 行：每行两个整数 X,Y， 表示 N 个牧区的坐标。每个牧区的坐标都是不一样的。
-第 N+2 行到第 2*N+1 行：每行包括 N 个数字 ( 0或1 ) 表示一个对称邻接矩阵。
-例如，题目描述中的两个牧场的矩阵描述如下：
-  A B C D E F G H A 0 1 0 0 0 0 0 0 B 1 0 1 1 1 0 0 0 C 0 1 0 0 1 0 0 0 D 0 1 0 0 1 0 0 0 E 0 1 1 1 0 0 0 0 F 0 0 0 0 0 0 1 0 G 0 0 0 0 0 1 0 1 H 0 0 0 0 0 0 1 0
-输入数据中至少包括两个不连通的牧区。
-输出格式
-只有一行，包括一个实数，表示所求答案。
-数字保留六位小数。
-数据范围
-1≤N≤1501≤N≤150, 0≤X,Y≤1050≤X,Y≤105
-输入样例：
-810 1015 1020 1015 1520 1530 1525 1030 100100000010111000010010000100100001110000000000100000010100000010
-输出样例：
-22.071068
-解决
-import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123;        this.x=x;        this.y=y;    &#125;&#125;public class Main&#123;    static int N=155,INF=(int)1e20;    static int n;    static PII[]q=new PII[N];    static char[][]g=new char[N][N];    static double[][]dist=new double[N][N];    static double[]maxd=new double[N];    public static double get_dist(PII i,PII j)&#123;        int dx=i.x-j.x,dy=i.y-j.y;        return (double)Math.sqrt(dx*dx+dy*dy);    &#125;    public static void floyd()&#123;        for(int k=1;k&lt;=n;k++)            for(int i=1;i&lt;=n;i++)                for(int j=1;j&lt;=n;j++)&#123;                    dist[i][j]=Math.min(dist[i][j],dist[i][k]+dist[k][j]);                &#125;    &#125;    public static void main(String[]args)&#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            int x=sc.nextInt();            int y=sc.nextInt();            q[i]=new PII(x,y);        &#125;        for(int i=1;i&lt;=n;i++)&#123;            String s=sc.next();            for(int j=1;j&lt;=n;j++)&#123;                g[i][j]=s.charAt(j-1);            &#125;        &#125;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(i!=j)&#123;                    if(g[i][j]==&#x27;1&#x27;)dist[i][j]=get_dist(q[i],q[j]);                    else dist[i][j]=INF;                &#125;            &#125;        &#125;        floyd();        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&lt;INF)                    maxd[i]=Math.max(maxd[i],dist[i][j]);            &#125;        &#125;        double res1=0;        for(int i=1;i&lt;=n;i++)res1=Math.max(res1,maxd[i]);        double res2=INF;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&gt;=INF)&#123;                    res2=Math.min(res2,get_dist(q[i],q[j])+maxd[i]+maxd[j]);                &#125;            &#125;        &#125;        System.out.printf(&quot;%.6f&quot;,Math.max(res1,res2));    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>Floyd</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/posts/4a17b156.html</url>
-    <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Quick Start
-Create a new post
-$ hexo new &quot;My New Post&quot;
-More info: Writing
-Run server
-$ hexo server
-More info: Server
-Generate static files
-$ hexo generate
-More info: Generating
-Deploy to remote sites
-$ hexo deploy
-More info: Deployment
-]]></content>
   </entry>
   <entry>
     <title>二分</title>
@@ -1319,10 +1228,114 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
       </tags>
   </entry>
   <entry>
+    <title>Floyd</title>
+    <url>/posts/97c8f9ac.html</url>
+    <content><![CDATA[星际旅行
+问题描述
+小明国庆节准备去某星系进行星际旅行，这个星系里一共有 n_n_ 个星球，其中布置了 m_m_ 道双向传送门，第 i_i_ 道传送门可以连接 ai,bi*ai_,_bi 两颗星球（ai≠bi_a**i\=_b**i* 且任意两颗星球之间最多只有一个传送门）。
+他看中了一款 “旅游盲盒”，一共有 Q_Q_ 个盲盒，第 i_i_ 个盲盒里的旅行方案规定了旅行的起始星球 xi*xi _和最多可以使用传送门的次数 yi_yi*。只要从起始星球出发，使用传送门不超过规定次数能到达的所有星球都可以去旅行。
+小明关心在每个方案中有多少个星球可以旅行到。小明只能在这些盲盒里随机选一个购买，他想知道能旅行到的不同星球的数量的期望是多少。
+输入格式
+输入共 m+Q+1_m_+Q+1 行。
+第一行为三个正整数 n,m,Q_n_,m,Q 。
+后面 m_m_ 行，每行两个正整数 ai,bi*ai_,_bi* 。
+后面 Q_Q_ 行，每行两个整数 xi,yi*xi_,_yi* 。
+输出格式
+输出共一行，一个浮点数（四舍五入保留两位小数）。
+样例输入
+3 2 31 22 32 12 01 1
+样例输出
+2.00
+样例说明
+第一个盲盒可以旅行到 1,2,31,2,3。
+第二个盲盒可以旅行到 22。
+第三个盲盒可以旅行到 1,21,2。
+所以期望是 (3+1+2)/3=2.00(3+1+2)/3=2.00。
+解决
+import java.util.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;  static int n,m,q;  static int[][]con;    public static void main(String[] args) &#123;        Scanner sc = new Scanner(System.in);        n=sc.nextInt();        m=sc.nextInt();        q=sc.nextInt();        con=new int[n+1][n+1];        for(int i=1;i&lt;=n;i++)&#123;          Arrays.fill(con[i],3010);        &#125;        for(int i=1;i&lt;=n;i++)&#123;          con[i][i]=0;        &#125;        for(int i=0;i&lt;m;i++)&#123;          int a=sc.nextInt();          int b=sc.nextInt();          con[a][b]=1;          con[b][a]=1;        &#125;        for(int k=1;k&lt;=n;k++)&#123;          for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;              con[i][j]=Math.min(con[i][j],con[i][k]+con[k][j]);            &#125;          &#125;        &#125;        int ans=0;        for(int i=0;i&lt;q;i++)&#123;          int x=sc.nextInt();          int y=sc.nextInt();          int count=0;          for(int j=1;j&lt;=n;j++)&#123;            if(con[x][j]&lt;=y)count++;          &#125;            ans+=count;        &#125;          System.out.printf(&quot;%.2f&quot;,(double)ans/q);    &#125;&#125;
+牛的旅行
+题目链接
+牛的旅行
+问题描述
+农民John的农场里有很多牧区，有的路径连接一些特定的牧区。
+一片所有连通的牧区称为一个牧场。
+但是就目前而言，你能看到至少有两个牧区不连通。
+现在，John想在农场里添加一条路径（注意，恰好一条）。
+一个牧场的直径就是牧场中最远的两个牧区的距离（本题中所提到的所有距离指的都是最短的距离）。
+考虑如下的两个牧场，每一个牧区都有自己的坐标：
+
+图 1 是有 5 个牧区的牧场，牧区用“*”表示，路径用直线表示。
+图 1 所示的牧场的直径大约是 12.07106, 最远的两个牧区是 A 和 E，它们之间的最短路径是 A-B-E。
+图 2 是另一个牧场。
+这两个牧场都在John的农场上。
+John将会在两个牧场中各选一个牧区，然后用一条路径连起来，使得连通后这个新的更大的牧场有最小的直径。
+注意，如果两条路径中途相交，我们不认为它们是连通的。
+只有两条路径在同一个牧区相交，我们才认为它们是连通的。
+现在请你编程找出一条连接两个不同牧场的路径，使得连上这条路径后，所有牧场（生成的新牧场和原有牧场）中直径最大的牧场的直径尽可能小。
+输出这个直径最小可能值。
+输入格式
+第 1 行：一个整数 N, 表示牧区数；
+第 2 到 N+1 行：每行两个整数 X,Y， 表示 N 个牧区的坐标。每个牧区的坐标都是不一样的。
+第 N+2 行到第 2*N+1 行：每行包括 N 个数字 ( 0或1 ) 表示一个对称邻接矩阵。
+例如，题目描述中的两个牧场的矩阵描述如下：
+  A B C D E F G H A 0 1 0 0 0 0 0 0 B 1 0 1 1 1 0 0 0 C 0 1 0 0 1 0 0 0 D 0 1 0 0 1 0 0 0 E 0 1 1 1 0 0 0 0 F 0 0 0 0 0 0 1 0 G 0 0 0 0 0 1 0 1 H 0 0 0 0 0 0 1 0
+输入数据中至少包括两个不连通的牧区。
+输出格式
+只有一行，包括一个实数，表示所求答案。
+数字保留六位小数。
+数据范围
+1≤N≤1501≤N≤150, 0≤X,Y≤1050≤X,Y≤105
+输入样例：
+810 1015 1020 1015 1520 1530 1525 1030 100100000010111000010010000100100001110000000000100000010100000010
+输出样例：
+22.071068
+解决
+import java.util.*;class PII&#123;    int x,y;    public PII(int x,int y)&#123;        this.x=x;        this.y=y;    &#125;&#125;public class Main&#123;    static int N=155,INF=(int)1e20;    static int n;    static PII[]q=new PII[N];    static char[][]g=new char[N][N];    static double[][]dist=new double[N][N];    static double[]maxd=new double[N];    public static double get_dist(PII i,PII j)&#123;        int dx=i.x-j.x,dy=i.y-j.y;        return (double)Math.sqrt(dx*dx+dy*dy);    &#125;    public static void floyd()&#123;        for(int k=1;k&lt;=n;k++)            for(int i=1;i&lt;=n;i++)                for(int j=1;j&lt;=n;j++)&#123;                    dist[i][j]=Math.min(dist[i][j],dist[i][k]+dist[k][j]);                &#125;    &#125;    public static void main(String[]args)&#123;        Scanner sc=new Scanner(System.in);        n=sc.nextInt();        for(int i=1;i&lt;=n;i++)&#123;            int x=sc.nextInt();            int y=sc.nextInt();            q[i]=new PII(x,y);        &#125;        for(int i=1;i&lt;=n;i++)&#123;            String s=sc.next();            for(int j=1;j&lt;=n;j++)&#123;                g[i][j]=s.charAt(j-1);            &#125;        &#125;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(i!=j)&#123;                    if(g[i][j]==&#x27;1&#x27;)dist[i][j]=get_dist(q[i],q[j]);                    else dist[i][j]=INF;                &#125;            &#125;        &#125;        floyd();        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&lt;INF)                    maxd[i]=Math.max(maxd[i],dist[i][j]);            &#125;        &#125;        double res1=0;        for(int i=1;i&lt;=n;i++)res1=Math.max(res1,maxd[i]);        double res2=INF;        for(int i=1;i&lt;=n;i++)&#123;            for(int j=1;j&lt;=n;j++)&#123;                if(dist[i][j]&gt;=INF)&#123;                    res2=Math.min(res2,get_dist(q[i],q[j])+maxd[i]+maxd[j]);                &#125;            &#125;        &#125;        System.out.printf(&quot;%.6f&quot;,Math.max(res1,res2));    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>Floyd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/posts/4a17b156.html</url>
+    <content><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
+Quick Start
+Create a new post
+$ hexo new &quot;My New Post&quot;
+More info: Writing
+Run server
+$ hexo server
+More info: Server
+Generate static files
+$ hexo generate
+More info: Generating
+Deploy to remote sites
+$ hexo deploy
+More info: Deployment
+]]></content>
+  </entry>
+  <entry>
     <title>images</title>
     <url>/posts/e01fbe6a.html</url>
     <content><![CDATA[
 ]]></content>
+  </entry>
+  <entry>
+    <title>排序和二分</title>
+    <url>/posts/c5627fcb.html</url>
+    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>二分</tag>
+        <tag>排序</tag>
+      </tags>
   </entry>
   <entry>
     <title>Leetcode刷题路线</title>
@@ -1348,19 +1361,6 @@ import numpy as npimport matplotlib.pyplot as pltfrom mpl_toolkits.mplot3d.axes3
         <category>program</category>
         <category>算法刷题路线</category>
       </categories>
-  </entry>
-  <entry>
-    <title>排序和二分</title>
-    <url>/posts/c5627fcb.html</url>
-    <content><![CDATA[import java.io.*;import java.util.*;public class  阿一_1快排&#123;    static BufferedReader cin = new BufferedReader(new InputStreamReader(System.in));    static PrintWriter coup = new PrintWriter(new OutputStreamWriter(System.out));    static StreamTokenizer t=new StreamTokenizer(cin);    public static void main(String[] args) throws IOException &#123;        t.nextToken();        int n = (int)t.nval;        int[] array = new int[n];        for (int i = 0; i &lt; n; i++) &#123;            t.nextToken();            array[i] = (int)t.nval;        &#125;        quickSort(array, 0, n - 1);        System.out.println(&quot;排序后的数组：&quot;);        for (int i = 0; i &lt; n; i++) &#123;            coup.print(array[i] + &quot; &quot;);            coup.flush();        &#125;    &#125;public static void quickSort(int q[],int l,int r)&#123;    if(l&gt;=r) return;    int i=l-1,j=r+1,x=q[l+r&gt;&gt;1];    while(i&lt;j)&#123;        do i++;while(q[i]&lt;x);        do j--;while(q[j]&gt;x);        if(i&lt;j) swap(q,i,j);    &#125;    quickSort(q,l,j-1);    quickSort(q,j+1,r);&#125;public static void swap(int[] array, int i, int j) &#123;    int temp = array[i];    array[i] = array[j];    array[j] = temp;&#125;&#125;// public static void quickSort(int[] array, int low, int high) &#123;//         if (low &lt; high) &#123;//             int pivotIndex = partition(array, low, high);//             quickSort(array, low, pivotIndex - 1);//             quickSort(array, pivotIndex + 1, high);//         &#125;//     &#125;//     public static int partition(int[] array, int low, int high) &#123;//         int pivot = array[high]; //         int i = low - 1; //         for (int j = low; j &lt; high; j++) &#123;//             if (array[j] &lt; pivot) &#123;//                 i++;//                 swap(array, i, j);//             &#125;//         &#125;//         swap(array, i + 1, high); //     &#125;// &#125;// import java.io.BufferedReader;// import java.io.InputStreamReader;// import java.io.StreamTokenizer;// import java.util.Arrays;// import java.util.Scanner;// public class Main &#123;//  static int []a = new int[5000005];//  static int x;//  public static void main(String[] args) throws Exception&#123;//      int n;//      StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));//      st.nextToken();//      n=(int)st.nval;//      // st.nextToken();//      // x=(int)st.nval;//      for(int i = 0;i&lt;n;i++) &#123;//          st.nextToken();//          a[i]=(int)st.nval;//      &#125;//      quickSort(a,0,n-1);//      for(int i=0;i&lt;n;i++)&#123;//             System.out.print(a[i] + &quot; &quot;);//         &#125;//  &#125;//  public static void quickSort(int q[],int l,int r) &#123;//      if(l&gt;=r)//          return;//      int pivot = q[l];//      int i=l,j=r;//      while(i&lt;j) &#123;//          while(i&lt;j &amp;&amp; q[j]&gt;=pivot) &#123;//              j--;//          &#125;//          while(i&lt;j &amp;&amp; q[i]&lt;=pivot) &#123;//              i++;//          &#125;//          if(i&lt;j) &#123;//              int temp=q[i];//              q[i]=q[j];//              q[j]=temp;//          &#125;//      &#125;//      q[l]=q[i];//      q[i]=pivot;//      //if(i==x) return;//      //if(i&gt;x)//      quickSort(q,l,i-1);//      //else if(i&lt;x)//      quickSort(q,i+1,r);//  &#125;// &#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>二分</tag>
-        <tag>排序</tag>
-      </tags>
   </entry>
   <entry>
     <title>math</title>
@@ -1452,6 +1452,20 @@ import java.util.Scanner;// 1:无需package// 2: 类名必须Main, 不可修改p
       <tags>
         <tag>前缀和</tag>
         <tag>差分</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SPFA</title>
+    <url>/posts/33b8c865.html</url>
+    <content><![CDATA[给定一张nnn个点m条边的有向图，该图可以有自环与重边。
+你需要判断从 1 号点出发，图中是否存在负权回路，存在输出 Yes；不存在输出 No。
+import java.util.*;import java.io.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;    static int N=2010;    static int M=(int)1e4+10;    static long INF=0x3f3f3f3f3f3f3f3fL;    static int[]h=new int[N];    static long[]dist=new long[N];    static int[]e=new int[M*2],ne=new int[M*2];    static int[]w=new int[M*2];    static int[]cnt=new int[M*2];    static boolean[]st=new boolean[N];    static int idx,n,m;    static void add(int a,int b,int c)&#123;      e[idx]=b;      w[idx]=c;      ne[idx]=h[a];      h[a]=idx++;    &#125;    static boolean spfa()&#123;      Arrays.fill(st,false);      Arrays.fill(dist,INF);      dist[1]=0;      Queue&lt;Integer&gt;q=new LinkedList&lt;&gt;();      st[1]=true;      q.offer(1);      while(!q.isEmpty())&#123;        int t=q.poll();        st[t]=false;        for(int i=h[t];i!=-1;i=ne[i])&#123;          int j=e[i];          if(dist[j]&gt;dist[t]+w[i])&#123;            dist[j]=dist[t]+w[i];            cnt[j]=cnt[t]+1;            if(cnt[j]&gt;=n)return true;            if(!st[j])&#123;              q.offer(j);              st[j]=true;            &#125;          &#125;        &#125;      &#125;      return false;    &#125;    static BufferedReader in=new BufferedReader(new InputStreamReader(System.in));    public static void main(String[] args) throws IOException&#123;        Arrays.fill(h,-1);        String[]ss=in.readLine().split(&quot; &quot;);        n=Integer.parseInt(ss[0]);        m=Integer.parseInt(ss[1]);        for(int i=1;i&lt;=m;i++)&#123;          String[]s=in.readLine().split(&quot; &quot;);          int a=Integer.parseInt(s[0]);          int b=Integer.parseInt(s[1]);          int c=Integer.parseInt(s[2]);          add(a,b,c);        &#125;        if(spfa())System.out.println(&quot;Yes&quot;);        else System.out.println(&quot;No&quot;);    &#125;&#125;]]></content>
+      <categories>
+        <category>program</category>
+        <category>算法模板</category>
+      </categories>
+      <tags>
+        <tag>spfa</tag>
       </tags>
   </entry>
   <entry>
@@ -1658,29 +1672,6 @@ Python与pandas在广泛的学术和商业领域中使用，包括金融，神�
       </categories>
   </entry>
   <entry>
-    <title>SPFA</title>
-    <url>/posts/33b8c865.html</url>
-    <content><![CDATA[给定一张nnn个点m条边的有向图，该图可以有自环与重边。
-你需要判断从 1 号点出发，图中是否存在负权回路，存在输出 Yes；不存在输出 No。
-import java.util.*;import java.io.*;// 1:无需package// 2: 类名必须Main, 不可修改public class Main &#123;    static int N=2010;    static int M=(int)1e4+10;    static long INF=0x3f3f3f3f3f3f3f3fL;    static int[]h=new int[N];    static long[]dist=new long[N];    static int[]e=new int[M*2],ne=new int[M*2];    static int[]w=new int[M*2];    static int[]cnt=new int[M*2];    static boolean[]st=new boolean[N];    static int idx,n,m;    static void add(int a,int b,int c)&#123;      e[idx]=b;      w[idx]=c;      ne[idx]=h[a];      h[a]=idx++;    &#125;    static boolean spfa()&#123;      Arrays.fill(st,false);      Arrays.fill(dist,INF);      dist[1]=0;      Queue&lt;Integer&gt;q=new LinkedList&lt;&gt;();      st[1]=true;      q.offer(1);      while(!q.isEmpty())&#123;        int t=q.poll();        st[t]=false;        for(int i=h[t];i!=-1;i=ne[i])&#123;          int j=e[i];          if(dist[j]&gt;dist[t]+w[i])&#123;            dist[j]=dist[t]+w[i];            cnt[j]=cnt[t]+1;            if(cnt[j]&gt;=n)return true;            if(!st[j])&#123;              q.offer(j);              st[j]=true;            &#125;          &#125;        &#125;      &#125;      return false;    &#125;    static BufferedReader in=new BufferedReader(new InputStreamReader(System.in));    public static void main(String[] args) throws IOException&#123;        Arrays.fill(h,-1);        String[]ss=in.readLine().split(&quot; &quot;);        n=Integer.parseInt(ss[0]);        m=Integer.parseInt(ss[1]);        for(int i=1;i&lt;=m;i++)&#123;          String[]s=in.readLine().split(&quot; &quot;);          int a=Integer.parseInt(s[0]);          int b=Integer.parseInt(s[1]);          int c=Integer.parseInt(s[2]);          add(a,b,c);        &#125;        if(spfa())System.out.println(&quot;Yes&quot;);        else System.out.println(&quot;No&quot;);    &#125;&#125;]]></content>
-      <categories>
-        <category>program</category>
-        <category>算法模板</category>
-      </categories>
-      <tags>
-        <tag>spfa</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>test</title>
-    <url>/posts/d87f7e0c.html</url>
-    <content><![CDATA[
-
-
-
-]]></content>
-  </entry>
-  <entry>
     <title>树状数组</title>
     <url>/posts/59a0de58.html</url>
     <content><![CDATA[树状数组
@@ -1699,6 +1690,15 @@ import java.io.*;import java.util.*;class Tree&#123;    long[]tree;    int N;   
       </tags>
   </entry>
   <entry>
+    <title>test</title>
+    <url>/posts/d87f7e0c.html</url>
+    <content><![CDATA[
+
+
+
+]]></content>
+  </entry>
+  <entry>
     <title>蓝桥杯-高塔</title>
     <url>/posts/a38c4cc3.html</url>
     <content><![CDATA[问题描述 小蓝正在玩一个攀登高塔的游戏。高塔的层数是无限的，但游戏最多只有 n n 回合。
@@ -1715,285 +1715,6 @@ import java.io.*;import java.util.*;class Tree&#123;    long[]tree;    int N;   
         <category>program</category>
         <category>一些题解</category>
       </categories>
-  </entry>
-  <entry>
-    <title>梯度下降</title>
-    <url>/posts/3c50d4b7.html</url>
-    <content><![CDATA[梯度下降
-线性回归预测房价
-
-数据加载
-数据介绍
-数据拆分
-数据建模
-数据预测
-数据评估
-
-1、无约束最优化问题
-1.1、无约束最优化
-无约束最优化问题（unconstrained optimizationproblem）指的是从一个问题的所有可能的备选方案中，选择出依某种指标来说是最优的解决方案。从数学上说，最优化是研究在一个给定的集合S上泛函J(theta)J(\\theta)J(theta)的极小化或极大化问题：广义上，最优化包括数学规划、图和网络、组合最优化、库存论、决策论、排队论、最优控制等。狭义上，最优化仅指数学规划。
-1.2、梯度下降
-梯度下降法(Gradient Descent)是一个算法，但不是像多元线性回归那样是一个具体做回归任务的算法，而是一个非常通用的优化算法来帮助一些机器学习算法（都是无约束最优化问题）求解出最优解， 所谓的通用就是很多机器学习算法都是用梯度下降，甚至深度学习也是用它来求解最优解。所有优化算法的目的都是期望以最快的速度把模型参数θ求解出来，梯度下降法就是一种经典常用的优化算法。
-之前利用正规方程求解的 θ 是最优解的原因是 MSE 这个损失函数是凸函数。但是，机器学习的损失函数并非都是凸函数，设置导数为 0 会得到很多个极值，不能确定唯一解。
-
-使用正规方程 theta=(XTX)−1XTy\\theta = (X^TX)^{-1}X^Tytheta=(XTX)−1XTy 求解的另一个限制是特征维度（X_1、X_2……、X_nX\_1、X\_2……、X\_nX_1、X_2……、X_n）不能太多，矩阵逆运算的时间复杂度通常为 O(n3)O(n^3)O(n3) 。换句话说，就是如果特征数量翻倍，你的计算时间大致为原来的 232^323 倍，也就是之前时间的8倍。举个例子，2 个特征 1 秒，4 个特征就是 8 秒，8 个特征就是 64 秒，16 个特征就是 512 秒，当特征更多的时候呢？运行时间会非常漫长~
-所以正规方程求出最优解并不是机器学习甚至深度学习常用的手段。
-之前我们令导数为 0，反过来求解最低点 θ 是多少，而梯度下降法是一点点去逼近最优解!
-
-其实这就跟生活中的情形很像，比如你问一个朋友的工资是多少，他说你猜？那就很难了，他说你猜完我告诉你是猜高了还是猜低了，这样你就可以奔着对的方向一直猜下去，最后总会猜对！梯度下降法就是这样的，多次尝试。并且，在试的过程中还得想办法知道是不是在猜对的路上，说白了就是得到正确的反馈再调整然后继续猜才有意义~
-这个就好比道士下山，我们把 Loss （或者称为Cost，即损失）曲线看成是山谷，如果走过了，就再往回返，所以是一个迭代的过程。
-1.3、梯度下降公式
-这里梯度下降法的公式就是一个式子指导计算机迭代过程中如何去调整theta\\thetatheta，可以通过泰勒公式一阶展开来进行推导和证明：
-
-
-\\theta^{n + 1} = \\theta^{n} - \\alpha \* gradient
-其中 alpha\\alphaalpha 表示学习率，gradient 表示梯度
-
-
-\\theta^{n + 1} = \\theta^{n} - \\alpha \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
-有些公式，使用其他字母表示：
-
-
-\\theta^{n + 1} = \\theta^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta}
-
-
-w\_j^{n + 1} = w\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j}
-
-
-这里的 w_jw\_jw_j 就是 theta\\thetatheta 中的某一个 j = 0…m，这里的 eta\\etaeta 就是梯度下降图里的 learning step，很多时候也叫学习率 learning rate，很多时候也用 alpha\\alphaalpha 表示，这个学习率我们可以看作是下山迈的步子的大小，步子迈的大下山就快。
-
-学习率一般都是正数，如果在山左侧（曲线左半边）梯度是负的，那么这个负号就会把 w_jw\_jw_j 往大了调， 如果在山右侧（曲线右半边）梯度就是正的，那么负号就会把 w_jw\_jw_j 往小了调。每次 w_jw\_jw_j 调整的幅度就是 \\eta \* gradient，就是横轴上移动的距离。
-因此，无论在左边，还是在右边，梯度下降都可以快速找到最优解，实现快速下山~
-如果特征或维度越多，那么这个公式用的次数就越多，也就是每次迭代要应用的这个式子多次（多少特征，就应用多少次），所以其实上面的图不是特别准，因为 theta\\thetatheta 对应的是很多维度，应该每一个维度都可以画一个这样的图，或者是一个多维空间的图。
-
-w\_0^{n + 1} = w\_0^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_0}
-w\_1^{n + 1} = w\_1^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_1}
-……
-w\_m^{n + 1} = w\_m^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_m}
-
-
-所以观察上图我们可以发现不是某一个 theta_0\\theta\_0theta_0 或 theta_1\\theta\_1theta_1 找到最小值就是最优解，而是它们一起找到 J(theta)J(\\theta)J(theta) 最小值才是最优解。
-1.4、学习率
-根据我们上面讲的梯度下降公式，我们知道 eta\\etaeta 是学习率，设置大的学习率 w_jw\_jw_j 每次调整的幅度就大，设置小的学习率 w_jw\_jw_j 每次调整的幅度就小，然而如果步子迈的太大也会有问题，俗话说步子大了容易扯着蛋！学习率大，可能一下子迈过了，到另一边去了（从曲线左半边跳到右半边），继续梯度下降又迈回来， 使得来来回回震荡。步子太小呢，就像蜗牛一步步往前挪，也会使得整体迭代次数增加。
-
-学习率的设置是门一门学问，一般我们会把它设置成一个比较小的正整数，0.1、0.01、0.001、0.0001，都是常见的设定数值（然后根据情况调整）。一般情况下学习率在整体迭代过程中是不变，但是也可以设置成随着迭代次数增多学习率逐渐变小，因为越靠近山谷我们就可以步子迈小点，可以更精准的走入最低点，同时防止走过。还有一些深度学习的优化算法会自己控制调整学习率这个值，后面学习过程中这些策略在讲解代码中我们会一一讲到。
-
-1.5、全局最优化
-
-上图显示了梯度下降的两个主要挑战：
-
-若随机初始化，算法从左侧起步，那么会收敛到一个局部最小值，而不是全局最小值；
-若随机初始化，算法从右侧起步，那么需要经过很长时间才能越过Plateau（函数停滞带，梯度很小），如果停下得太早，则永远达不到全局最小值；
-
-而线性回归的模型MSE损失函数恰好是个凸函数，凸函数保证了只有一个全局最小值，其次是个连续函数，斜率不会发生陡峭的变化，因此即便是乱走，梯度下降都可以趋近全局最小值。
-上图损失函数是非凸函数，梯度下降法是有可能落到局部最小值的，所以其实步长不能设置的太小太稳健，那样就很容易落入局部最优解，虽说局部最小值也没大问题， 因为模型只要是堪用的就好嘛，但是我们肯定还是尽量要奔着全局最优解去！
-1.6、梯度下降步骤
-梯度下降流程就是“猜”正确答案的过程:
-
-
-1、“瞎蒙”，Random 随机数生成 theta\\thetatheta，随机生成一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n ，期望 mu\\mumu 为 0 方差 sigma\\sigmasigma 为 1 的正太分布数据。
-
-
-2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
-
-
-3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
-
-
-4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
-收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
-
-
-
-1.7、代码模拟梯度下降
-
-
-梯度下降优化算法，比正规方程，应用更加广泛
-
-
-什么是梯度？
-
-梯度就是导数对应的值！
-
-
-
-下降？
-
-涉及到优化问题，最小二乘法
-
-
-
-梯度下降呢？
-
-梯度方向下降，速度最快的~
-
-
-
-接下来，我们使用代码来描述上面梯度下降的过程：
-方程如下：
-f(x)=(x−3.5)2−4.5x+10f(x) = (x - 3.5)^2 - 4.5x + 10f(x)=(x−3.5)2−4.5x+10
-
-使用梯度下降的思想，来一步步逼近，函数的最小值。
-import numpy as npimport matplotlib.pyplot as pltf = lambda x : (x - 3.5)**2 -4.5*x + 10# 导函数d = lambda x :2*(x - 3.5) - 4.5 # 梯度 == 导数# 梯度下降的步幅，比例，（学习率，幅度）step = 0.1# 求解当x等于多少的时候，函数值最小。求解目标值：随机生成的# 相等于：&#x27;瞎蒙&#x27; ----&gt; 方法 ----&gt; 优化x = np.random.randint(0,12,size = 1)[0]# 梯度下降，每下降一步，每走一步，目标值，都会更新。# 更新的这个新值和上一步的值，差异，如果差异很小（万分之一）# 梯度下降退出last_x = x + 0.02 # 记录上一步的值，首先让last_x和x有一定的差异！！！# 精确率，真实计算，都是有误差，自己定义precision = 1e-4print(&#x27;+++++++++++++++++++++&#x27;, x)x_ = [x]while True:    # 退出条件，精确度，满足了    if np.abs(x - last_x) &lt; precision:        break         # 更新    last_x = x    x -= step*d(x) # 更新，减法：最小值    x_.append(x)    print(&#x27;--------------------&#x27;,x)# 数据可视化plt.rcParams[&#x27;font.family&#x27;] = &#x27;Kaiti SC&#x27;plt.figure(figsize=(9,6))x = np.linspace(5.75 - 5, 5.75 + 5, 100)y = f(x)plt.plot(x,y,color = &#x27;green&#x27;)plt.title(&#x27;梯度下降&#x27;,size = 24,pad = 15)x_ = np.array(x_)y_ = f(x_)plt.scatter(x_, y_,color = &#x27;red&#x27;)plt.savefig(&#x27;./图片/5-梯度下降.jpg&#x27;,dpi = 200)
-函数的最优解是：5.75。你可以发现，随机赋值的变量 x ，无论大于5.75，还是小于5.75，经过梯度下降，最终都慢慢靠近5.75这个最优解！
-
-
-注意：
-
-梯度下降存在一定误差，不是完美解~
-在误差允许的范围内，梯度下降所求得的机器学习模型，是堪用的！
-梯度下降的步幅step，不能太大，俗话说步子不能迈的太大！
-精确度，可以根据实际情况调整
-while True循环里面，持续进行梯度下降：
-
-theta=theta−etafracpartialpartialthetaJ(theta)\\theta = \\theta - \\eta \\frac{\\partial}{\\partial \\theta}J(\\theta)theta=theta−etafracpartialpartialthetaJ(theta) 其中的 $\eta $ 叫做学习率
-x=x−etafracpartialpartialxf(x)x = x - \\eta\\frac{\\partial}{\\partial x}f(x)x=x−etafracpartialpartialxf(x)
-x = x - step\*\\frac{\\partial}{\\partial x} f(x) 其中的 $step $ 叫做学习率
-x = x - step \* f'(x)
-
-while 循环退出条件是：x更新之后和上一次相差绝对值小于特定精确度！
-
-2、梯度下降方法
-2.1、三种梯度下降不同
-梯度下降分三类：批量梯度下降BGD（Batch Gradient Descent）、小批量梯度下降MBGD（Mini-Batch Gradient Descent）、随机梯度下降SGD（Stochastic Gradient Descent）。
-
-三种梯度下降有什么不同呢？我们从梯度下降步骤开始讲起，梯度下降步骤分一下四步：
-
-
-1、随机赋值，Random 随机数生成 theta\\thetatheta，随机一组数值 w_0、w_1……w_nw\_0、w\_1……w\_nw_0、w_1……w_n
-
-
-2、求梯度 g ，梯度代表曲线某点上的切线的斜率，沿着切线往下就相当于沿着坡度最陡峭的方向下降
-
-
-3、if g &lt; 0, theta\\thetatheta 变大，if g &gt; 0, theta\\thetatheta 变小
-
-
-4、判断是否收敛 convergence，如果收敛跳出迭代，如果没有达到收敛，回第 2 步再次执行2~4步
-收敛的判断标准是：随着迭代进行损失函数Loss，变化非常微小甚至不再改变，即认为达到收敛
-
-
-三种梯度下降不同，体现在第二步中：
-
-
-BGD是指在每次迭代使用所有样本来进行梯度的更新
-
-
-MBGD是指在每次迭代使用一部分样本（所有样本500个，使用其中32个样本）来进行梯度的更新
-
-
-SGD是指每次迭代随机选择一个样本来进行梯度更新
-
-
-2.2、线性回归梯度更新公式
-回顾上一讲公式！
-最小二乘法公式如下：
-J(theta)=frac12sumlimitsi=1n(htheta(x(i))−y(i))2J(\\theta) = \\frac{1}{2}\\sum\\limits_{i = 1}^n(h_{\\theta}(x^{(i)}) - y^{(i)})^2J(theta)=frac12sumlimitsi=1n​(htheta​(x(i))−y(i))2
-矩阵写法：
-J(theta)=frac12(Xtheta−y)T(Xtheta−y)J(\\theta) = \\frac{1}{2}(X\\theta - y)^T(X\\theta - y)J(theta)=frac12(Xtheta−y)T(Xtheta−y)
-接着我们来讲解如何求解上面梯度下降的第 2 步，即我们要推导出损失函数的导函数来。
-
-
-\\theta\_j^{n + 1} = \\theta\_j^{n} - \\eta \* \\frac{\\partial J(\\theta)}{\\partial \\theta\_j} 其中 j 表示第 j 个系数
-
-
-fracpartialJ(theta)partialtheta_j=fracpartialpartialthetajfrac12(htheta(x)−y)2\\frac{\\partial J(\\theta)}{\\partial \\theta\_j} = \\frac{\\partial}{\\partial \\theta_j}\\frac{1}{2}(h_{\\theta}(x) - y)^2fracpartialJ(theta)partialtheta_j=fracpartialpartialthetaj​frac12(htheta​(x)−y)2
-
-
-= \\frac{1}{2}\*2(h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(h_{\\theta}(x) - y) (1)
-=(h_theta(x)−y)fracpartialpartialthetaj(sumlimitsi=0ntheta_ix_i−y)= (h\_{\\theta}(x) - y)\\frac{\\partial}{\\partial \\theta_j}(\\sum\\limits_{i = 0}^n\\theta\_ix\_i - y)=(h_theta(x)−y)fracpartialpartialthetaj​(sumlimitsi=0n​theta_ix_i−y) (2)
-=(h_theta(x)−y)x_j= (h\_{\\theta}(x) - y)x\_j=(h_theta(x)−y)x_j (3)
-x2x^2x2的导数就是 2x，根据链式求导法则，我们可以推出上面第（1）步。然后是多元线性回归，所以 h_theta(x)h\_{\\theta}(x)h_theta(x) 就 是 thetaTx\\theta^TxthetaTx 即是w_0x_0+w_1x_1+……+w_nxnw\_0x\_0 + w\_1x\_1 + …… + w\_nx_nw_0x_0+w_1x_1+……+w_nxn​ 即sumlimitsi=0ntheta_ix_i\\sum\\limits_{i = 0}^n\\theta\_ix\_isumlimitsi=0n​theta_ix_i。到这里我们是对 theta_j\\theta\_jtheta_j 来求偏导，那么和 w_jw\_jw_j 没有关系的可以忽略不计，所以只剩下 x_jx\_jx_j。
-我们可以得到结论就是 theta_j\\theta\_jtheta_j 对应的梯度与预测值 haty\\hat{y}haty 和真实值 y 有关，这里 haty\\hat{y}haty 和 y 是列向量（即多个数据），同时还与 theta_j\\theta\_jtheta_j 对应的特征维度 x_jx\_jx_j 有关，这里 x_jx\_jx_j 是原始数据集矩阵的第 j 列。如果我们分别去对每个维度 theta_0、theta_1……theta_n\\theta\_0、\\theta\_1……\\theta\_ntheta_0、theta_1……theta_n 求偏导，即可得到所有维度对应的梯度值。
-
-g0=(htheta(x)−y)x_0g_0 = (h_{\\theta}(x) - y)x\_0g0​=(htheta​(x)−y)x_0
-g1=(htheta(x)−y)x_1g_1 = (h_{\\theta}(x) - y)x\_1g1​=(htheta​(x)−y)x_1
-……
-gj=(htheta(x)−y)x_jg_j = (h_{\\theta}(x) - y)x\_jgj​=(htheta​(x)−y)x_j
-
-总结：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \* (h_{\\theta}(x) - y )x\_j
-2.3、批量梯度下降BGD
-批量梯度下降法是最原始的形式，它是指在每次迭代使用所有样本来进行梯度的更新。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{n}\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-去掉 frac1n\\frac{1}{n}frac1n 也可以，因为它是一个常量，可以和 eta\\etaeta 合并
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta\*\\sum\\limits_{i = 1}^{n} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-
-矩阵写法：
-\\theta^{n + 1} = \\theta^{n} - \\eta \* X^T(X\\theta -y)
-其中 𝑖 = 1, 2, …, n 表示样本数， 𝑗 = 0, 1……表示特征数，这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。
-注意这里更新时存在一个求和函数，即为对所有样本进行计算处理！
-优点：   （1）一次迭代是对所有样本进行计算，此时利用矩阵进行操作，实现了并行。   （2）由全数据集确定的方向能够更好地代表样本总体，从而更准确地朝向极值所在的方向。当目标函数为凸函数时，BGD一定能够得到全局最优。 缺点：   （1）当样本数目 n 很大时，每迭代一步都需要对所有样本计算，训练过程会很慢。
-从迭代的次数上来看，BGD迭代的次数相对较少。其迭代的收敛曲线示意图可以表示如下：
-
-2.4、随机梯度下降SGD
-随机梯度下降法不同于批量梯度下降，随机梯度下降是每次迭代使用一个样本来对参数进行更新。使得训练速度加快。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*(h_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-批量梯度下降算法每次都会使用全部训练样本，因此这些计算是冗余的，因为每次都使用完全相同的样本集。而随机梯度下降算法每次只随机选择一个样本来更新模型参数，因此每次的学习是非常快速的。
-优点：   （1）由于不是在全部训练数据上的更新计算，而是在每轮迭代中，随机选择一条数据进行更新计算，这样每一轮参数的更新速度大大加快。   缺点：   （1）准确度下降。由于即使在目标函数为强凸函数的情况下，SGD仍旧无法做到线性收敛。   （2）可能会收敛到局部最优，由于单个样本并不能代表全体样本的趋势。
-解释一下为什么SGD收敛速度比BGD要快：
-
-这里我们假设有30W个样本，对于BGD而言，每次迭代需要计算30W个样本才能对参数进行一次更新，需要求得最小值可能需要多次迭代（假设这里是10）。
-而对于SGD，每次更新参数只需要一个样本，因此若使用这30W个样本进行参数更新，则参数会被迭代30W次，而这期间，SGD就能保证能够收敛到一个合适的最小值上了。
-也就是说，在收敛时，BGD计算了 10×30W 次，而SGD只计算了 1×30W 次。
-
-从迭代的次数上来看，SGD迭代的次数较多，在解空间的搜索过程就会盲目一些。其迭代的收敛曲线示意图可以表示如下：
-
-2.5、小批量梯度下降MBGD
-小批量梯度下降，是对批量梯度下降以及随机梯度下降的一个折中办法。其思想是：每次迭代使用总样本中的一部分（batch_size）样本来对参数进行更新。这里我们假设 batch_size = 20，样本数 n = 1000 。实现了更新速度与更新次数之间的平衡。每次迭代参数更新公式如下：
-\\theta\_j^{n + 1} = \\theta_j^{n} - \\eta \*\\frac{1}{batch\_size}\\sum\\limits_{i = 1}^{batch\_size} (h\_{\\theta}(x^{(i)}) - y^{(i)} )x\_j^{(i)}
-相对于随机梯度下降算法，小批量梯度下降算法降低了收敛波动性， 即降低了参数更新的方差，使得更新更加稳定。相对于全量梯度下降，其提高了每次学习的速度。并且其不用担心内存瓶颈从而可以利用矩阵运算进行高效计算。
-一般情况下，小批量梯度下降是梯度下降的推荐变体，特别是在深度学习中。每次随机选择2的幂数个样本来进行学习，例如：8、16、32、64、128、256。因为计算机的结构就是二进制的。但是也要根据具体问题而选择，实践中可以进行多次试验， 选择一个更新速度与更次次数都较适合的样本数。
-MBGD梯度下降迭代的收敛曲线更加温柔一些：
-
-2.6、梯度下降优化
-虽然梯度下降算法效果很好，并且广泛使用，但是不管用上面三种哪一种，都存在一些挑战与问题，我们可以从以下几点进行优化:
-
-
-选择一个合理的学习速率很难。如果学习速率过小，则会导致收敛速度很慢。如果学习速率过大，那么其会阻碍收敛，即在极值点附近会振荡。
-
-
-学习速率调整，试图在每次更新过程中， 改变学习速率。从经验上看，**学习率在一开始要保持大些来保证收敛速度，在收敛到最优点附近时要小些以避免来回震荡。**比较简单的学习率调整可以通过 **学习率衰减（Learning Rate Decay）**的方式来实现。假设初始化学习率为 eta_0\\eta\_0eta_0，在第 t 次迭代时的学习率 eta_t\\eta\_teta_t。常用的衰减方式为可以设置为 按迭代次数 进行衰减，迭代次数越大，学习率越小！
-
-
-
-模型所有的参数每次更新都是使用相同的学习速率。如果数据特征是稀疏的，或者每个特征有着不同的统计特征与空间，那么便不能在每次更新中每个参数使用相同的学习速率，那些很少出现的特征应该使用一个相对较大的学习速率。
-
-
-对于非凸目标函数，容易陷入那些次优的局部极值点中，如在神经网路中。那么如何避免呢。
-简单的问题，一般使用随机梯度下降即可解决。在深度学习里，对梯度下降进行了很多改进，比如：自适应梯度下降。在深度学习章节，我们会具体介绍。
-
-
-轮次和批次
-轮次：epoch，轮次顾名思义是把我们已有的训练集数据学习多少轮，迭代多少次。
-批次：batch，批次这里指的的我们已有的训练集数据比较多的时候，一轮要学习太多数据， 那就把一轮次要学习的数据分成多个批次，一批一批数据的学习。
-就好比，你要背诵一片《赤壁赋》，很长。你在背诵的时候，一段段的背诵，就是批次batch。花费了一天终于背诵下来了，以后的9天，每天都进行一轮背诵复习，这就是轮次epoch。这样，《赤壁赋》的背诵效果，就非常牢固了。
-在进行，机器学习训练时，我们也要合理选择轮次和批次~
-
-
-3、代码实战梯度下降
-3.1、批量梯度下降BGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 1000def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w)  + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X,np.ones((100, 1))]# 3、创建超参数轮次epoches = 10000# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、判断是否收敛，一般不会去设定阈值，而是直接采用设置相对大的迭代次数保证可以收敛for i in range(epoches):    # 根据公式计算梯度    g = X.T.dot(X.dot(θ) - y)    # 应用梯度下降的公式去调整 θ 值    learning_rate = learning_rate_schedule(i)    θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-3.2、随机梯度下降SGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 5)w = np.random.randint(1,10,size = (5,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、创建超参数轮次、样本数量epochs = 10000n = 100# 4、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(6, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n) # 0 ~99    np.random.shuffle(index)    X = X[index] # 打乱顺序    y = y[index]    for i in range(n):        X_i = X[[i]]        y_i = y[[i]]        g = X_i.T.dot(X_i.dot(θ)-y_i)        learning_rate = learning_rate_schedule(epoch*n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-3.3、小批量梯度下降MBGD
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。一元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 100n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
-这里我们使用了偏置项，即解决x_0(i)=1x\_0^{(i)} = 1x_0(i)=1。多元一次线性回归问题。
-import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项 X_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 10000n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
   </entry>
   <entry>
     <title>决策回归树与集成算法</title>
@@ -2544,6 +2265,177 @@ model.feature_importances_
       </tags>
   </entry>
   <entry>
+    <title>条件随机场CRF</title>
+    <url>/posts/957271c3.html</url>
+    <content><![CDATA[1、条件随机场CRF概述
+将之前所有的观测作为未来预测的依据是不现实的，因为其复杂度会随着观测数量的增加而无限制地增长。因此，就有了马尔科夫模型，即假定未来的预测仅与最近的观测有关，而独立于其他所有的观测。
+通过引入隐变量，解决Markov Model需要强独立性的问题，即隐马尔可夫模型 HMM。
+隐马尔可夫模型HMM为生成式模型，计算联合概率分布P(X,Z)P(X,Z)P(X,Z)​ ；
+条件随机场CRF则是判别式模型，计算条件概率 P(Y∣X)P(Y|X)P(Y∣X)。由于 CRF 利用最大熵模型的思路建立条件概率模型，对于观测序列并没有做马尔科夫假设，可以得到全局最优，而HMM则是在马尔科夫假设下建立的联合分布，会出现局部最优的情况。（此处 Y,ZY,ZY,Z 均代表隐变量，XXX​ 为观测变量)
+1.1、马尔可夫 Markov
+
+引例：假设我们观测一个二值变量，这个二值变量表示某一天是否下雨。给定这个变量的一系列观测，我们希望预测下一天是否会下雨。
+
+如果我们将所有的数据都看成独立同分布的， 那么我们能够从数据中得到的唯一的信息就是雨天的相对频率；
+然而，我们知道天气经常会呈现出持续若干天的趋势。因此，观测到今天是否下雨对于预测明天是否下雨会有极大的帮助。
+
+
+我们可以使用概率的乘积规则来表示观测序列的联合概率分布，形式为：
+P(x1,x2,…,XN)=p(x1)∏n=2Np(xn∣x1,x2,…,xn−1)P(x_1,x_2,…,X_N) = p(x_1)\prod\limits_{n=2}^Np(x_n|x1,x2,…,x_{n-1})P(x1​,x2​,…,XN​)=p(x1​)n=2∏N​p(xn​∣x1,x2,…,xn−1​)
+利用马尔科夫性（一个马尔可夫过程可以表示为系统在状态转移过程中，第 n 次结果只受第 n-1 次结果的影响，即只与当前状态有关，而与过去状态，即与系统的初始状态和此次转移前的所有状态无关），可以将上式变为一阶马尔科夫链
+P(x1,x2,…,XN)=p(x1)∑n=2Np(xn∣xn−1)P(x_1,x_2,…,X_N) = p(x_1)\sum\limits_{n=2}^Np(x_n|x_{n-1})P(x1​,x2​,…,XN​)=p(x1​)n=2∑N​p(xn​∣xn−1​)​
+
+1.2、隐马尔可夫 HMM
+
+隐变量：离散
+观测变量：离散或连续
+引例：以句子和词性对应为例，观测变量 X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​}​ 为显式的句子，隐变量 Z={z1,z2,…,zn}Z = \{z_1,z_2,…,z_n\}Z={z1​,z2​,…,zn​} 为每一个单词对应的词性。
+
+观测变量和隐变量上的联合概率分布为：
+P(X,Z∣λ)=P(z1∣π)[∏n=2NP(zn∣zn−1,A)]∏m=1NP(xm∣zm,B)P(X,Z|\lambda) = P(z_1|\pi)[\prod\limits_{n=2}^NP(z_n|z_{n-1},A)]\prod\limits_{m=1}^NP(x_m|z_m,B)P(X,Z∣λ)=P(z1​∣π)[n=2∏N​P(zn​∣zn−1​,A)]m=1∏N​P(xm​∣zm​,B)​​
+P(X,Z∣λ)=αt=∑j=1N[∑n=1Nαt−1×Ai]×Bj(t−1)P(X,Z|\lambda) =\alpha_t =\sum\limits_{j = 1}^N[\sum\limits_{n=1}^N\alpha_{t-1} \times A_i]\times B_j(t-1)P(X,Z∣λ)=αt​=j=1∑N​[n=1∑N​αt−1​×Ai​]×Bj​(t−1)​​​​​​​​​​
+定义HMM模型总用到的变量
+给定模型 λ=(A,B,Π)\lambda = (A,B,\Pi)λ=(A,B,Π)​ 和观测序列 X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​}​ ，求观测序列 X 在模型 λ\lambdaλ​下出现的条件概率 P(X∣λ)P(X|\lambda)P(X∣λ)​：
+
+A = [aija_{ij}aij​] 是隐藏状态转义概率矩阵
+B = [bj(k)b_j(k)bj​(k)​] 就是观测状态生成概率矩阵，k表示时刻
+Π=πi\Pi = \pi_iΠ=πi​​ 是隐藏状态的初始概率分布
+
+举例说明：
+我们的观察集是：
+V={红，白}，M=2\rm V = \{红，白\}，M = 2V={红，白}，M=2
+我们的状态集合是：
+Q={盒子一，盒子二，盒子三}，N=3\rm Q = \{盒子一，盒子二，盒子三\}，N= 3Q={盒子一，盒子二，盒子三}，N=3​
+球的颜色观测序列
+O={红，白，红}\rm O = \{红，白，红\}O={红，白，红}​
+观察序列和状态序列的长度都是3。
+初始状态分布为：
+Π=[0.2,0.4,0.4]T\rm \Pi = [0.2,0.4,0.4]^TΠ=[0.2,0.4,0.4]T
+状态转移概率分布矩阵为（三个盒子之间的状态转移、转变）：
+A=[0.50.20.30.30.50.20.20.30.5]\rm A = \begin{bmatrix}0.5 &amp; 0.2 &amp; 0.3\\0.3 &amp; 0.5 &amp; 0.2\\0.2 &amp; 0.3 &amp; 0.5\end{bmatrix}A=​0.50.30.2​0.20.50.3​0.30.20.5​​​​​​
+观测状态矩阵
+B=[0.50.50.40.60.70.3]\rm B = \begin{bmatrix}0.5 &amp; 0.5\\0.4 &amp;0.6\\0.7&amp;0.3\end{bmatrix}B=​0.50.40.7​0.50.60.3​​​​
+HMM可以解决的三个问题：
+
+
+评估观察序列概率。
+
+
+模型参数学习。
+
+
+预测问题/解码问题。
+
+
+1.3、马尔可夫随机场定义
+
+什么叫随机场（MMF，Markov Random Field）？
+随机场是由若干个位置组成的整体，当给每一个位置中按照某种分布随机赋予一个值之后，其全体就叫做随机场。
+例：假如我们有一个十个词形成的句子需要做词性标注。这十个词每个词的词性可以在我们已知的词性集合（名词，动词…)中去选择。当我们为每个词选择完词性后，这就形成了一个随机场。
+
+马尔可夫随机场是随机场的一个具有马尔可夫性得特例，它假设随机场中某一个位置的赋值仅仅与和它相邻的位置的赋值有关，和与其不相邻的位置的赋值无关。
+例：如果我们假设所有词的词性只和它相邻的词的词性有关时，这个随机场就特化成一个马尔科夫随机场。比如第三个词的词性除了与自己本身的位置有关外，只与第二个词和第四个词的词性有关。
+1.4、马尔可夫随机场拆解
+马尔可夫随机场（Markov Random Field）包含两层意思。
+马尔可夫性质：它指的是一个随机变量序列按时间先后关系依次排开的时候，第N+1时刻的分布特性，与N时刻以前的随机变量的取值无关。拿天气来打个比方。如果我们假定天气是马尔可夫的，其意思就是我们假设今天的天气仅仅与昨天的天气存在概率上的关联，而与前天及前天以前的天气没有关系。其它如传染病和谣言的传播规律，就是马尔可夫的。
+随机场：当给每一个位置中按照某种分布随机赋予相空间的一个值之后，其全体就叫做随机场。我们不妨拿种地来打个比方。其中有两个概念：位置（site），相空间（phase space）。&quot;位置&quot;好比是一亩亩农田；“相空间&quot;好比是种的各种庄稼。我们可以给不同的地种上不同的庄稼，这就好比给随机场的每个&quot;位置”，赋予相空间里不同的值。所以，通俗的说，随机场就是在哪块地里种什么庄稼的事情。
+马尔可夫随机场：马尔科夫随机场是具有马尔科夫特性的随机拿种地打比方，如果任何一块地里种的庄稼的种类仅仅与它邻近的地里种的庄稼的种类有关，与其它地方的庄稼的种类无关，那么这些地里种的庄稼的集合，就是一个马尔可夫随机场。
+1.5、条件随机场 CRF
+条件随机场 Conditional Random Field 是 马尔可夫随机场 + 隐状态的特例。
+区别于生成式的隐马尔可夫模型HMM，CRF是判别式的。
+假设我们有训练数据(X,Y)，X是属性集合，Y是类别标记。这时来了一个新的样本 xxx，我们想要预测它的类别 yyy。我们最终的目的是求得最大的条件概率 P(y∣x)P(y|x)P(y∣x)​ 作为新样本的分类。
+生成式模型：
+一般会对每一个类建立一个模型，有多少个类别，就建立多少个模型。比如说类别标签有｛猫，狗，猪｝，那首先根据猫的特征学习出一个猫的模型，再根据狗的特征学习出狗的模型，之后分别计算新样本 xxx​ 跟三个类别的联合概率 P(x,y)P(x,y)P(x,y)​ ，然后根据贝叶斯公式：
+P(y∣x)=P(x,y)P(x)P(y|x) = \frac{P(x,y)}{P(x)}P(y∣x)=P(x)P(x,y)​​​
+分别计算P(y∣x)P(y|x)P(y∣x)​​ ，选择三类中最大的 P(y∣x)P(y|x)P(y∣x)​​ 作为样本的分类。
+判别式模型：
+根据训练数据得到分类函数和分界面，比如说根据 SVM 模型得到一个分界面，然后直接计算条件概率 P(y∣x)P(y|x)P(y∣x)，我们将最大的 P(y∣x)P(y|x)P(y∣x)​ 作为新样本的分类。判别式模型是对条件概率建模，学习不同类别之间的最优边界，无法反映训练数据本身的特性，能力有限，其只能告诉我们分类的类别。
+两模型区别：
+不管是生成式模型还是判别式模型，它们最终的判断依据都是条件概率 P(y∣x)P(y|x)P(y∣x) ，但是生成式模型先计算了联合概率 P(y∣x)P(y|x)P(y∣x) ，再由贝叶斯公式计算得到条件概率。因此，生成式模型可以体现更多数据本身的分布信息，其普适性更广。
+CRF 试图对多个随机变量（代表状态序列）在给定观测序列的值之后的条件概率进行建模：
+给定观测序列 ，X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​} 以及隐状态序列  Y={y1,y2,…,yn}Y = \{y_1,y_2,…,y_n\}Y={y1​,y2​,…,yn​}的情况下，构建条件概率模型 P(Y∣X)P(Y|X)P(Y∣X)。若随机变量 Y 构成的是一个马尔科夫随机场，则 P(Y∣X)P(Y|X)P(Y∣X)  为条件随机场 CRF。
+与HMM类似，CRF也关心如下三种问题：
+
+
+评估观察序列概率。
+
+
+模型参数学习。
+
+
+预测问题/解码问题。
+
+
+2、实体命名案例
+2.1、三方库安装与导包
+# pip install nltkimport nltk # Natural Language Toolkit 自然语言处理工具包# pip install nltkimport sklearn_crfsuite # 条件随机场Python库from sklearn_crfsuite import metrics
+2.2、数据加载与配置
+# 网络设置，跳过安全验证import sslssl._create_default_https_context = ssl._create_unverified_context# 下载比较慢，不稳定# 可以从百度网盘上下载，解压（解压到当前目录C:\Users\likai）到：C:\Users\likai\nltk_datanltk.download(&#x27;conll2002&#x27;) # 下载数据，下载路径：C:\Users\likai\AppData\Roaming\nltk_datanltk.corpus.conll2002.fileids() # 查看数据类别
+加载训练和测试数据
+%%timetrain_sents = list(nltk.corpus.conll2002.iob_sents(&#x27;esp.train&#x27;))test_sents = list(nltk.corpus.conll2002.iob_sents(&#x27;esp.testb&#x27;))print(&#x27;训练数据长度：&#x27;,len(train_sents))print(&#x27;测试数据长度：&#x27;,len(test_sents))
+2.3、语料库介绍
+
+
+通用语料库：CoNLL2002
+
+
+语言：西班牙语
+
+
+训练集：8323句
+
+
+测试集：1517句
+
+
+概念：一般来说，标注列表为[‘O’ ,‘B-MISC’, ‘I-MISC’, ‘B-ORG’ ,‘I-ORG’, ‘B-PER’ ,‘I-PER’, ‘B-LOC’ ,‘I-LOC’]。其中，一般一共分为四大类：PER（人名），LOC（位置），ORG（组织）以及MISC（大杂烩），而且 B 表示开始，I 表示中间，O 表示单字词。
+
+
+语料格式：	三列，分别表示词汇、词性、实体类型；使用Bakeoff-3评测中所采用的的BIO标注集即：
+- B-PER、I-PER 代表人名首字、人名非首字
+- B-LOC、I-LOC 代表地名首字、地名非首字
+- B-ORG、I-ORG 代表组织机构名首字、组织机构名非首字
+- O 代表该字不属于命名实体的一部分。
+- 如：(‘Australia’, ‘NP’, ‘B-LOC’)
+
+
+和其他语言一样，西班牙语也有很多词性，如：冠词、代词、动词、名词等等
+
+例如：NP表示专有名词，PP表示过去分词
+
+
+
+display(train_sents[0],test_sents[-100])&#x27;&#x27;&#x27;[(&#x27;Melbourne&#x27;, &#x27;NP&#x27;, &#x27;B-LOC&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;Australia&#x27;, &#x27;NP&#x27;, &#x27;B-LOC&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;,&#x27;, &#x27;Fc&#x27;, &#x27;O&#x27;), (&#x27;25&#x27;, &#x27;Z&#x27;, &#x27;O&#x27;), (&#x27;may&#x27;, &#x27;NC&#x27;, &#x27;O&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;EFE&#x27;, &#x27;NC&#x27;, &#x27;B-ORG&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;.&#x27;, &#x27;Fp&#x27;, &#x27;O&#x27;)][(&#x27;Valladolid&#x27;, &#x27;NC&#x27;, &#x27;B-LOC&#x27;), (&#x27;,&#x27;, &#x27;Fc&#x27;, &#x27;O&#x27;), (&#x27;23&#x27;, &#x27;Z&#x27;, &#x27;O&#x27;), (&#x27;may&#x27;, &#x27;NC&#x27;, &#x27;O&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;EFE&#x27;, &#x27;NC&#x27;, &#x27;B-ORG&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;.&#x27;, &#x27;Fp&#x27;, &#x27;O&#x27;)]&#x27;&#x27;&#x27;
+2.4、特征处理
+主要选择处理了如下几个特征：
+
+当前词的小写格式
+当前词的后缀
+当前词是否全大写 isupper
+当前词的首字母大写，其他字母小写判断 istitle
+当前词是否为数字 isdigit
+当前词的词性
+当前词的词性前缀
+
+def word2features(sent, i):    word = sent[i][0]    postag = sent[i][1]    # 当前词的特征信息    features = &#123;        &#x27;word.lower()&#x27;: word.lower(), # 小写形式        &#x27;word[-3:]&#x27;: word[-3:], # 词切片        &#x27;word[-2:]&#x27;: word[-2:],        &#x27;word.isupper()&#x27;: word.isupper(),# 判断是否大写        &#x27;word.istitle()&#x27;: word.istitle(), # 当前词的首字母大写，其他字母小写判断        &#x27;word.isdigit()&#x27;: word.isdigit(), # 判断是否是数字        &#x27;postag&#x27;: postag, # 词性        &#x27;postag[:2]&#x27;: postag[:2]&#125; # 词性切片，去一部分        # 前一个词的特征信息    if i &gt; 0:        word1 = sent[i-1][0]        postag1 = sent[i-1][1]        features.update(&#123;            &#x27;-1:word.lower()&#x27;: word1.lower(),            &#x27;-1:word.istitle()&#x27;: word1.istitle(),            &#x27;-1:word.isupper()&#x27;: word1.isupper(),            &#x27;-1:postag&#x27;: postag1,            &#x27;-1:postag[:2]&#x27;: postag1[:2]&#125;)    else:        features[&#x27;BOS&#x27;] = True # 表示开始            # 后一个词的特征信息    if i &lt; len(sent)-1:        word1 = sent[i+1][0]        postag1 = sent[i+1][1]        features.update(&#123;            &#x27;+1:word.lower()&#x27;: word1.lower(),            &#x27;+1:word.istitle()&#x27;: word1.istitle(),            &#x27;+1:word.isupper()&#x27;: word1.isupper(),            &#x27;+1:postag&#x27;: postag1,            &#x27;+1:postag[:2]&#x27;: postag1[:2]&#125;)    else:        features[&#x27;EOS&#x27;] = True # 表示结束    return features # 返回词特征信息# 文本数据特征提取def sent2features(sent):    return [word2features(sent, i) for i in range(len(sent))]# 文本数据对应词性def sent2labels(sent):    return [label for token, postag, label in sent]
+2.4、文本数据特征提取
+%%timeX_train = [sent2features(s) for s in train_sents]y_train = [sent2labels(s) for s in train_sents]X_test = [sent2features(s) for s in test_sents]y_test = [sent2labels(s) for s in test_sents]display(y_train[0],X_train[0])display(y_test[0],X_test[0])
+2.5、条件随机场CRF建模
+%%timecrf = sklearn_crfsuite.CRF(    c1=0.1,# L1正则化系数    c2=0.1, # L2正则化系数    max_iterations=100, # 梯度下降迭代次数    all_possible_transitions=True)# all_possible_transitions 参数说明：# 指定条件随机场CRF是否生成训练数据中甚至没有出现的转移特征（即负转移特征）。# 如果为True，CRF将生成关联所有可能标签对的转移特征crf.fit(X_train, y_train)
+可能出现问题：
+
+2.6、测试数据预测
+y_pred = crf.predict(X_test)print(&#x27;条件随机场实体命名准确率是：&#x27;,crf.score(X_test,y_test))display(y_pred[:2],y_test[:2])&#x27;&#x27;&#x27;条件随机场实体命名准确率是： 0.971455184056818[[&#x27;B-LOC&#x27;, &#x27;I-LOC&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;B-ORG&#x27;, &#x27;O&#x27;, &#x27;O&#x27;], [&#x27;O&#x27;]][[&#x27;B-LOC&#x27;, &#x27;I-LOC&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;B-ORG&#x27;, &#x27;O&#x27;, &#x27;O&#x27;], [&#x27;O&#x27;]]&#x27;&#x27;&#x27;
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>多元线性回归</title>
     <url>/posts/7d0d429b.html</url>
     <content><![CDATA[[toc]
@@ -2967,177 +2859,6 @@ m=Integer.parseInt(str[1])
       </categories>
   </entry>
   <entry>
-    <title>条件随机场CRF</title>
-    <url>/posts/957271c3.html</url>
-    <content><![CDATA[1、条件随机场CRF概述
-将之前所有的观测作为未来预测的依据是不现实的，因为其复杂度会随着观测数量的增加而无限制地增长。因此，就有了马尔科夫模型，即假定未来的预测仅与最近的观测有关，而独立于其他所有的观测。
-通过引入隐变量，解决Markov Model需要强独立性的问题，即隐马尔可夫模型 HMM。
-隐马尔可夫模型HMM为生成式模型，计算联合概率分布P(X,Z)P(X,Z)P(X,Z)​ ；
-条件随机场CRF则是判别式模型，计算条件概率 P(Y∣X)P(Y|X)P(Y∣X)。由于 CRF 利用最大熵模型的思路建立条件概率模型，对于观测序列并没有做马尔科夫假设，可以得到全局最优，而HMM则是在马尔科夫假设下建立的联合分布，会出现局部最优的情况。（此处 Y,ZY,ZY,Z 均代表隐变量，XXX​ 为观测变量)
-1.1、马尔可夫 Markov
-
-引例：假设我们观测一个二值变量，这个二值变量表示某一天是否下雨。给定这个变量的一系列观测，我们希望预测下一天是否会下雨。
-
-如果我们将所有的数据都看成独立同分布的， 那么我们能够从数据中得到的唯一的信息就是雨天的相对频率；
-然而，我们知道天气经常会呈现出持续若干天的趋势。因此，观测到今天是否下雨对于预测明天是否下雨会有极大的帮助。
-
-
-我们可以使用概率的乘积规则来表示观测序列的联合概率分布，形式为：
-P(x1,x2,…,XN)=p(x1)∏n=2Np(xn∣x1,x2,…,xn−1)P(x_1,x_2,…,X_N) = p(x_1)\prod\limits_{n=2}^Np(x_n|x1,x2,…,x_{n-1})P(x1​,x2​,…,XN​)=p(x1​)n=2∏N​p(xn​∣x1,x2,…,xn−1​)
-利用马尔科夫性（一个马尔可夫过程可以表示为系统在状态转移过程中，第 n 次结果只受第 n-1 次结果的影响，即只与当前状态有关，而与过去状态，即与系统的初始状态和此次转移前的所有状态无关），可以将上式变为一阶马尔科夫链
-P(x1,x2,…,XN)=p(x1)∑n=2Np(xn∣xn−1)P(x_1,x_2,…,X_N) = p(x_1)\sum\limits_{n=2}^Np(x_n|x_{n-1})P(x1​,x2​,…,XN​)=p(x1​)n=2∑N​p(xn​∣xn−1​)​
-
-1.2、隐马尔可夫 HMM
-
-隐变量：离散
-观测变量：离散或连续
-引例：以句子和词性对应为例，观测变量 X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​}​ 为显式的句子，隐变量 Z={z1,z2,…,zn}Z = \{z_1,z_2,…,z_n\}Z={z1​,z2​,…,zn​} 为每一个单词对应的词性。
-
-观测变量和隐变量上的联合概率分布为：
-P(X,Z∣λ)=P(z1∣π)[∏n=2NP(zn∣zn−1,A)]∏m=1NP(xm∣zm,B)P(X,Z|\lambda) = P(z_1|\pi)[\prod\limits_{n=2}^NP(z_n|z_{n-1},A)]\prod\limits_{m=1}^NP(x_m|z_m,B)P(X,Z∣λ)=P(z1​∣π)[n=2∏N​P(zn​∣zn−1​,A)]m=1∏N​P(xm​∣zm​,B)​​
-P(X,Z∣λ)=αt=∑j=1N[∑n=1Nαt−1×Ai]×Bj(t−1)P(X,Z|\lambda) =\alpha_t =\sum\limits_{j = 1}^N[\sum\limits_{n=1}^N\alpha_{t-1} \times A_i]\times B_j(t-1)P(X,Z∣λ)=αt​=j=1∑N​[n=1∑N​αt−1​×Ai​]×Bj​(t−1)​​​​​​​​​​
-定义HMM模型总用到的变量
-给定模型 λ=(A,B,Π)\lambda = (A,B,\Pi)λ=(A,B,Π)​ 和观测序列 X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​}​ ，求观测序列 X 在模型 λ\lambdaλ​下出现的条件概率 P(X∣λ)P(X|\lambda)P(X∣λ)​：
-
-A = [aija_{ij}aij​] 是隐藏状态转义概率矩阵
-B = [bj(k)b_j(k)bj​(k)​] 就是观测状态生成概率矩阵，k表示时刻
-Π=πi\Pi = \pi_iΠ=πi​​ 是隐藏状态的初始概率分布
-
-举例说明：
-我们的观察集是：
-V={红，白}，M=2\rm V = \{红，白\}，M = 2V={红，白}，M=2
-我们的状态集合是：
-Q={盒子一，盒子二，盒子三}，N=3\rm Q = \{盒子一，盒子二，盒子三\}，N= 3Q={盒子一，盒子二，盒子三}，N=3​
-球的颜色观测序列
-O={红，白，红}\rm O = \{红，白，红\}O={红，白，红}​
-观察序列和状态序列的长度都是3。
-初始状态分布为：
-Π=[0.2,0.4,0.4]T\rm \Pi = [0.2,0.4,0.4]^TΠ=[0.2,0.4,0.4]T
-状态转移概率分布矩阵为（三个盒子之间的状态转移、转变）：
-A=[0.50.20.30.30.50.20.20.30.5]\rm A = \begin{bmatrix}0.5 &amp; 0.2 &amp; 0.3\\0.3 &amp; 0.5 &amp; 0.2\\0.2 &amp; 0.3 &amp; 0.5\end{bmatrix}A=​0.50.30.2​0.20.50.3​0.30.20.5​​​​​​
-观测状态矩阵
-B=[0.50.50.40.60.70.3]\rm B = \begin{bmatrix}0.5 &amp; 0.5\\0.4 &amp;0.6\\0.7&amp;0.3\end{bmatrix}B=​0.50.40.7​0.50.60.3​​​​
-HMM可以解决的三个问题：
-
-
-评估观察序列概率。
-
-
-模型参数学习。
-
-
-预测问题/解码问题。
-
-
-1.3、马尔可夫随机场定义
-
-什么叫随机场（MMF，Markov Random Field）？
-随机场是由若干个位置组成的整体，当给每一个位置中按照某种分布随机赋予一个值之后，其全体就叫做随机场。
-例：假如我们有一个十个词形成的句子需要做词性标注。这十个词每个词的词性可以在我们已知的词性集合（名词，动词…)中去选择。当我们为每个词选择完词性后，这就形成了一个随机场。
-
-马尔可夫随机场是随机场的一个具有马尔可夫性得特例，它假设随机场中某一个位置的赋值仅仅与和它相邻的位置的赋值有关，和与其不相邻的位置的赋值无关。
-例：如果我们假设所有词的词性只和它相邻的词的词性有关时，这个随机场就特化成一个马尔科夫随机场。比如第三个词的词性除了与自己本身的位置有关外，只与第二个词和第四个词的词性有关。
-1.4、马尔可夫随机场拆解
-马尔可夫随机场（Markov Random Field）包含两层意思。
-马尔可夫性质：它指的是一个随机变量序列按时间先后关系依次排开的时候，第N+1时刻的分布特性，与N时刻以前的随机变量的取值无关。拿天气来打个比方。如果我们假定天气是马尔可夫的，其意思就是我们假设今天的天气仅仅与昨天的天气存在概率上的关联，而与前天及前天以前的天气没有关系。其它如传染病和谣言的传播规律，就是马尔可夫的。
-随机场：当给每一个位置中按照某种分布随机赋予相空间的一个值之后，其全体就叫做随机场。我们不妨拿种地来打个比方。其中有两个概念：位置（site），相空间（phase space）。&quot;位置&quot;好比是一亩亩农田；“相空间&quot;好比是种的各种庄稼。我们可以给不同的地种上不同的庄稼，这就好比给随机场的每个&quot;位置”，赋予相空间里不同的值。所以，通俗的说，随机场就是在哪块地里种什么庄稼的事情。
-马尔可夫随机场：马尔科夫随机场是具有马尔科夫特性的随机拿种地打比方，如果任何一块地里种的庄稼的种类仅仅与它邻近的地里种的庄稼的种类有关，与其它地方的庄稼的种类无关，那么这些地里种的庄稼的集合，就是一个马尔可夫随机场。
-1.5、条件随机场 CRF
-条件随机场 Conditional Random Field 是 马尔可夫随机场 + 隐状态的特例。
-区别于生成式的隐马尔可夫模型HMM，CRF是判别式的。
-假设我们有训练数据(X,Y)，X是属性集合，Y是类别标记。这时来了一个新的样本 xxx，我们想要预测它的类别 yyy。我们最终的目的是求得最大的条件概率 P(y∣x)P(y|x)P(y∣x)​ 作为新样本的分类。
-生成式模型：
-一般会对每一个类建立一个模型，有多少个类别，就建立多少个模型。比如说类别标签有｛猫，狗，猪｝，那首先根据猫的特征学习出一个猫的模型，再根据狗的特征学习出狗的模型，之后分别计算新样本 xxx​ 跟三个类别的联合概率 P(x,y)P(x,y)P(x,y)​ ，然后根据贝叶斯公式：
-P(y∣x)=P(x,y)P(x)P(y|x) = \frac{P(x,y)}{P(x)}P(y∣x)=P(x)P(x,y)​​​
-分别计算P(y∣x)P(y|x)P(y∣x)​​ ，选择三类中最大的 P(y∣x)P(y|x)P(y∣x)​​ 作为样本的分类。
-判别式模型：
-根据训练数据得到分类函数和分界面，比如说根据 SVM 模型得到一个分界面，然后直接计算条件概率 P(y∣x)P(y|x)P(y∣x)，我们将最大的 P(y∣x)P(y|x)P(y∣x)​ 作为新样本的分类。判别式模型是对条件概率建模，学习不同类别之间的最优边界，无法反映训练数据本身的特性，能力有限，其只能告诉我们分类的类别。
-两模型区别：
-不管是生成式模型还是判别式模型，它们最终的判断依据都是条件概率 P(y∣x)P(y|x)P(y∣x) ，但是生成式模型先计算了联合概率 P(y∣x)P(y|x)P(y∣x) ，再由贝叶斯公式计算得到条件概率。因此，生成式模型可以体现更多数据本身的分布信息，其普适性更广。
-CRF 试图对多个随机变量（代表状态序列）在给定观测序列的值之后的条件概率进行建模：
-给定观测序列 ，X={x1,x2,…,xn}X = \{x_1,x_2,…,x_n\}X={x1​,x2​,…,xn​} 以及隐状态序列  Y={y1,y2,…,yn}Y = \{y_1,y_2,…,y_n\}Y={y1​,y2​,…,yn​}的情况下，构建条件概率模型 P(Y∣X)P(Y|X)P(Y∣X)。若随机变量 Y 构成的是一个马尔科夫随机场，则 P(Y∣X)P(Y|X)P(Y∣X)  为条件随机场 CRF。
-与HMM类似，CRF也关心如下三种问题：
-
-
-评估观察序列概率。
-
-
-模型参数学习。
-
-
-预测问题/解码问题。
-
-
-2、实体命名案例
-2.1、三方库安装与导包
-# pip install nltkimport nltk # Natural Language Toolkit 自然语言处理工具包# pip install nltkimport sklearn_crfsuite # 条件随机场Python库from sklearn_crfsuite import metrics
-2.2、数据加载与配置
-# 网络设置，跳过安全验证import sslssl._create_default_https_context = ssl._create_unverified_context# 下载比较慢，不稳定# 可以从百度网盘上下载，解压（解压到当前目录C:\Users\likai）到：C:\Users\likai\nltk_datanltk.download(&#x27;conll2002&#x27;) # 下载数据，下载路径：C:\Users\likai\AppData\Roaming\nltk_datanltk.corpus.conll2002.fileids() # 查看数据类别
-加载训练和测试数据
-%%timetrain_sents = list(nltk.corpus.conll2002.iob_sents(&#x27;esp.train&#x27;))test_sents = list(nltk.corpus.conll2002.iob_sents(&#x27;esp.testb&#x27;))print(&#x27;训练数据长度：&#x27;,len(train_sents))print(&#x27;测试数据长度：&#x27;,len(test_sents))
-2.3、语料库介绍
-
-
-通用语料库：CoNLL2002
-
-
-语言：西班牙语
-
-
-训练集：8323句
-
-
-测试集：1517句
-
-
-概念：一般来说，标注列表为[‘O’ ,‘B-MISC’, ‘I-MISC’, ‘B-ORG’ ,‘I-ORG’, ‘B-PER’ ,‘I-PER’, ‘B-LOC’ ,‘I-LOC’]。其中，一般一共分为四大类：PER（人名），LOC（位置），ORG（组织）以及MISC（大杂烩），而且 B 表示开始，I 表示中间，O 表示单字词。
-
-
-语料格式：	三列，分别表示词汇、词性、实体类型；使用Bakeoff-3评测中所采用的的BIO标注集即：
-- B-PER、I-PER 代表人名首字、人名非首字
-- B-LOC、I-LOC 代表地名首字、地名非首字
-- B-ORG、I-ORG 代表组织机构名首字、组织机构名非首字
-- O 代表该字不属于命名实体的一部分。
-- 如：(‘Australia’, ‘NP’, ‘B-LOC’)
-
-
-和其他语言一样，西班牙语也有很多词性，如：冠词、代词、动词、名词等等
-
-例如：NP表示专有名词，PP表示过去分词
-
-
-
-display(train_sents[0],test_sents[-100])&#x27;&#x27;&#x27;[(&#x27;Melbourne&#x27;, &#x27;NP&#x27;, &#x27;B-LOC&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;Australia&#x27;, &#x27;NP&#x27;, &#x27;B-LOC&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;,&#x27;, &#x27;Fc&#x27;, &#x27;O&#x27;), (&#x27;25&#x27;, &#x27;Z&#x27;, &#x27;O&#x27;), (&#x27;may&#x27;, &#x27;NC&#x27;, &#x27;O&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;EFE&#x27;, &#x27;NC&#x27;, &#x27;B-ORG&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;.&#x27;, &#x27;Fp&#x27;, &#x27;O&#x27;)][(&#x27;Valladolid&#x27;, &#x27;NC&#x27;, &#x27;B-LOC&#x27;), (&#x27;,&#x27;, &#x27;Fc&#x27;, &#x27;O&#x27;), (&#x27;23&#x27;, &#x27;Z&#x27;, &#x27;O&#x27;), (&#x27;may&#x27;, &#x27;NC&#x27;, &#x27;O&#x27;), (&#x27;(&#x27;, &#x27;Fpa&#x27;, &#x27;O&#x27;), (&#x27;EFE&#x27;, &#x27;NC&#x27;, &#x27;B-ORG&#x27;), (&#x27;)&#x27;, &#x27;Fpt&#x27;, &#x27;O&#x27;), (&#x27;.&#x27;, &#x27;Fp&#x27;, &#x27;O&#x27;)]&#x27;&#x27;&#x27;
-2.4、特征处理
-主要选择处理了如下几个特征：
-
-当前词的小写格式
-当前词的后缀
-当前词是否全大写 isupper
-当前词的首字母大写，其他字母小写判断 istitle
-当前词是否为数字 isdigit
-当前词的词性
-当前词的词性前缀
-
-def word2features(sent, i):    word = sent[i][0]    postag = sent[i][1]    # 当前词的特征信息    features = &#123;        &#x27;word.lower()&#x27;: word.lower(), # 小写形式        &#x27;word[-3:]&#x27;: word[-3:], # 词切片        &#x27;word[-2:]&#x27;: word[-2:],        &#x27;word.isupper()&#x27;: word.isupper(),# 判断是否大写        &#x27;word.istitle()&#x27;: word.istitle(), # 当前词的首字母大写，其他字母小写判断        &#x27;word.isdigit()&#x27;: word.isdigit(), # 判断是否是数字        &#x27;postag&#x27;: postag, # 词性        &#x27;postag[:2]&#x27;: postag[:2]&#125; # 词性切片，去一部分        # 前一个词的特征信息    if i &gt; 0:        word1 = sent[i-1][0]        postag1 = sent[i-1][1]        features.update(&#123;            &#x27;-1:word.lower()&#x27;: word1.lower(),            &#x27;-1:word.istitle()&#x27;: word1.istitle(),            &#x27;-1:word.isupper()&#x27;: word1.isupper(),            &#x27;-1:postag&#x27;: postag1,            &#x27;-1:postag[:2]&#x27;: postag1[:2]&#125;)    else:        features[&#x27;BOS&#x27;] = True # 表示开始            # 后一个词的特征信息    if i &lt; len(sent)-1:        word1 = sent[i+1][0]        postag1 = sent[i+1][1]        features.update(&#123;            &#x27;+1:word.lower()&#x27;: word1.lower(),            &#x27;+1:word.istitle()&#x27;: word1.istitle(),            &#x27;+1:word.isupper()&#x27;: word1.isupper(),            &#x27;+1:postag&#x27;: postag1,            &#x27;+1:postag[:2]&#x27;: postag1[:2]&#125;)    else:        features[&#x27;EOS&#x27;] = True # 表示结束    return features # 返回词特征信息# 文本数据特征提取def sent2features(sent):    return [word2features(sent, i) for i in range(len(sent))]# 文本数据对应词性def sent2labels(sent):    return [label for token, postag, label in sent]
-2.4、文本数据特征提取
-%%timeX_train = [sent2features(s) for s in train_sents]y_train = [sent2labels(s) for s in train_sents]X_test = [sent2features(s) for s in test_sents]y_test = [sent2labels(s) for s in test_sents]display(y_train[0],X_train[0])display(y_test[0],X_test[0])
-2.5、条件随机场CRF建模
-%%timecrf = sklearn_crfsuite.CRF(    c1=0.1,# L1正则化系数    c2=0.1, # L2正则化系数    max_iterations=100, # 梯度下降迭代次数    all_possible_transitions=True)# all_possible_transitions 参数说明：# 指定条件随机场CRF是否生成训练数据中甚至没有出现的转移特征（即负转移特征）。# 如果为True，CRF将生成关联所有可能标签对的转移特征crf.fit(X_train, y_train)
-可能出现问题：
-
-2.6、测试数据预测
-y_pred = crf.predict(X_test)print(&#x27;条件随机场实体命名准确率是：&#x27;,crf.score(X_test,y_test))display(y_pred[:2],y_test[:2])&#x27;&#x27;&#x27;条件随机场实体命名准确率是： 0.971455184056818[[&#x27;B-LOC&#x27;, &#x27;I-LOC&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;B-ORG&#x27;, &#x27;O&#x27;, &#x27;O&#x27;], [&#x27;O&#x27;]][[&#x27;B-LOC&#x27;, &#x27;I-LOC&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;O&#x27;, &#x27;B-ORG&#x27;, &#x27;O&#x27;, &#x27;O&#x27;], [&#x27;O&#x27;]]&#x27;&#x27;&#x27;
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>梯度下降</title>
     <url>/posts/3c50d4b7.html</url>
     <content><![CDATA[梯度下降
@@ -3415,6 +3136,513 @@ import numpy as np# 1、创建数据集X，yX = 2*np.random.rand(100, 5)w = np.r
 import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 1)w,b = np.random.randint(1,10,size = 2)y = w * X + b + np.random.randn(100, 1)# 2、使用偏置项x_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 100n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(2, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
 这里我们使用了偏置项，即解决x0(i)=1x_0^{(i)} = 1x0(i)​=1。多元一次线性回归问题。
 import numpy as np# 1、创建数据集X，yX = np.random.rand(100, 3)w = np.random.randint(1,10,size = (3,1))b = np.random.randint(1,10,size = 1)y = X.dot(w) + b + np.random.randn(100, 1)# 2、使用偏置项 X_0 = 1，更新XX = np.c_[X, np.ones((100, 1))]# 3、定义一个函数来调整学习率t0, t1 = 5, 500def learning_rate_schedule(t):    return t0/(t+t1)# 4、创建超参数轮次、样本数量、小批量数量epochs = 10000n = 100batch_size = 16num_batches = int(n / batch_size)# 5、初始化 W0...Wn，标准正太分布创建Wθ = np.random.randn(4, 1)# 6、多次for循环实现梯度下降，最终结果收敛for epoch in range(epochs):    # 在双层for循环之间，每个轮次开始分批次迭代之前打乱数据索引顺序    index = np.arange(n)    np.random.shuffle(index)    X = X[index]    y = y[index]    for i in range(num_batches):        # 一次取一批数据16个样本        X_batch = X[i * batch_size : (i + 1)*batch_size]        y_batch = y[i * batch_size : (i + 1)*batch_size]        g = X_batch.T.dot(X_batch.dot(θ)-y_batch)        learning_rate = learning_rate_schedule(epoch * n + i)        θ = θ - learning_rate * gprint(&#x27;真实斜率和截距是：&#x27;,w,b)print(&#x27;梯度下降计算斜率和截距是：&#x27;,θ)
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>聚类算法</title>
+    <url>/posts/35f08535.html</url>
+    <content><![CDATA[聚类算法
+1、聚类介绍
+1.1、聚类作用
+
+
+知识发现 发现事物之间的潜在关系
+
+
+异常值检测
+
+
+特征提取 数据压缩的例子
+
+
+1.2、有监督与无监督学习
+有监督：
+
+
+给定训练集 X 和 标签Y
+
+
+选择模型
+
+学习（目标函数的最优化）
+生成模型（本质上是一组参数、方程）
+
+
+
+根据生成的一组参数进行预测分类等任务
+无监督：
+
+
+拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
+
+
+Clustering 聚类
+
+对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
+也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
+
+
+
+降维算法，数据特征变少
+
+
+1.3、聚类算法
+
+1.4、相似度
+
+1.5、数据间的相似度
+
+
+每一条数据都可以理解为多维空间中的一个点。
+
+
+可以根据点和点之间的距离来评价数据间的相似度
+
+
+近朱者赤近墨者黑！
+
+
+欧氏距离：
+
+二维空间：
+
+d=(x1−x2)2+(y1−y2)2d=\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
+
+三维空间：
+
+d=(x1−x2)2+(y1−y2)2+(z1−z2)2d=\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
+
+闵可夫斯基距离
+
+d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
+
+
+P = 1 曼哈顿距离
+
+d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
+在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
+
+
+
+P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
+
+
+P = 无穷，切比雪夫距离 ，哪个维度差值最大就是那个差值作为距离。
+
+
+
+1.6、余弦距离
+将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
+计算过程如下：
+
+将数据映射为高维空间中的点（向量）
+计算向量间的余弦值
+取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
+
+cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
+cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
+
+余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
+
+2、Kmeans
+2.1、聚类原理
+
+
+将N个样本映射到K个簇中
+
+
+每个簇至少有一个样本
+
+
+基本思路：
+
+
+先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
+
+
+迭代若干次就能得到比较好的结果
+
+
+2.2、Kmeans算法原理
+算法步骤：
+
+
+选择K个初始的簇中心
+
+怎么选？
+
+
+
+逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
+
+
+每个簇内部计算平均值，更新簇中心
+
+
+开始迭代
+
+
+
+聚类过程如下：
+
+2.3、KMeans优缺点
+
+
+优点：
+
+简单，效果不错
+
+
+
+缺点
+
+对异常值敏感
+对初始值敏感
+对某些分布聚类效果不好
+
+
+
+2.4、Kmeans损失函数
+∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
+
+
+其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
+
+
+其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
+
+
+2.5、Kmeans执行过程
+
+2.6、Kmeans初步使用
+亚洲国家队划分：
+import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
+
+类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
+
+数据可视化：
+plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
+
+2.7、Kmeans聚类算法K值选择
+轮廓系数：
+针对某个样本的轮廓系数s为：$ s= \frac{b - a}{max(a, b)}$
+
+a：某个样本与其所在簇内其他样本的平均距离
+b：某个样本与其他簇样本的平均距离
+
+聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
+
+
+调整兰德系数：
+公式了解一下即可：
+RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
+用C表示实际的类别划分（y_true），K表示聚类结果（y_pred）。
+定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
+定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
+兰德系数范围是[0,1]
+调整兰德系数为：
+ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
+范围为[-1,1]
+from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
+
+2.8、Kmeans图像压缩
+import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
+
+3、DBSCAN
+3.1、算法介绍
+DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
+
+下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
+
+基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
+3.2、DBSCAN算法原理
+
+网站动画解析
+3.3、DBSCAN参数解析
+参数一eps：
+DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
+参数二min_samples：
+DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
+参数与三metrics：
+
+3.4、DBSCAN使用示例
+import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
+
+# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
+
+4、分层聚类
+4.1、算法介绍
+分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
+分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
+
+一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
+
+4.2、算法原理
+层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
+我们着重看一下自底向上的合并算法：
+
+两个组合数据点间的距离:
+
+Single Linkage
+
+方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
+
+
+Complete Linkage
+
+complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
+
+
+Average Linkage
+
+Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
+我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
+
+
+
+
+4.3、参数介绍
+
+
+n_clusters
+划分类别数目
+
+
+linkage
+度量两个子类的相似度时所依据的距离
+
+Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
+Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
+上述两种方法容易受到极端值的影响，计算大样本集效率较高。
+Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
+Ward：最小化簇内方差。
+
+
+
+connectivity
+连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
+
+
+4.4、算法案例
+导包
+import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
+创建数据
+X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
+
+Kmeans聚类效果
+# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+分层聚类
+agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
+分层聚类改进（连接性约束，对局部结构进行约束）
+from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
+
+]]></content>
+      <categories>
+        <category>program</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>贝叶斯网络</title>
+    <url>/posts/64831aee.html</url>
+    <content><![CDATA[1、概率图模型概述
+概率图模型算法往往应用于NLP自然语言处理领域。
+当然很多传统机器学习的算法也常用于 NLP 的任务。例如，用朴素贝叶斯进行文本分类、用 SVM 进行语义角色标注，虽然它们在某些 NLP 任务中都实现了很好的效果，但它们都相互独立， 没有形成体系。
+随着近些年对智能推理和认知神经学的深入研究，人们对大脑和语言的内在机制了解得越来越多，也越来越能从更高层次上观察和认识自然语言，由此形成一套完整的算法体系。目前最流行的算法思想包含如下两大流派：
+
+基于概率论和图论的概率图模型
+基于人工神经网络的深度学习理论
+
+2、贝叶斯
+
+2.1、贝叶斯案例一
+一个例子，现分别有 A、B 两个容器，在容器 A 里分别有 7 个红球和 3 个白球，在容器 B 里有 1 个红球和 9 个白球，现已知从这两个容器里任意抽出了一个球，且是红球，问这个红球是来自容器 A 的概率是多少?
+2.2、贝叶斯案例二
+例如：一座别墅在过去的 20 年里一共发生过 2 次被盗，别墅的主人有一条狗，狗平均每周晚上叫 3 次，在盗贼入侵时狗叫的概率被估计为 0.9，问题是：在狗叫的时候发生入侵的概率是多少？
+答案
+3、朴素贝叶斯
+举个例子，大学的时候，某男生经常去007自习室上晚自习，发现他喜欢的那个女生也常去那个自习室，心中窃喜，于是每天买点好吃的在那个自习室蹲点等她来，可是人家女生不一定每天都来，眼看天气渐渐炎热，自习室又不开空调，如果那个女生没去自习室，该男生也就不去，每次男生鼓足勇气说：“嘿，你明天还来不？”,“啊，不知道，看情况”。
+然后该男生每天就把她去自习室与否以及一些其他情况做一下记录，用Y表示该女生是否去自习室，即Y={去，不去}，X是跟去自习室有关联的一系列条件，比如当天上了哪门主课，蹲点统计了一段时间后，该男生打算今天不再蹲点，而是先预测一下她会不会去，现在已经知道了今天上了常微分方程这门主课，于是计算P(Y=去|常微分方程)与P(Y=不去|常微分方程)，看哪个概率大，如果P(Y=去|常微分方程) &gt;P(Y=不去|常微分方程)，那这个男生不管多热都屁颠屁颠去自习室了，否则就不去自习室受罪了。
+P(Y=去|常微分方程)的计算可以通过贝叶斯公式进行计算，公式如下：
+&lt;P(Y=去∣常微分方程)=P(常微分方程∣Y=去)P(Y=去)P(常微分方程)\rm P(Y=去|常微分方程) = \frac{P(常微分方程|Y=去)P(Y=去)}{P(常微分方程)}P(Y=去∣常微分方程)=P(常微分方程)P(常微分方程∣Y=去)P(Y=去)​​​
+后来他发现还有一些其他条件可以挖，比如当天星期几、当天的天气，统计了一段时间后，该男子一计算，发现不好算了，因为总结历史的公式：
+P(Y∣X)=P(Y∣X(1),X(2),…,X(n))P(Y|X) = P(Y|X^{(1)},X^{(2)},…,X^{(n)})P(Y∣X)=P(Y∣X(1),X(2),…,X(n))
+这里n = 3，x(1)表示主课，x(2)表示天气，x(3)表示星期几，Y仍然是{去，不去}，现在主课有8门，天气有晴、雨、阴三种，那么总共需要估计的参数有8×3×7×2=336个，每天只能收集到一条数据，那么等凑齐336条数据，黄花菜都凉了，男生大呼不妙！
+于是做了一个独立性假设，假设这些影响她去自习室的因素是独立互不相关的！
+有了这个独立假设后，需要估计的参数就变为，(8+3+7)×2 = 36个了，而且每天收集的一条数据，可以提供3个参数，这样该男生就预测越来越准了，天下武功唯快不破！迎娶白富美，全靠数学算！
+P(Y∣X)=P(Y∣X(1),X(2),…,X(n))=∏i=1nP(Y∣X(i))\begin{aligned}\rm P(Y|X) &amp;= P(Y|X^{(1)},X^{(2)},…,X^{(n)})\\\\&amp;=\prod\limits_{i=1}^{n}P(Y|X^{(i)})\end{aligned}P(Y∣X)​=P(Y∣X(1),X(2),…,X(n))=i=1∏n​P(Y∣X(i))​
+4、朴素贝叶斯实例讲解
+详情参考本人博客文章
+5、朴素贝叶斯模型介绍
+5.1、高斯分布朴素贝叶斯
+高斯分布朴素贝叶斯------&gt;正太分布
+
+
+概率密度公式：
+f(x∣μ,σ2)=12πσe−(x−μ)22σ2f(x|\mu,\sigma^2) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x - \mu)^2}{2\sigma^2}}f(x∣μ,σ2)=2π​σ1​e−2σ2(x−μ)2​
+f(x)表示事件的概率分布
+5.2、伯努利分布朴素贝叶斯
+伯努利分布又叫做0-1分布，指一次随机试验，结果只有两种。也就是一个随机变量的取值只有0和1。
+记为: 0-1分布 或B(1,p)，其中 p 表示一次伯努利实验中结果为正或为1的概率。
+假设你要生孩子，生男孩子概率p，生女孩纸概率1-p
+伯努利实验：例如，生一次孩子
+伯努利分布：生一次孩子，生男孩子概率为p,生女孩纸概率1-p，这个就是伯努利分布
+f(x∣p)={pxq1−x,x=0,1; 0,x≠0;f(x|p) = \left \{\begin{aligned} &amp;p^xq^{1-x}, \quad &amp; x = 0,1;  \\ &amp;0,\quad &amp;x \neq 0 ; \end{aligned}\right.f(x∣p)={​pxq1−x,0,​x=0,1; x=0;​​​​​​​​​​​​​
+伯努利实验就是做一次服从伯努利概率分布的事件，它发生的可能性是p，不发生的可能性是1-p。
+由伯努利分布延伸到二项分布，二项分布是多次伯努利分布实验的概率分布。
+以抛硬币举例，在抛硬币事件当中，每一次抛硬币的结果是独立的，并且每次抛硬币正面朝上的概率是恒定的，所以单次抛硬币符合伯努利分布。我们假设硬币正面朝上的概率是p，那么反面朝上的概率是q=(1-p)。我们重复抛n次硬币，其中有k项正面朝上的事件，就是二项分布：
+&lt;P(X=k)=Cnkpkqn−k=n!(n−k)!k!pkqn−k\rm \begin{aligned}P(X = k) &amp;= C^k_np^kq^{n-k}\\\\&amp;=\frac{n!}{(n-k)!k!}p^kq^{n-k}\end{aligned}P(X=k)​=Cnk​pkqn−k=(n−k)!k!n!​pkqn−k​
+5.3、多项式分布朴素贝叶斯
+多项分布是在二项分布的基础上进一步的拓展。
+以掷色子为例，在掷色子实验中可能出现的结局是：1,2,3,4,5,6（6标记为k，便于书写公式），分别记为变量X1、X2、…、XkX_1、X_2、…、X_kX1​、X2​、…、Xk​​，它们的概率分布分别是p1，p2，…，pkp_1，p_2，…，p_kp1​，p2​，…，pk​​。那么在n次实验的结果中，1出现 n1n_1n1​​ 次、2出现 n2n_2n2​​ 次、…、6出现 nkn_knk​​ 次，这种事件的出现概率P有下面公式：
+&lt;P(X1=n1,…，Xk=nk)=n!n1!⋯nk!p1n1⋯pknk,∑i=1kni=nP(X_1 = n_1,…，X_k = n_k) = \frac{n!}{n_1!\cdots n_k!}p_1^{n_1} \cdots p_k^{n_k},\sum\limits_{i=1}^kn_i = nP(X1​=n1​,…，Xk​=nk​)=n1​!⋯nk​!n!​p1n1​​⋯pknk​​,i=1∑k​ni​=n
+另一种写法：
+&lt;P(X1=n1,…，Xk=nk)=n!∏i=1kpinini!,∑i=1kni=nP(X_1 = n_1,…，X_k = n_k) = n!\prod\limits_{i=1}^k\frac{p_i^{n_i}}{n_i!},\sum\limits_{i=1}^kn_i = nP(X1​=n1​,…，Xk​=nk​)=n!i=1∏k​ni​!pini​​​,i=1∑k​ni​=n
+6、朴素贝叶斯模型使用
+使用正太分布数据，鸢尾花作为示例（鸢尾花是自然界的植物，其自身特征数据是正态分布的~）
+6.1、数据加载
+import numpy as npfrom sklearn import datasetsfrom sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn.model_selection import train_test_splitX,y = datasets.load_iris(return_X_y=True)
+6.2、高斯分布朴素贝叶斯表现
+score = 0model = GaussianNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;高斯朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;高斯朴素贝叶斯模型平均预测准确率： 0.9557894736842099&#x27;&#x27;&#x27;
+6.3、伯努利分布朴素贝叶斯表现
+score = 0model = BernoulliNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;伯努利朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;伯努利朴素贝叶斯模型平均预测准确率： 0.26105263157894737&#x27;&#x27;&#x27;
+6.4、多项式分布朴素贝叶斯表现
+score = 0model = MultinomialNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;多项式朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;多项式朴素贝叶斯模型平均预测准确率： 0.8255263157894736&#x27;&#x27;&#x27;
+7、文本分类
+文本分类的结构化方法就是 one-hot 表达模型。它是最直观，也是目前为止最常用的词表示方法，虽然越来越多的实践已经证明，这种模型存在局限性，但它仍在文本分类中得到广泛应用。
+假设把语料库中的所有词都收集为一个词典 D，词典容纳了语料库中所有句子的词汇。
+One-hot 方法就是把每个词表示为一个长长的向量。这个向量的维度是词典大小，其中绝大多数元素为 0，只有一个维度的值为 1。这个维度就代表了当前的词。
+7.1、英文one-hot编码
+文本一：My dog ate my homework；
+文本二：My cat ate the fish；
+文本三：Precious things are very few in the world,that is the reason there is only one you!
+import jiebaimport numpy as npdata = [&#x27;My dog ate my homework.&#x27;,&#x27;My cat ate the fish.&#x27;,        &#x27;Precious things are very few in the world,that is the reason there is only one you!&#x27;]result = []for s in data:    result.extend([i for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]])result = np.array(result)result = np.unique(result)print(result)for s in data:    word_embedding = [(i == result).astype(np.int8) for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]]    print(np.array(word_embedding))    &#x27;&#x27;&#x27;[&#x27;My&#x27; &#x27;Precious&#x27; &#x27;are&#x27; &#x27;ate&#x27; &#x27;cat&#x27; &#x27;dog&#x27; &#x27;few&#x27; &#x27;fish&#x27; &#x27;homework&#x27; &#x27;in&#x27; &#x27;is&#x27; &#x27;my&#x27; &#x27;one&#x27; &#x27;only&#x27; &#x27;reason&#x27; &#x27;that&#x27; &#x27;the&#x27; &#x27;there&#x27; &#x27;things&#x27; &#x27;very&#x27; &#x27;world&#x27; &#x27;you&#x27;][[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]]&#x27;&#x27;&#x27;
+7.2、中文one-hot编码
+s1 = ‘喜欢上一个人’
+s2 = ‘尼姑亲吻了和尚的嘴唇’
+s3 = ‘老师你教的都是没有的东西’
+import jiebaimport numpy as npdata = [&#x27;喜欢上一个人&#x27;,&#x27;尼姑亲吻了和尚的嘴唇&#x27;,&#x27;老师你教的都是没有的东西&#x27;]result = []for s in data:    result.extend([i for i in jieba.lcut(s)])result = np.array(result)result = np.unique(result)print(result)for s in data:    word_embedding = [(i == result).astype(np.int8) for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]]    print(np.array(word_embedding))    &#x27;&#x27;&#x27;[&#x27;一个&#x27; &#x27;上&#x27; &#x27;东西&#x27; &#x27;了&#x27; &#x27;亲吻&#x27; &#x27;人&#x27; &#x27;你&#x27; &#x27;和尚&#x27; &#x27;喜欢&#x27; &#x27;嘴唇&#x27; &#x27;尼姑&#x27; &#x27;教&#x27; &#x27;是&#x27; &#x27;没有&#x27; &#x27;的&#x27; &#x27;老师&#x27; &#x27;都&#x27;][[0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0] [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]]&#x27;&#x27;&#x27;
+7.3、TF-IDF
+7.3.1、词频-逆向文件频率介绍
+TF-IDF（term frequency–inverse document frequency，词频-逆向文件频率）是一种用于信息检索（information retrieval）与文本挖掘（text mining）的常用加权技术。
+TF-IDF是一种统计方法，用以评估某字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。
+TF-IDF的主要思想是：如果某个单词在一篇文章中出现的频率TF高，并且在其他文章中很少出现，则认为此词或者短语具有很好的类别区分能力，适合用来分类。
+7.3.2、词频TF计算
+**词频（TF）**表示词条（关键字）在文本中出现的频率。
+TF=词条v出现的次数总词条数目\rm TF = \frac{词条v出现的次数}{总词条数目}TF=总词条数目词条v出现的次数​
+7.3.3、逆向文件频率IDF计算
+逆向文件频率 (IDF) ：某一特定词语的IDF，可以由总文件数目除以包含该词语的文件的数目，再将得到的商取对数得到。
+如果包含词条t的文档越少, IDF越大，则说明词条具有很好的类别区分能力。
+IDF=log∣D∣∣{j:ti∈dj}∣\rm IDF = log\frac{|D|}{|\{j:t_i \in d_j\}|}IDF=log∣{j:ti​∈dj​}∣∣D∣​
+7.3.4、TF-IDF计算
+某一特定文件内的高词语频率，以及该词语在整个文件集合中的低文件频率，可以产生出高权重的TF-IDF。因此，TF-IDF倾向于过滤掉常见的词语，保留重要的词语。
+TF−IDF=TF×IDF\rm TF-IDF = TF \times IDFTF−IDF=TF×IDF
+7.3.5、TF-IDF算例演示
+有很多不同的数学公式可以用来计算TF-IDF。词频 (TF) 是一词语出现的次数除以该文件的总词语数。假如一篇文件的总词语数是100个，而词语“Python”出现了5次，那么“Python”一词在该文件中的词频就是3/100=0.05。一个计算文件频率 (IDF) 的方法是文件集里包含的文件总数除以测定有多少份文件出现过“Python”一词。所以，如果“Python”一词在1000份文件出现过，而文件总数是10000000份的话，其逆向文件频率就是 lg(10000000 / 1000)=4。最后的TF-IDF的分数为0.05 * 4=0.2。
+from sklearn.feature_extraction.text import CountVectorizerfrom sklearn.feature_extraction.text import TfidfTransformerimport jiebaimport numpy as npdata = np.array([&#x27;政治 历史 地理 语文 化学&#x27;,                 &#x27;Python 计算机 语文 英语 数学&#x27;])# 词频统计vectorizer = CountVectorizer()# tf-idf权值计算tf_idf_transformer = TfidfTransformer()# 对样本进行转换tf_idf = tf_idf_transformer.fit_transform(vectorizer.fit_transform(data))# 数据提取tf_idf_weight = tf_idf.toarray()vocabulary = vectorizer.vocabulary_vocabulary = sorted( vocabulary.items(),key = lambda x:x[1],reverse = False)display(vocabulary)display(tf_idf_weight)&#x27;&#x27;&#x27;[(&#x27;python&#x27;, 0), (&#x27;化学&#x27;, 1), (&#x27;历史&#x27;, 2), (&#x27;地理&#x27;, 3), (&#x27;政治&#x27;, 4), (&#x27;数学&#x27;, 5), (&#x27;英语&#x27;, 6), (&#x27;计算机&#x27;, 7), (&#x27;语文&#x27;, 8)]array([[0.        , 0.47107781, 0.47107781, 0.47107781, 0.47107781,        0.        , 0.        , 0.        , 0.33517574],       [0.47107781, 0.        , 0.        , 0.        , 0.        ,        0.47107781, 0.47107781, 0.47107781, 0.33517574]])&#x27;&#x27;&#x27;
+8、垃圾短信分类项目实战
+8.1、数据加载与介绍
+import numpy as npimport pandas as pdfrom sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn.model_selection import train_test_splitfrom scipy import sparse # 稀松矩阵# feature_selection 特征选择！# feature_extraction 特征提取，萃取# 土壤中，炼铁，这个过程类比 萃取# 统计词频！通过词频，判断类别，判断短信是否是垃圾短信# free、phone、获奖、优惠from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer# 短信数据sms = pd.read_csv(&#x27;./自动识别垃圾短信.csv&#x27;,sep = &#x27;\t&#x27;,header= None)sms.rename(&#123;0:&#x27;label&#x27;,1:&#x27;message&#x27;&#125;,axis = 1,inplace = True)display(sms.shape,sms.head()) #文本数据无法直接建模
+8.2、文本数据处理
+cv = CountVectorizer()# stop-words 停用词，英文中的标点符号，对分类作用不大# 主要目的，节省内存空间# 量化X = cv.fit_transform(sms[&#x27;message&#x27;])display(X)print(X)
+稀松矩阵介绍
+# scipy中提供了方法# 稀松矩阵、稠密矩阵 对比a = np.random.randint(0,10,size = (1000,5))a[a &gt;=3] = 0np.savez(&#x27;稠密矩阵.npz&#x27;,a) # 20.3kbs = sparse.csc_matrix(a)sparse.save_npz(&#x27;稀松矩阵.npz&#x27;,s) # 2.84kbdisplay(a,s)print(s)
+TF-IDF转换
+# 此时X是稀松矩阵# 稀松矩阵也可以进行拆分tf_idf = TfidfTransformer()X = tf_idf.fit_transform(X)X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state = 1187)X_train
+8.3、数据建模评估
+%%timegNB = GaussianNB() # 高斯分布，是正太分布，数据属性必须是稠密矩阵gNB.fit(X_train.toarray(),y_train)print(&#x27;高斯分布&#x27;,gNB.score(X_test.toarray(),y_test))&#x27;&#x27;&#x27;高斯分布 0.8869955156950673Wall time: 717 ms&#x27;&#x27;&#x27;
+%%time# 稀松矩阵，计算优势，内存中占有量很小bNB = BernoulliNB() # 二项分布，数据可以稀松的，准确率提升了很多，计算时间大大缩短bNB.fit(X_train,y_train)print(&#x27;伯努利：&#x27;,bNB.score(X_test,y_test))&#x27;&#x27;&#x27;伯努利： 0.9730941704035875Wall time: 13 ms&#x27;&#x27;&#x27;
+%%timemNB = MultinomialNB()mNB.fit(X_train,y_train)print(&#x27;多项式分布：&#x27;,mNB.score(X_test,y_test))&#x27;&#x27;&#x27;多项式分布： 0.95695067264574Wall time: 15 ms&#x27;&#x27;&#x27;
+8.5、构建新短信预测
+X_test = [&#x27;Your free ringtone is waiting to be collected. Simply text the password &quot;MIX&quot; to 85069 to verify.I see the letter B on my car Please call now 08000930705 for delivery tomorrow&#x27;,          &#x27;Precious things are very few in the world,that is the reason there is only one you&#x27;,          &quot;GENT! We are trying to contact you. Last weekends draw shows that you won a £1000 prize GUARANTEED. U don&#x27;t know how stubborn I am. Congrats! 1 year special cinema pass for 2 is yours.&quot;,          &#x27;Congrats! 1 year special cinema pass for 2 is yours. call 09061209465 now! C Suprman V, Matrix3, StarWars3, etc all 4 FREE! bx420-ip4-5we. 150pm. Dont miss out!&#x27;]X_test = tf_idf.transform(cv.transform(X_test))bNB.predict(X_test)&#x27;&#x27;&#x27;array([&#x27;spam&#x27;, &#x27;ham&#x27;, &#x27;spam&#x27;, &#x27;spam&#x27;], dtype=&#x27;&lt;U4&#x27;)&#x27;&#x27;&#x27;
+9、新闻类别划分
+9.1、加载数据（联网国外下载）
+from sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn import datasets# countVectorizer词频 # tf-idf term frequency（词频） inverse document frequency（你文本词频） + 权重from sklearn.feature_extraction.text import TfidfVectorizer,CountVectorizer,ENGLISH_STOP_WORDSfrom sklearn.model_selection import train_test_split# 会存储到本地文件news = datasets.fetch_20newsgroups(subset=&#x27;all&#x27;,remove=(&#x27;headers&#x27;, &#x27;footers&#x27;, &#x27;quotes&#x27;))
+9.2、文本数据转换
+&#x27;&#x27;&#x27;Convert a collection of raw documents to a matrix of TF-IDF features.Equivalent to :class:`CountVectorizer` followed by:class:`TfidfTransformer`.&#x27;&#x27;&#x27;tf_idf = TfidfVectorizer(stop_words=ENGLISH_STOP_WORDS)X_tf_idf = tf_idf.fit_transform(X)X_tf_idfX_train,X_test,y_train,y_test = train_test_split(X_tf_idf,y,test_size = 0.2)
+9.3、数据建模
+%%timebNB = BernoulliNB()bNB.fit(X_train,y_train)bNB.score(X_test,y_test)&#x27;&#x27;&#x27;Wall time: 18.9 ms0.7553191489361702&#x27;&#x27;&#x27;
+%%timemNB = MultinomialNB()mNB.fit(X_train,y_train)mNB.score(X_test,y_test)&#x27;&#x27;&#x27;Wall time: 11 ms0.8337765957446809&#x27;&#x27;&#x27;
+%%timegNB = GaussianNB()gNB.fit(X_train.toarray(),y_train)gNB.score(X_test.toarray(),y_test)&#x27;&#x27;&#x27;Wall time: 2.66 s0.8125&#x27;&#x27;&#x27;
+10、贝叶斯网络
+10.1、朴素贝叶斯与贝叶斯网络
+朴素贝叶斯可以看做是贝叶斯网络的特殊情况：即该网络中无边，各个节点都是独立的（前提是独立性假设）。
+那么，当朴素贝叶斯中的假设：独立同分布不成立时，应该如何解决呢？可以使用贝叶斯网络。
+贝叶斯网络借助有向无环图来刻画属性之间的依赖关系，并使用条件概率表来描述属性的联合概率分布。
+
+10.2、贝叶斯网络定义
+贝叶斯网络(Bayesian network)，又称信念网络(Belief Network)，或有向无环图模型(directed acyclic graphical model)，是一种概率图模型，于1985年由Judea Pearl首先提出。它是一种模拟人类推理过程中因果关系的不确定性处理模型，其网络拓朴结构是一个有向无环图(DAG)。
+10.3、贝叶斯网络三种结构
+形式一：head-to-head
+
+上图概率公式如下：P(a,b,c) = P(a) * P(b) * P(c|a,b)。
+在 c 未知的条件下，a、b被阻断(blocked)，是独立的，称之为head-to-head条件独立。也就是a和b符合独立性假设。
+形式二：tail-to-tail
+
+
+在 c 未知的时候，有：P(a,b,c)=P© * P(a|c) * P(b|c)，此时，没法得出 P(a,b) = P(a) * P(b)，
+
+即 c 未知时，a、b 不独立。
+
+在 c 已知的时候，有：P(a,b|c)=P(a,b,c) / P©，然后将 P(a,b,c)=P© * P(a|c) * P(b|c)带入
+
+式子中，得到：P(a,b|c)=P(a,b,c) / P© = P© * P(a|c) * P(b|c) / P© = P(a|c) * P(b|c)，即 c
+已知时，a、b 独立。
+形式三：head-to-tail
+
+
+c 未知时，有：P(a,b,c)=P(a) * P(c|a) * P(b|c)，但无法推出 P(a,b) = P(a) * P(b)，即 c 未知
+
+时，a、b 不独立。
+
+
+c 已知时，有：P(a,b|c)=P(a,b,c) / P©，且根据 P(a,c) = P(a) * P(c|a) = P© * P(a|c)，可化
+简得到：
+P(a,b|c)  =P(a,b,c) / P©
+​				= P(a) * P(c|a) * P(b|c) / P©
+​				=P(a,c) * P(b|c) / P©
+​				=P(a|c) * P(b|c)
+所以，在 c 给定的条件下，a，b 被阻断(blocked)，是独立的，称之为 head-to-tail
+条件独立。
+拓展一下，head-to-tail 其实就是一个链式网络，如下图所示：
+
+根据之前对head-to-tail的讲解，我们已经知道，在XiX_iXi​给定的条件下，Xi+1X_{i+1}Xi+1​的分布和X1,X2…Xi−1X_1,X_2…X_{i-1}X1​,X2​…Xi−1​条件独立。意味着啥呢？意味着：Xi+1X_{i+1}Xi+1​的分布状态只和XiX_iXi​有关，和其他变量条件独立。通俗点说，当前状态只跟上一状态有关，跟之前的状态无关。这种顺次演变的随机过程，就叫做马尔科夫链（Markov chain）。且有：
+
+
+P(Xn+1∣X0,X1,⋯ ,Xn)=P(Xn+1∣Xn)P(X_{n+1}|X_0,X_1,\cdots,X_n) = P(X_{n + 1}|X_n)P(Xn+1​∣X0​,X1​,⋯,Xn​)=P(Xn+1​∣Xn​)
+朴素贝叶斯可以看做是贝叶斯网络的特殊情况：即该网络中无边，各个节点都是独立的。 朴素贝叶斯朴素在哪里呢？ 一个特征出现的概率与其他特征（条件）独立！
+10.4、贝叶斯网络实例
+有如下贝叶斯网络：
+
+其中，各个单词、表达式表示的含义如下：
+
+smoking 表示吸烟，其概率用 P(S) 表示，lung Cancer 表示肺癌，一个人在吸烟的情况下得肺癌的概率用P(C|S) 表示，X-ray 表示需要照医学上的 X 光，肺癌可能会导致需要照 X 光，吸烟也有可能会导致需要照 X 光（所以 smoking 也是 X-ray 的一个因素），所以，因吸烟且得肺癌而需要照X光的概率用 P(X|C,S) 表示。
+Bronchitis 表示支气管炎，一个人在吸烟的情况下得支气管炎的概率用 P(B|S)，Dyspnoea 表示呼吸困难，支气管炎可能会导致呼吸困难，肺癌也有可能会导致呼吸困难（所以 lung Cancer 也是Dyspnoea的一个因素），因吸烟且得了支气管炎导致呼吸困难的概率用P(D|S,B)表示。
+
+lung Cancer 简记为 C，Bronchitis 简记为 B，Dyspnoea 简记为 D，且 C = 0 表示 lung Cancer 不发生的概率，C = 1表示 lung Cancer 发生的概率，其他含义类似。
+10.5、概率图模型
+概率图模型是一类用图形模式表达基于概率相关关系的模型的总称。概率图模型结合概率论与图论的知识，利用图来表示与模型有关的变量的联合概率分布。近10年它已成为不确定性推理的研究热点，在人工智能、机器学习和计算机视觉等领域有广阔的应用前景。
+根据是否是有向图，可以分为有向图模型和无向图模型。
+有向图模型（又称为贝叶斯网络），例如：隐马尔科夫模型（Hidden Markov Model，HMM）
+无向图模型（又称为马尔科夫网络），例如：条件随机场（Conditional Random Fields，CRF）
+后面课程中会，进行介绍说明。
 ]]></content>
       <categories>
         <category>program</category>
@@ -3778,320 +4006,6 @@ model_2 = ElasticNet(alpha = 0.3,l1_ratio = 0.5,max_iter = 50000)model_2.fit(X_t
       </tags>
   </entry>
   <entry>
-    <title>聚类算法</title>
-    <url>/posts/35f08535.html</url>
-    <content><![CDATA[聚类算法
-1、聚类介绍
-1.1、聚类作用
-
-
-知识发现 发现事物之间的潜在关系
-
-
-异常值检测
-
-
-特征提取 数据压缩的例子
-
-
-1.2、有监督与无监督学习
-有监督：
-
-
-给定训练集 X 和 标签Y
-
-
-选择模型
-
-学习（目标函数的最优化）
-生成模型（本质上是一组参数、方程）
-
-
-
-根据生成的一组参数进行预测分类等任务
-无监督：
-
-
-拿到的数据只有X ，没有标签，只能根据X的相似程度做一些事情。
-
-
-Clustering 聚类
-
-对于大量未标注的数据集，按照内在相似性来分为多个类别（簇） 目标：类别内相似度大，类别间相似小。
-也可以用来改变数据的维度，可以将聚类结果作为一个维度添加到训练数据中。
-
-
-
-降维算法，数据特征变少
-
-
-1.3、聚类算法
-
-1.4、相似度
-
-1.5、数据间的相似度
-
-
-每一条数据都可以理解为多维空间中的一个点。
-
-
-可以根据点和点之间的距离来评价数据间的相似度
-
-
-近朱者赤近墨者黑！
-
-
-欧氏距离：
-
-二维空间：
-
-d=(x1−x2)2+(y1−y2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}d=(x1​−x2​)2+(y1​−y2​)2​
-
-三维空间：
-
-d=(x1−x2)2+(y1−y2)2+(z1−z2)2d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}d=(x1​−x2​)2+(y1​−y2​)2+(z1​−z2​)2​
-
-闵可夫斯基距离
-
-d(X,Y)=∣x1−y1∣p+∣x2−y2∣p+…+∣xn−yn∣ppd(X,Y) = \sqrt[p]{|x_1 - y_1|^p + |x_2 - y_2|^p + … + |x_n - y_n|^p}d(X,Y)=p∣x1​−y1​∣p+∣x2​−y2​∣p+…+∣xn​−yn​∣p​
-
-
-P = 1 曼哈顿距离
-
-d(X,Y)=∣x1−y1∣+∣x2−y2∣+…+∣xn−yn∣d(X,Y) = |x_1 - y_1| + |x_2 - y_2| + … + |x_n - y_n|d(X,Y)=∣x1​−y1​∣+∣x2​−y2​∣+…+∣xn​−yn​∣
-在二维空间中可以看出，这种距离是计算两点之间的直角边距离，相当于城市中出租汽车沿城市街道拐直角前进而不能走两点连接间的最短距离。
-
-
-
-P = 2 欧氏距离，就是两点之间的直线距离（以下简称欧氏距离）
-
-
-P = 无穷，切比雪夫距离 ，哪个维度差值最大就是那个差值作为距离。
-
-
-
-1.6、余弦距离
-将数据看做空间中的点的时候，评价远近可以用欧氏距离或者余弦距离。
-计算过程如下：
-
-将数据映射为高维空间中的点（向量）
-计算向量间的余弦值
-取值范围[-1,+1] 越趋近于1代表越相似，越趋近于-1代表方向相反，0代表正交
-
-cosθ=a⋅b∣∣a∣∣2∣∣b∣∣2cos\theta = \frac{a \cdot b}{||a||_2||b||_2}cosθ=∣∣a∣∣2​∣∣b∣∣2​a⋅b​
-cosθ=x1x2+y1y2x12+y12×x22+y22cos\theta = \frac{x_1x_2 + y_1y_2}{\sqrt{x_1^2 + y_1^2} \times \sqrt{x_2^2 + y_2^2}}cosθ=x12​+y12​​×x22​+y22​​x1​x2​+y1​y2​​
-
-余弦相似度可以评价文章的相似度，从而实现对文章，进行分类。
-
-2、Kmeans
-2.1、聚类原理
-
-
-将N个样本映射到K个簇中
-
-
-每个簇至少有一个样本
-
-
-基本思路：
-
-
-先给定K个划分，迭代样本与簇的隶属关系，每次都比前一次好一些
-
-
-迭代若干次就能得到比较好的结果
-
-
-2.2、Kmeans算法原理
-算法步骤：
-
-
-选择K个初始的簇中心
-
-怎么选？
-
-
-
-逐个计算每个样本到簇中心的距离，将样本归属到距离最小的那个簇中心的簇中
-
-
-每个簇内部计算平均值，更新簇中心
-
-
-开始迭代
-
-
-
-聚类过程如下：
-
-2.3、KMeans优缺点
-
-
-优点：
-
-简单，效果不错
-
-
-
-缺点
-
-对异常值敏感
-对初始值敏感
-对某些分布聚类效果不好
-
-
-
-2.4、Kmeans损失函数
-∑i=0nmin⁡μj∈C(∣∣xi−μj∣∣2)\sum\limits_{i=0}^{n}\underset{\mu_j \in C}\min(||x_i - \mu_j||^2)i=0∑n​μj​∈Cmin​(∣∣xi​−μj​∣∣2)
-
-
-其中μj=1∣Cj∣∑x∈Cjx\mu_j = \frac{1}{|C_j|}\sum\limits_{x \in C_j}xμj​=∣Cj​∣1​x∈Cj​∑​x是簇的均值向量，或者说是质心。
-
-
-其中∣∣xi−μj∣∣2||x_i - \mu_j||^2∣∣xi​−μj​∣∣2代表每个样本点到均值点的距离（其实也是范数）。
-
-
-2.5、Kmeans执行过程
-
-2.6、Kmeans初步使用
-亚洲国家队划分：
-import numpy as npimport matplotlib.pyplot as pltfrom sklearn.cluster import KMeansimport pandas as pd# 需要将亚洲国家队，分成三个类别# 只有历年的统计数据，没有目标值（类别，等级）data = pd.read_csv(&#x27;./AsiaFootball.txt&#x27;)data# 执行多次，分类结果会有所不同kmeans = KMeans(n_clusters=3)# 无监督，只需要给数据X就可以kmeans.fit(data.iloc[:,1:])y_ = kmeans.predict(data.iloc[:,1:])# 聚类算法预测、划分的类别c = data[&#x27;国家&#x27;].valuesfor i in range(3):    cond = y_ == i#索引条件    print(&#x27;类别是%d的国家有：&#x27;%(i),c[cond])
-
-类别是0的国家有： [&#x27;中国&#x27; &#x27;伊拉克&#x27; &#x27;卡塔尔&#x27; &#x27;阿联酋&#x27; &#x27;泰国&#x27; &#x27;越南&#x27; &#x27;阿曼&#x27; &#x27;印尼&#x27;]类别是1的国家有： [&#x27;伊朗&#x27; &#x27;沙特&#x27; &#x27;乌兹别克斯坦&#x27; &#x27;巴林&#x27; &#x27;朝鲜&#x27;]类别是2的国家有： [&#x27;日本&#x27; &#x27;韩国&#x27;]
-
-数据可视化：
-plt.rcParams[&#x27;font.family&#x27;] = &#x27;STKaiti&#x27;fig = plt.figure(figsize=(12,9))ax = plt.axes(projection = &#x27;3d&#x27;)ax.scatter(data.iloc[:,1],data.iloc[:,2],data.iloc[:,3],c = y_,s = 100)ax.set_xlabel(&#x27;2006年世界杯&#x27;,fontsize = 18)ax.set_ylabel(&#x27;2010年世界杯&#x27;,fontsize = 18)ax.set_zlabel(&#x27;2007亚洲杯&#x27;,fontsize = 18)# 调整视图角度ax.view_init(elev = 20,azim = -60)
-
-2.7、Kmeans聚类算法K值选择
-轮廓系数：
-针对某个样本的轮廓系数s为：$ s= \frac{b - a}{max(a, b)}$
-
-a：某个样本与其所在簇内其他样本的平均距离
-b：某个样本与其他簇样本的平均距离
-
-聚类总的轮廓系数SC为：SC=1N∑i=1NsiSC = \frac{1}{N}\sum\limits_{i = 1}^Ns_iSC=N1​i=1∑N​si​，所有样本的sis_isi​的均值称为聚类结果的轮廓系数，是该聚类是否合理、有效的度量。
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeansimport matplotlib.pyplot as plt# 聚类：轮廓系数，对聚类的评价指标，对应数学公式from sklearn.metrics import silhouette_score# 创建数据# 假数据，数据X划分成3类X,y = datasets.make_blobs(centers=3)plt.scatter(X[:,0],X[:,1],c = y)# 指定不同的k，寻找最佳聚类类别数目# 可以画图，一目了然，数据简单，属性只有两个，所以可以画图# 属性多，无法可视化，评价指标# 轮廓系数plt.rcParams[&#x27;font.sans-serif&#x27;] = &#x27;KaiTi&#x27;plt.rcParams[&#x27;font.size&#x27;] = 18plt.rcParams[&#x27;axes.unicode_minus&#x27;] = Falsescore = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签#     plt.scatter(X[:,0],X[:,1],c = y_)    score.append(silhouette_score(X,y_))#     print(&#x27;当聚类类别是6的时候，评价指标轮廓系数： &#x27;,silhouette_score(X,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;轮廓系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-效果图如下：（注意数据随机生成，数据展示的图片效果不是固定的~）
-
-
-调整兰德系数：
-公式了解一下即可：
-RI=a+bC2nsamples\text{RI} = \frac{a + b}{C_2^{n_{samples}}}RI=C2nsamples​​a+b​
-用C表示实际的类别划分（y_true），K表示聚类结果（y_pred）。
-定义a 为在C中被划分为同一类，在K中被划分为同一簇的实例对数量。
-定义b为在C中被划分为不同类别，在K中被划分为不同簇的实例对数量。
-兰德系数范围是[0,1]
-调整兰德系数为：
-ARI=RI−E[RI]max⁡(RI)−E[RI]\text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}ARI=max(RI)−E[RI]RI−E[RI]​
-范围为[-1,1]
-from sklearn.metrics import adjusted_rand_score# 调整兰德系数score = []for i in range(2,7):    kmeans = KMeans(n_clusters=i)    kmeans.fit(X)    y_ = kmeans.predict(X)# 预测类别 == 标签    score.append(adjusted_rand_score(y,y_))plt.plot(range(2,7),score)plt.xlabel(&#x27;K值&#x27;)plt.ylabel(&#x27;调整兰德系数&#x27;,c = &#x27;red&#x27;)# 结论：，当k值是3的时候，轮廓系数最大，这个时候，说明划分效果最好！
-
-2.8、Kmeans图像压缩
-import matplotlib.pyplot as plt # plt 用于显示图片from sklearn.cluster import KMeansimport numpy as npplt.figure(figsize=(8,4))# 加载图片显示原图pixel = plt.imread(&#x27;11-bird.png&#x27;)plt.subplot(1,2,1)plt.imshow(pixel)# 聚类运算，压缩图片pixel = pixel.reshape((128*128 , 3))kmeans = KMeans(n_clusters=8).fit(pixel)# 聚类结果合成新图片newPixel = kmeans.cluster_centers_[kmeans.labels_].reshape(128,128,3)plt.subplot(1,2,2)plt.imshow(newPixel)
-
-3、DBSCAN
-3.1、算法介绍
-DBSCAN（Density-Based Spatial Clustering of Applications with Noise，具有噪声的基于密度的聚类方法）是一种基于密度的空间聚类算法。 该算法将具有足够密度的区域划分为簇，并在具有噪声的空间数据库中发现任意形状的簇，它将簇定义为密度相连的点的最大集合。
-
-下面这些点是分布在样本空间的众多样本，现在我们的目标是把这些在样本空间中距离相近的聚成一类。我们发现A点附近的点密度较大，红色的圆圈根据一定的规则在这里滚啊滚，最终收纳了A附近的5个点，标记为红色也就是定为同一个簇。其它没有被收纳的根据一样的规则成簇。（形象来说，我们可以认为这是系统在众多样本点中随机选中一个，围绕这个被选中的样本点画一个圆，规定这个圆的半径以及圆内最少包含的样本点，如果在指定半径内有足够多的样本点在内，那么这个圆圈的圆心就转移到这个内部样本点，继续去圈附近其它的样本点，类似传销一样，继续去发展下线。等到这个滚来滚去的圈发现所圈住的样本点数量少于预先指定的值，就停止了。那么我们称最开始那个点为核心点，如A，停下来的那个点为边界点，如B、C，没得滚的那个点为离群点，如N）。
-
-基于密度这点有什么好处呢，我们知道Kmeans聚类算法只能处理球形的簇，也就是一个聚成实心的团（这是因为算法本身计算平均距离的局限）。但往往现实中还会有各种形状，比如下面两张图，环形和不规则形，这个时候，那些传统的聚类算法显然就悲剧了。于是就思考，样本密度大的成一类呗。这就是DBSCAN聚类算法。
-3.2、DBSCAN算法原理
-
-网站动画解析
-3.3、DBSCAN参数解析
-参数一eps：
-DBSCAN算法参数，即我们的eps邻域的距离阈值，和样本距离超过eps的样本点不在eps邻域内。默认值是0.5.一般需要通过在多组值里面选择一个合适的阈值。eps过大，则更多的点会落在核心对象的eps邻域，此时我们的类别数可能会减少， 本来不应该是一类的样本也会被划为一类。反之则类别数可能会增大，本来是一类的样本却被划分开。
-参数二min_samples：
-DBSCAN算法参数，即样本点要成为核心对象所需要的eps邻域的样本数阈值。默认值是5。一般需要通过在多组值里面选择一个合适的阈值。通常和eps一起调参。在eps一定的情况下，min_samples过大，则核心对象会过少，此时簇内部分本来是一类的样本可能会被标为噪音点，类别数也会变多。反之min_samples过小的话，则会产生大量的核心对象，可能会导致类别数过少。
-参数与三metrics：
-
-3.4、DBSCAN使用示例
-import numpy as npfrom sklearn import datasetsfrom sklearn.cluster import KMeans,DBSCANimport matplotlib.pyplot as plt# y中是两类：0,1X,y = datasets.make_circles(n_samples=1000,noise=0.05,factor = 0.5)# centers = [(1.5,1.5)] 元组，代表着，中心点的坐标值# y1一类：0 + 2X1,y1 = datasets.make_blobs(n_samples=500,n_features=2,centers=[(1.5,1.5)],cluster_std=0.2)# 将circle和散点进行了数据合并X = np.concatenate([X,X1])y = np.concatenate([y,y1 + 2])plt.scatter(X[:,0],X[:,1],c = y)
-
-# 根据距离，划分‘势力范围’kmeans = KMeans(3)kmeans.fit(X)y_ = kmeans.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-dbscan = DBSCAN(eps = 0.2,min_samples=3)dbscan.fit(X)y_ = dbscan.labels_plt.scatter(X[:,0],X[:,1],c = y_)
-
-4、分层聚类
-4.1、算法介绍
-分层聚类输出层次结构，这种结构比平面聚类返回的非结构化聚类集更具信息性。
-分层聚类法（hierarchical cluster method）一译“系统聚类法”。聚类分析的一种方法。其做法是开始时把每个样品作为一类，然后把最靠近的样品（即距离最小的群品）首先聚为小类，再将已聚合的小类按其类间距离再合并，不断继续下去，最后把一切子类都聚合到一个大类。
-
-一般来说，当考虑聚类效率时，我们选择平面聚类，当平面聚类的潜在问题（不够结构化，预定数量的聚类，非确定性）成为关注点时，我们选择层次聚类。 此外，许多研究人员认为，层次聚类比平面聚类产生更好的聚类。
-
-4.2、算法原理
-层次聚类(Hierarchical Clustering)是聚类算法的一种，通过计算不同类别数据点间的相似度来创建一棵有层次的嵌套聚类树。在聚类树中，不同类别的原始数据点是树的最低层，树的顶层是一个聚类的根节点。创建聚类树有自下而上合并和自上而下分裂两种方法。
-我们着重看一下自底向上的合并算法：
-
-两个组合数据点间的距离:
-
-Single Linkage
-
-方法是将两个组合数据点中距离最近的两个数据点间的距离作为这两个组合数据点的距离。这种方法容易受到极端值的影响。两个很相似的组合数据点可能由于其中的某个极端的数据点距离较近而组合在一起。
-
-
-Complete Linkage
-
-complete Linkage的计算方法与Single Linkage相反，将两个组合数据点中距离最远的两个数据点间的距离作为这两个组合数据点的距离。Complete Linkage的问题也与Single Linkage相反，两个不相似的组合数据点可能由于其中的极端值距离较远而无法组合在一起。
-
-
-Average Linkage
-
-Average Linkage的计算方法是计算两个组合数据点中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个组合数据点间的距离。这种方法计算量比较大，但结果比前两种方法更合理。
-我们使用Average Linkage计算组合数据点间的距离。下面是计算组合数据点(A,F)到(B,C)的距离，这里分别计算了(A,F)和(B,C)两两间距离的均值。
-
-
-
-
-4.3、参数介绍
-
-
-n_clusters
-划分类别数目
-
-
-linkage
-度量两个子类的相似度时所依据的距离
-
-Single Linkage：将两个数据点集中距离最近的两个数据点间的距离作为这两个点集的距离。
-Complete Linkage：将两个点集中距离最远的两个数据点间的距离作为这两个点集的距离。
-上述两种方法容易受到极端值的影响，计算大样本集效率较高。
-Average Linkage：计算两个点集中的每个数据点与其他所有数据点的距离。将所有距离的均值作为两个点集间的距离。这种方法计算量比较大，不过这种度量方法更合理
-Ward：最小化簇内方差。
-
-
-
-connectivity
-连接性约束，作用：只有相邻的簇才能合并在一起，进行聚类！
-
-
-4.4、算法案例
-导包
-import numpy as npimport matplotlib.pyplot as pltimport mpl_toolkits.mplot3d.axes3d as p3from sklearn.cluster import AgglomerativeClusteringfrom sklearn.datasets import make_swiss_roll
-创建数据
-X,y = datasets.make_swiss_roll(n_samples=1500,noise = 0.05)fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y)a3.view_init(10,-80)
-
-Kmeans聚类效果
-# Kmeans只负责分类，随机性，类别是数字几，不固定clf = KMeans(n_clusters=6)clf.fit(X)y_ = clf.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-分层聚类
-agg = AgglomerativeClustering(n_clusters=6,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = plt.subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-对于这种非欧几何的数据下，可见如果没有设置连接性约束，将会忽视其数据本身的结构，强制在欧式空间下聚类，于是很容易形成了上图这种跨越流形的不同褶皱。
-分层聚类改进（连接性约束，对局部结构进行约束）
-from sklearn.neighbors import kneighbors_graph# graph图形的意思# 邻居数量变少，认为，条件宽松conn = kneighbors_graph(X,n_neighbors=10) #采用邻居，进行约束agg = AgglomerativeClustering(n_clusters=6,connectivity=conn,linkage=&#x27;ward&#x27;)# 最近的距离，作为标准，agg.fit(X)y_ = agg.labels_fig = plt.figure(figsize=(12,9))a3 = fig.add_subplot(projection = &#x27;3d&#x27;)a3.scatter(X[:,0],X[:,1],X[:,2],c = y_)a3.view_init(10,-80)
-
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>逻辑回归</title>
     <url>/posts/f9b01ad8.html</url>
     <content><![CDATA[[toc]
@@ -4297,199 +4211,6 @@ hθ(x)=1e0⃗Tx +e(θ2−θ1)Tx[e0⃗Txe(θ2−θ1)Tx]h_{\theta}(x) = \frac{1}{
 e0⃗Txe0⃗Tx+e(θ2−θ1)Tx\frac{e^{\vec{0}^Tx} }{e^{\vec{0}^Tx} + e^{(\theta_2 - \theta_1)^Tx}}e0Tx+e(θ2​−θ1​)Txe0Tx​ —&gt;  11+e(θ2−θ1)Tx\frac{1}{1   + e^{(\theta_2 - \theta_1)^Tx}}1+e(θ2​−θ1​)Tx1​
 e(θ2−θ1)Txe0⃗Tx+e(θ2−θ1)Tx\frac{ e^{(\theta_2 - \theta_1)^Tx} }{e^{\vec{0}^Tx}   + e^{(\theta_2 - \theta_1)^Tx}}e0Tx+e(θ2​−θ1​)Txe(θ2​−θ1​)Tx​ —&gt; e(θ2−θ1)Tx1+e(θ2−θ1)Tx\frac{ e^{(\theta_2 - \theta_1)^Tx} }{1   + e^{(\theta_2 - \theta_1)^Tx}}1+e(θ2​−θ1​)Txe(θ2​−θ1​)Tx​
 
-]]></content>
-      <categories>
-        <category>program</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>贝叶斯网络</title>
-    <url>/posts/64831aee.html</url>
-    <content><![CDATA[1、概率图模型概述
-概率图模型算法往往应用于NLP自然语言处理领域。
-当然很多传统机器学习的算法也常用于 NLP 的任务。例如，用朴素贝叶斯进行文本分类、用 SVM 进行语义角色标注，虽然它们在某些 NLP 任务中都实现了很好的效果，但它们都相互独立， 没有形成体系。
-随着近些年对智能推理和认知神经学的深入研究，人们对大脑和语言的内在机制了解得越来越多，也越来越能从更高层次上观察和认识自然语言，由此形成一套完整的算法体系。目前最流行的算法思想包含如下两大流派：
-
-基于概率论和图论的概率图模型
-基于人工神经网络的深度学习理论
-
-2、贝叶斯
-
-2.1、贝叶斯案例一
-一个例子，现分别有 A、B 两个容器，在容器 A 里分别有 7 个红球和 3 个白球，在容器 B 里有 1 个红球和 9 个白球，现已知从这两个容器里任意抽出了一个球，且是红球，问这个红球是来自容器 A 的概率是多少?
-2.2、贝叶斯案例二
-例如：一座别墅在过去的 20 年里一共发生过 2 次被盗，别墅的主人有一条狗，狗平均每周晚上叫 3 次，在盗贼入侵时狗叫的概率被估计为 0.9，问题是：在狗叫的时候发生入侵的概率是多少？
-答案
-3、朴素贝叶斯
-举个例子，大学的时候，某男生经常去007自习室上晚自习，发现他喜欢的那个女生也常去那个自习室，心中窃喜，于是每天买点好吃的在那个自习室蹲点等她来，可是人家女生不一定每天都来，眼看天气渐渐炎热，自习室又不开空调，如果那个女生没去自习室，该男生也就不去，每次男生鼓足勇气说：“嘿，你明天还来不？”,“啊，不知道，看情况”。
-然后该男生每天就把她去自习室与否以及一些其他情况做一下记录，用Y表示该女生是否去自习室，即Y={去，不去}，X是跟去自习室有关联的一系列条件，比如当天上了哪门主课，蹲点统计了一段时间后，该男生打算今天不再蹲点，而是先预测一下她会不会去，现在已经知道了今天上了常微分方程这门主课，于是计算P(Y=去|常微分方程)与P(Y=不去|常微分方程)，看哪个概率大，如果P(Y=去|常微分方程) &gt;P(Y=不去|常微分方程)，那这个男生不管多热都屁颠屁颠去自习室了，否则就不去自习室受罪了。
-P(Y=去|常微分方程)的计算可以通过贝叶斯公式进行计算，公式如下：
-&lt;P(Y=去∣常微分方程)=P(常微分方程∣Y=去)P(Y=去)P(常微分方程)\rm P(Y=去|常微分方程) = \frac{P(常微分方程|Y=去)P(Y=去)}{P(常微分方程)}P(Y=去∣常微分方程)=P(常微分方程)P(常微分方程∣Y=去)P(Y=去)​​​
-后来他发现还有一些其他条件可以挖，比如当天星期几、当天的天气，统计了一段时间后，该男子一计算，发现不好算了，因为总结历史的公式：
-P(Y∣X)=P(Y∣X(1),X(2),…,X(n))P(Y|X) = P(Y|X^{(1)},X^{(2)},…,X^{(n)})P(Y∣X)=P(Y∣X(1),X(2),…,X(n))
-这里n = 3，x(1)表示主课，x(2)表示天气，x(3)表示星期几，Y仍然是{去，不去}，现在主课有8门，天气有晴、雨、阴三种，那么总共需要估计的参数有8×3×7×2=336个，每天只能收集到一条数据，那么等凑齐336条数据，黄花菜都凉了，男生大呼不妙！
-于是做了一个独立性假设，假设这些影响她去自习室的因素是独立互不相关的！
-有了这个独立假设后，需要估计的参数就变为，(8+3+7)×2 = 36个了，而且每天收集的一条数据，可以提供3个参数，这样该男生就预测越来越准了，天下武功唯快不破！迎娶白富美，全靠数学算！
-P(Y∣X)=P(Y∣X(1),X(2),…,X(n))=∏i=1nP(Y∣X(i))\begin{aligned}\rm P(Y|X) &amp;= P(Y|X^{(1)},X^{(2)},…,X^{(n)})\\\\&amp;=\prod\limits_{i=1}^{n}P(Y|X^{(i)})\end{aligned}P(Y∣X)​=P(Y∣X(1),X(2),…,X(n))=i=1∏n​P(Y∣X(i))​
-4、朴素贝叶斯实例讲解
-详情参考本人博客文章
-5、朴素贝叶斯模型介绍
-5.1、高斯分布朴素贝叶斯
-高斯分布朴素贝叶斯------&gt;正太分布
-
-
-概率密度公式：
-f(x∣μ,σ2)=12πσe−(x−μ)22σ2f(x|\mu,\sigma^2) = \frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x - \mu)^2}{2\sigma^2}}f(x∣μ,σ2)=2π​σ1​e−2σ2(x−μ)2​
-f(x)表示事件的概率分布
-5.2、伯努利分布朴素贝叶斯
-伯努利分布又叫做0-1分布，指一次随机试验，结果只有两种。也就是一个随机变量的取值只有0和1。
-记为: 0-1分布 或B(1,p)，其中 p 表示一次伯努利实验中结果为正或为1的概率。
-假设你要生孩子，生男孩子概率p，生女孩纸概率1-p
-伯努利实验：例如，生一次孩子
-伯努利分布：生一次孩子，生男孩子概率为p,生女孩纸概率1-p，这个就是伯努利分布
-f(x∣p)={pxq1−x,x=0,1; 0,x≠0;f(x|p) = \left \{\begin{aligned} &amp;p^xq^{1-x}, \quad &amp; x = 0,1;  \\ &amp;0,\quad &amp;x \neq 0 ; \end{aligned}\right.f(x∣p)={​pxq1−x,0,​x=0,1; x=0;​​​​​​​​​​​​​
-伯努利实验就是做一次服从伯努利概率分布的事件，它发生的可能性是p，不发生的可能性是1-p。
-由伯努利分布延伸到二项分布，二项分布是多次伯努利分布实验的概率分布。
-以抛硬币举例，在抛硬币事件当中，每一次抛硬币的结果是独立的，并且每次抛硬币正面朝上的概率是恒定的，所以单次抛硬币符合伯努利分布。我们假设硬币正面朝上的概率是p，那么反面朝上的概率是q=(1-p)。我们重复抛n次硬币，其中有k项正面朝上的事件，就是二项分布：
-&lt;P(X=k)=Cnkpkqn−k=n!(n−k)!k!pkqn−k\rm \begin{aligned}P(X = k) &amp;= C^k_np^kq^{n-k}\\\\&amp;=\frac{n!}{(n-k)!k!}p^kq^{n-k}\end{aligned}P(X=k)​=Cnk​pkqn−k=(n−k)!k!n!​pkqn−k​
-5.3、多项式分布朴素贝叶斯
-多项分布是在二项分布的基础上进一步的拓展。
-以掷色子为例，在掷色子实验中可能出现的结局是：1,2,3,4,5,6（6标记为k，便于书写公式），分别记为变量X1、X2、…、XkX_1、X_2、…、X_kX1​、X2​、…、Xk​​，它们的概率分布分别是p1，p2，…，pkp_1，p_2，…，p_kp1​，p2​，…，pk​​。那么在n次实验的结果中，1出现 n1n_1n1​​ 次、2出现 n2n_2n2​​ 次、…、6出现 nkn_knk​​ 次，这种事件的出现概率P有下面公式：
-&lt;P(X1=n1,…，Xk=nk)=n!n1!⋯nk!p1n1⋯pknk,∑i=1kni=nP(X_1 = n_1,…，X_k = n_k) = \frac{n!}{n_1!\cdots n_k!}p_1^{n_1} \cdots p_k^{n_k},\sum\limits_{i=1}^kn_i = nP(X1​=n1​,…，Xk​=nk​)=n1​!⋯nk​!n!​p1n1​​⋯pknk​​,i=1∑k​ni​=n
-另一种写法：
-&lt;P(X1=n1,…，Xk=nk)=n!∏i=1kpinini!,∑i=1kni=nP(X_1 = n_1,…，X_k = n_k) = n!\prod\limits_{i=1}^k\frac{p_i^{n_i}}{n_i!},\sum\limits_{i=1}^kn_i = nP(X1​=n1​,…，Xk​=nk​)=n!i=1∏k​ni​!pini​​​,i=1∑k​ni​=n
-6、朴素贝叶斯模型使用
-使用正太分布数据，鸢尾花作为示例（鸢尾花是自然界的植物，其自身特征数据是正态分布的~）
-6.1、数据加载
-import numpy as npfrom sklearn import datasetsfrom sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn.model_selection import train_test_splitX,y = datasets.load_iris(return_X_y=True)
-6.2、高斯分布朴素贝叶斯表现
-score = 0model = GaussianNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;高斯朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;高斯朴素贝叶斯模型平均预测准确率： 0.9557894736842099&#x27;&#x27;&#x27;
-6.3、伯努利分布朴素贝叶斯表现
-score = 0model = BernoulliNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;伯努利朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;伯努利朴素贝叶斯模型平均预测准确率： 0.26105263157894737&#x27;&#x27;&#x27;
-6.4、多项式分布朴素贝叶斯表现
-score = 0model = MultinomialNB()for i in range(100):    X_train,X_test,y_train,y_test = train_test_split(X,y)    model.fit(X_train,y_train)    score += model.score(X_test,y_test)/100print(&#x27;多项式朴素贝叶斯模型平均预测准确率：&#x27;,score)&#x27;&#x27;&#x27;多项式朴素贝叶斯模型平均预测准确率： 0.8255263157894736&#x27;&#x27;&#x27;
-7、文本分类
-文本分类的结构化方法就是 one-hot 表达模型。它是最直观，也是目前为止最常用的词表示方法，虽然越来越多的实践已经证明，这种模型存在局限性，但它仍在文本分类中得到广泛应用。
-假设把语料库中的所有词都收集为一个词典 D，词典容纳了语料库中所有句子的词汇。
-One-hot 方法就是把每个词表示为一个长长的向量。这个向量的维度是词典大小，其中绝大多数元素为 0，只有一个维度的值为 1。这个维度就代表了当前的词。
-7.1、英文one-hot编码
-文本一：My dog ate my homework；
-文本二：My cat ate the fish；
-文本三：Precious things are very few in the world,that is the reason there is only one you!
-import jiebaimport numpy as npdata = [&#x27;My dog ate my homework.&#x27;,&#x27;My cat ate the fish.&#x27;,        &#x27;Precious things are very few in the world,that is the reason there is only one you!&#x27;]result = []for s in data:    result.extend([i for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]])result = np.array(result)result = np.unique(result)print(result)for s in data:    word_embedding = [(i == result).astype(np.int8) for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]]    print(np.array(word_embedding))    &#x27;&#x27;&#x27;[&#x27;My&#x27; &#x27;Precious&#x27; &#x27;are&#x27; &#x27;ate&#x27; &#x27;cat&#x27; &#x27;dog&#x27; &#x27;few&#x27; &#x27;fish&#x27; &#x27;homework&#x27; &#x27;in&#x27; &#x27;is&#x27; &#x27;my&#x27; &#x27;one&#x27; &#x27;only&#x27; &#x27;reason&#x27; &#x27;that&#x27; &#x27;the&#x27; &#x27;there&#x27; &#x27;things&#x27; &#x27;very&#x27; &#x27;world&#x27; &#x27;you&#x27;][[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0]]&#x27;&#x27;&#x27;
-7.2、中文one-hot编码
-s1 = ‘喜欢上一个人’
-s2 = ‘尼姑亲吻了和尚的嘴唇’
-s3 = ‘老师你教的都是没有的东西’
-import jiebaimport numpy as npdata = [&#x27;喜欢上一个人&#x27;,&#x27;尼姑亲吻了和尚的嘴唇&#x27;,&#x27;老师你教的都是没有的东西&#x27;]result = []for s in data:    result.extend([i for i in jieba.lcut(s)])result = np.array(result)result = np.unique(result)print(result)for s in data:    word_embedding = [(i == result).astype(np.int8) for i in jieba.lcut(s) if i not in [&#x27; &#x27;,&#x27;,&#x27;,&#x27;.&#x27;,&#x27;!&#x27;]]    print(np.array(word_embedding))    &#x27;&#x27;&#x27;[&#x27;一个&#x27; &#x27;上&#x27; &#x27;东西&#x27; &#x27;了&#x27; &#x27;亲吻&#x27; &#x27;人&#x27; &#x27;你&#x27; &#x27;和尚&#x27; &#x27;喜欢&#x27; &#x27;嘴唇&#x27; &#x27;尼姑&#x27; &#x27;教&#x27; &#x27;是&#x27; &#x27;没有&#x27; &#x27;的&#x27; &#x27;老师&#x27; &#x27;都&#x27;][[0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0] [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]]&#x27;&#x27;&#x27;
-7.3、TF-IDF
-7.3.1、词频-逆向文件频率介绍
-TF-IDF（term frequency–inverse document frequency，词频-逆向文件频率）是一种用于信息检索（information retrieval）与文本挖掘（text mining）的常用加权技术。
-TF-IDF是一种统计方法，用以评估某字词对于一个文件集或一个语料库中的其中一份文件的重要程度。字词的重要性随着它在文件中出现的次数成正比增加，但同时会随着它在语料库中出现的频率成反比下降。
-TF-IDF的主要思想是：如果某个单词在一篇文章中出现的频率TF高，并且在其他文章中很少出现，则认为此词或者短语具有很好的类别区分能力，适合用来分类。
-7.3.2、词频TF计算
-**词频（TF）**表示词条（关键字）在文本中出现的频率。
-TF=词条v出现的次数总词条数目\rm TF = \frac{词条v出现的次数}{总词条数目}TF=总词条数目词条v出现的次数​
-7.3.3、逆向文件频率IDF计算
-逆向文件频率 (IDF) ：某一特定词语的IDF，可以由总文件数目除以包含该词语的文件的数目，再将得到的商取对数得到。
-如果包含词条t的文档越少, IDF越大，则说明词条具有很好的类别区分能力。
-IDF=log∣D∣∣{j:ti∈dj}∣\rm IDF = log\frac{|D|}{|\{j:t_i \in d_j\}|}IDF=log∣{j:ti​∈dj​}∣∣D∣​
-7.3.4、TF-IDF计算
-某一特定文件内的高词语频率，以及该词语在整个文件集合中的低文件频率，可以产生出高权重的TF-IDF。因此，TF-IDF倾向于过滤掉常见的词语，保留重要的词语。
-TF−IDF=TF×IDF\rm TF-IDF = TF \times IDFTF−IDF=TF×IDF
-7.3.5、TF-IDF算例演示
-有很多不同的数学公式可以用来计算TF-IDF。词频 (TF) 是一词语出现的次数除以该文件的总词语数。假如一篇文件的总词语数是100个，而词语“Python”出现了5次，那么“Python”一词在该文件中的词频就是3/100=0.05。一个计算文件频率 (IDF) 的方法是文件集里包含的文件总数除以测定有多少份文件出现过“Python”一词。所以，如果“Python”一词在1000份文件出现过，而文件总数是10000000份的话，其逆向文件频率就是 lg(10000000 / 1000)=4。最后的TF-IDF的分数为0.05 * 4=0.2。
-from sklearn.feature_extraction.text import CountVectorizerfrom sklearn.feature_extraction.text import TfidfTransformerimport jiebaimport numpy as npdata = np.array([&#x27;政治 历史 地理 语文 化学&#x27;,                 &#x27;Python 计算机 语文 英语 数学&#x27;])# 词频统计vectorizer = CountVectorizer()# tf-idf权值计算tf_idf_transformer = TfidfTransformer()# 对样本进行转换tf_idf = tf_idf_transformer.fit_transform(vectorizer.fit_transform(data))# 数据提取tf_idf_weight = tf_idf.toarray()vocabulary = vectorizer.vocabulary_vocabulary = sorted( vocabulary.items(),key = lambda x:x[1],reverse = False)display(vocabulary)display(tf_idf_weight)&#x27;&#x27;&#x27;[(&#x27;python&#x27;, 0), (&#x27;化学&#x27;, 1), (&#x27;历史&#x27;, 2), (&#x27;地理&#x27;, 3), (&#x27;政治&#x27;, 4), (&#x27;数学&#x27;, 5), (&#x27;英语&#x27;, 6), (&#x27;计算机&#x27;, 7), (&#x27;语文&#x27;, 8)]array([[0.        , 0.47107781, 0.47107781, 0.47107781, 0.47107781,        0.        , 0.        , 0.        , 0.33517574],       [0.47107781, 0.        , 0.        , 0.        , 0.        ,        0.47107781, 0.47107781, 0.47107781, 0.33517574]])&#x27;&#x27;&#x27;
-8、垃圾短信分类项目实战
-8.1、数据加载与介绍
-import numpy as npimport pandas as pdfrom sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn.model_selection import train_test_splitfrom scipy import sparse # 稀松矩阵# feature_selection 特征选择！# feature_extraction 特征提取，萃取# 土壤中，炼铁，这个过程类比 萃取# 统计词频！通过词频，判断类别，判断短信是否是垃圾短信# free、phone、获奖、优惠from sklearn.feature_extraction.text import CountVectorizer,TfidfTransformer# 短信数据sms = pd.read_csv(&#x27;./自动识别垃圾短信.csv&#x27;,sep = &#x27;\t&#x27;,header= None)sms.rename(&#123;0:&#x27;label&#x27;,1:&#x27;message&#x27;&#125;,axis = 1,inplace = True)display(sms.shape,sms.head()) #文本数据无法直接建模
-8.2、文本数据处理
-cv = CountVectorizer()# stop-words 停用词，英文中的标点符号，对分类作用不大# 主要目的，节省内存空间# 量化X = cv.fit_transform(sms[&#x27;message&#x27;])display(X)print(X)
-稀松矩阵介绍
-# scipy中提供了方法# 稀松矩阵、稠密矩阵 对比a = np.random.randint(0,10,size = (1000,5))a[a &gt;=3] = 0np.savez(&#x27;稠密矩阵.npz&#x27;,a) # 20.3kbs = sparse.csc_matrix(a)sparse.save_npz(&#x27;稀松矩阵.npz&#x27;,s) # 2.84kbdisplay(a,s)print(s)
-TF-IDF转换
-# 此时X是稀松矩阵# 稀松矩阵也可以进行拆分tf_idf = TfidfTransformer()X = tf_idf.fit_transform(X)X_train,X_test,y_train,y_test = train_test_split(X,y,test_size = 0.2,random_state = 1187)X_train
-8.3、数据建模评估
-%%timegNB = GaussianNB() # 高斯分布，是正太分布，数据属性必须是稠密矩阵gNB.fit(X_train.toarray(),y_train)print(&#x27;高斯分布&#x27;,gNB.score(X_test.toarray(),y_test))&#x27;&#x27;&#x27;高斯分布 0.8869955156950673Wall time: 717 ms&#x27;&#x27;&#x27;
-%%time# 稀松矩阵，计算优势，内存中占有量很小bNB = BernoulliNB() # 二项分布，数据可以稀松的，准确率提升了很多，计算时间大大缩短bNB.fit(X_train,y_train)print(&#x27;伯努利：&#x27;,bNB.score(X_test,y_test))&#x27;&#x27;&#x27;伯努利： 0.9730941704035875Wall time: 13 ms&#x27;&#x27;&#x27;
-%%timemNB = MultinomialNB()mNB.fit(X_train,y_train)print(&#x27;多项式分布：&#x27;,mNB.score(X_test,y_test))&#x27;&#x27;&#x27;多项式分布： 0.95695067264574Wall time: 15 ms&#x27;&#x27;&#x27;
-8.5、构建新短信预测
-X_test = [&#x27;Your free ringtone is waiting to be collected. Simply text the password &quot;MIX&quot; to 85069 to verify.I see the letter B on my car Please call now 08000930705 for delivery tomorrow&#x27;,          &#x27;Precious things are very few in the world,that is the reason there is only one you&#x27;,          &quot;GENT! We are trying to contact you. Last weekends draw shows that you won a £1000 prize GUARANTEED. U don&#x27;t know how stubborn I am. Congrats! 1 year special cinema pass for 2 is yours.&quot;,          &#x27;Congrats! 1 year special cinema pass for 2 is yours. call 09061209465 now! C Suprman V, Matrix3, StarWars3, etc all 4 FREE! bx420-ip4-5we. 150pm. Dont miss out!&#x27;]X_test = tf_idf.transform(cv.transform(X_test))bNB.predict(X_test)&#x27;&#x27;&#x27;array([&#x27;spam&#x27;, &#x27;ham&#x27;, &#x27;spam&#x27;, &#x27;spam&#x27;], dtype=&#x27;&lt;U4&#x27;)&#x27;&#x27;&#x27;
-9、新闻类别划分
-9.1、加载数据（联网国外下载）
-from sklearn.naive_bayes import GaussianNB,BernoulliNB,MultinomialNBfrom sklearn import datasets# countVectorizer词频 # tf-idf term frequency（词频） inverse document frequency（你文本词频） + 权重from sklearn.feature_extraction.text import TfidfVectorizer,CountVectorizer,ENGLISH_STOP_WORDSfrom sklearn.model_selection import train_test_split# 会存储到本地文件news = datasets.fetch_20newsgroups(subset=&#x27;all&#x27;,remove=(&#x27;headers&#x27;, &#x27;footers&#x27;, &#x27;quotes&#x27;))
-9.2、文本数据转换
-&#x27;&#x27;&#x27;Convert a collection of raw documents to a matrix of TF-IDF features.Equivalent to :class:`CountVectorizer` followed by:class:`TfidfTransformer`.&#x27;&#x27;&#x27;tf_idf = TfidfVectorizer(stop_words=ENGLISH_STOP_WORDS)X_tf_idf = tf_idf.fit_transform(X)X_tf_idfX_train,X_test,y_train,y_test = train_test_split(X_tf_idf,y,test_size = 0.2)
-9.3、数据建模
-%%timebNB = BernoulliNB()bNB.fit(X_train,y_train)bNB.score(X_test,y_test)&#x27;&#x27;&#x27;Wall time: 18.9 ms0.7553191489361702&#x27;&#x27;&#x27;
-%%timemNB = MultinomialNB()mNB.fit(X_train,y_train)mNB.score(X_test,y_test)&#x27;&#x27;&#x27;Wall time: 11 ms0.8337765957446809&#x27;&#x27;&#x27;
-%%timegNB = GaussianNB()gNB.fit(X_train.toarray(),y_train)gNB.score(X_test.toarray(),y_test)&#x27;&#x27;&#x27;Wall time: 2.66 s0.8125&#x27;&#x27;&#x27;
-10、贝叶斯网络
-10.1、朴素贝叶斯与贝叶斯网络
-朴素贝叶斯可以看做是贝叶斯网络的特殊情况：即该网络中无边，各个节点都是独立的（前提是独立性假设）。
-那么，当朴素贝叶斯中的假设：独立同分布不成立时，应该如何解决呢？可以使用贝叶斯网络。
-贝叶斯网络借助有向无环图来刻画属性之间的依赖关系，并使用条件概率表来描述属性的联合概率分布。
-
-10.2、贝叶斯网络定义
-贝叶斯网络(Bayesian network)，又称信念网络(Belief Network)，或有向无环图模型(directed acyclic graphical model)，是一种概率图模型，于1985年由Judea Pearl首先提出。它是一种模拟人类推理过程中因果关系的不确定性处理模型，其网络拓朴结构是一个有向无环图(DAG)。
-10.3、贝叶斯网络三种结构
-形式一：head-to-head
-
-上图概率公式如下：P(a,b,c) = P(a) * P(b) * P(c|a,b)。
-在 c 未知的条件下，a、b被阻断(blocked)，是独立的，称之为head-to-head条件独立。也就是a和b符合独立性假设。
-形式二：tail-to-tail
-
-
-在 c 未知的时候，有：P(a,b,c)=P© * P(a|c) * P(b|c)，此时，没法得出 P(a,b) = P(a) * P(b)，
-
-即 c 未知时，a、b 不独立。
-
-在 c 已知的时候，有：P(a,b|c)=P(a,b,c) / P©，然后将 P(a,b,c)=P© * P(a|c) * P(b|c)带入
-
-式子中，得到：P(a,b|c)=P(a,b,c) / P© = P© * P(a|c) * P(b|c) / P© = P(a|c) * P(b|c)，即 c
-已知时，a、b 独立。
-形式三：head-to-tail
-
-
-c 未知时，有：P(a,b,c)=P(a) * P(c|a) * P(b|c)，但无法推出 P(a,b) = P(a) * P(b)，即 c 未知
-
-时，a、b 不独立。
-
-
-c 已知时，有：P(a,b|c)=P(a,b,c) / P©，且根据 P(a,c) = P(a) * P(c|a) = P© * P(a|c)，可化
-简得到：
-P(a,b|c)  =P(a,b,c) / P©
-​				= P(a) * P(c|a) * P(b|c) / P©
-​				=P(a,c) * P(b|c) / P©
-​				=P(a|c) * P(b|c)
-所以，在 c 给定的条件下，a，b 被阻断(blocked)，是独立的，称之为 head-to-tail
-条件独立。
-拓展一下，head-to-tail 其实就是一个链式网络，如下图所示：
-
-根据之前对head-to-tail的讲解，我们已经知道，在XiX_iXi​给定的条件下，Xi+1X_{i+1}Xi+1​的分布和X1,X2…Xi−1X_1,X_2…X_{i-1}X1​,X2​…Xi−1​条件独立。意味着啥呢？意味着：Xi+1X_{i+1}Xi+1​的分布状态只和XiX_iXi​有关，和其他变量条件独立。通俗点说，当前状态只跟上一状态有关，跟之前的状态无关。这种顺次演变的随机过程，就叫做马尔科夫链（Markov chain）。且有：
-
-
-P(Xn+1∣X0,X1,⋯ ,Xn)=P(Xn+1∣Xn)P(X_{n+1}|X_0,X_1,\cdots,X_n) = P(X_{n + 1}|X_n)P(Xn+1​∣X0​,X1​,⋯,Xn​)=P(Xn+1​∣Xn​)
-朴素贝叶斯可以看做是贝叶斯网络的特殊情况：即该网络中无边，各个节点都是独立的。 朴素贝叶斯朴素在哪里呢？ 一个特征出现的概率与其他特征（条件）独立！
-10.4、贝叶斯网络实例
-有如下贝叶斯网络：
-
-其中，各个单词、表达式表示的含义如下：
-
-smoking 表示吸烟，其概率用 P(S) 表示，lung Cancer 表示肺癌，一个人在吸烟的情况下得肺癌的概率用P(C|S) 表示，X-ray 表示需要照医学上的 X 光，肺癌可能会导致需要照 X 光，吸烟也有可能会导致需要照 X 光（所以 smoking 也是 X-ray 的一个因素），所以，因吸烟且得肺癌而需要照X光的概率用 P(X|C,S) 表示。
-Bronchitis 表示支气管炎，一个人在吸烟的情况下得支气管炎的概率用 P(B|S)，Dyspnoea 表示呼吸困难，支气管炎可能会导致呼吸困难，肺癌也有可能会导致呼吸困难（所以 lung Cancer 也是Dyspnoea的一个因素），因吸烟且得了支气管炎导致呼吸困难的概率用P(D|S,B)表示。
-
-lung Cancer 简记为 C，Bronchitis 简记为 B，Dyspnoea 简记为 D，且 C = 0 表示 lung Cancer 不发生的概率，C = 1表示 lung Cancer 发生的概率，其他含义类似。
-10.5、概率图模型
-概率图模型是一类用图形模式表达基于概率相关关系的模型的总称。概率图模型结合概率论与图论的知识，利用图来表示与模型有关的变量的联合概率分布。近10年它已成为不确定性推理的研究热点，在人工智能、机器学习和计算机视觉等领域有广阔的应用前景。
-根据是否是有向图，可以分为有向图模型和无向图模型。
-有向图模型（又称为贝叶斯网络），例如：隐马尔科夫模型（Hidden Markov Model，HMM）
-无向图模型（又称为马尔科夫网络），例如：条件随机场（Conditional Random Fields，CRF）
-后面课程中会，进行介绍说明。
 ]]></content>
       <categories>
         <category>program</category>
@@ -5088,8 +4809,18 @@ print(&#x27;Transition matrix&#x27;)print(model.transmat_.round(3))&#x27;&#x27;&
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title>artitalk</title>
+    <url>/artitalk/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>分类</title>
     <url>/g.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>音乐馆</title>
+    <url>/3.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -5098,14 +4829,14 @@ print(&#x27;Transition matrix&#x27;)print(model.transmat_.round(3))&#x27;&#x27;&
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/manifest.json</url>
-    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
-  </entry>
-  <entry>
     <title>categories</title>
     <url>/categories/index.html</url>
     <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/manifest.json</url>
+    <content><![CDATA[{"name":"molittle","short_name":"molittle","theme_color":"#3b70fc","background_color":"#3b70fc","display":"standalone","scope":"/","start_url":"/","icons":[{"src":"/img/siteicon/16.png","sizes":"16x16","type":"image/png"},{"src":"/img/siteicon/32.png","sizes":"32x32","type":"image/png"},{"src":"/img/siteicon/48.png","sizes":"48x48","type":"image/png"},{"src":"/img/siteicon/64.png","sizes":"64x64","type":"image/png"},{"src":"/img/siteicon/128.png","sizes":"128x128","type":"image/png"},{"src":"/img/siteicon/144.png","sizes":"144x144","type":"image/png"},{"src":"/img/siteicon/512.png","sizes":"512x512","type":"image/png"}],"splash_pages":null}]]></content>
   </entry>
   <entry>
     <title></title>
@@ -5147,80 +4878,6 @@ button#go-up:hover #percent {
     justify-content: center;
 }
 ]]></content>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/css/progress_bar.css</url>
-    <content><![CDATA[.pace {
-  -webkit-pointer-events: none;
-  pointer-events: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  z-index: 2000;
-  position: fixed;
-  margin: auto;
-  top: 10px;
-  left: 0;
-  right: 0;
-  height: 8px;
-  border-radius: 8px;
-  width: 4rem;
-  background: #eaecf2;
-  border: 1px #e3e8f7;
-  overflow: hidden;
-}
-
-.pace-inactive .pace-progress {
-  opacity: 0;
-  transition: 0.3s ease-in;
-}
-
-.pace .pace-progress {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -ms-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-  -webkit-transform: translate3d(0, 0, 0);
-  -moz-transform: translate3d(0, 0, 0);
-  -ms-transform: translate3d(0, 0, 0);
-  -o-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  max-width: 200px;
-  position: absolute;
-  z-index: 2000;
-  display: block;
-  top: 0;
-  right: 100%;
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  animation: gradient 1.5s ease infinite;
-  background-size: 200%;
-}
-
-.pace.pace-inactive {
-  opacity: 0;
-  transition: 0.3s;
-  top: -8px;
-}
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}]]></content>
-  </entry>
-  <entry>
-    <title>artitalk</title>
-    <url>/artitalk/index.html</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title></title>
@@ -5906,9 +5563,101 @@ code.hljs {
 }]]></content>
   </entry>
   <entry>
-    <title>友情链接</title>
-    <url>/link/index.html</url>
-    <content><![CDATA[]]></content>
+    <title></title>
+    <url>/js/fuction.js</url>
+    <content><![CDATA[// 分享本页
+function share() {
+    let url = window.location.origin + window.location.pathname
+    new ClipboardJS(".share", { text: function() { return '标题：' + document.title + '\n链接：' + url } });
+    btf.snackbarShow("本页链接已复制到剪切板，快去分享吧~")
+}
+window.onscroll = percent;// 执行函数
+
+// 页面百分比
+function percent() {
+    // 检查页面中是否存在 card-toc 元素
+    const cardToc = document.getElementById('card-toc');
+    if (!cardToc) {
+        return; // 如果不存在，直接返回，不执行后续代码
+    }
+
+    // 获取百分比文本内容
+    const percentage = cardToc.querySelector('.toc-percentage').textContent.trim();
+
+    // 获取 go-up 元素
+    let up = document.querySelector("#go-up");
+
+    // 根据百分比设置样式和内容
+    if (percentage ]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/css/progress_bar.css</url>
+    <content><![CDATA[.pace {
+  -webkit-pointer-events: none;
+  pointer-events: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  z-index: 2000;
+  position: fixed;
+  margin: auto;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  border-radius: 8px;
+  width: 4rem;
+  background: #eaecf2;
+  border: 1px #e3e8f7;
+  overflow: hidden;
+}
+
+.pace-inactive .pace-progress {
+  opacity: 0;
+  transition: 0.3s ease-in;
+}
+
+.pace .pace-progress {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  max-width: 200px;
+  position: absolute;
+  z-index: 2000;
+  display: block;
+  top: 0;
+  right: 100%;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  animation: gradient 1.5s ease infinite;
+  background-size: 200%;
+}
+
+.pace.pace-inactive {
+  opacity: 0;
+  transition: 0.3s;
+  top: -8px;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}]]></content>
   </entry>
   <entry>
     <title></title>
@@ -7097,46 +6846,18 @@ button.swiper-pagination-bullet {
   }]]></content>
   </entry>
   <entry>
-    <title></title>
-    <url>/js/fuction.js</url>
-    <content><![CDATA[// 分享本页
-function share() {
-    let url = window.location.origin + window.location.pathname
-    new ClipboardJS(".share", { text: function() { return '标题：' + document.title + '\n链接：' + url } });
-    btf.snackbarShow("本页链接已复制到剪切板，快去分享吧~")
-}
-window.onscroll = percent;// 执行函数
-
-// 页面百分比
-function percent() {
-    // 检查页面中是否存在 card-toc 元素
-    const cardToc = document.getElementById('card-toc');
-    if (!cardToc) {
-        return; // 如果不存在，直接返回，不执行后续代码
-    }
-
-    // 获取百分比文本内容
-    const percentage = cardToc.querySelector('.toc-percentage').textContent.trim();
-
-    // 获取 go-up 元素
-    let up = document.querySelector("#go-up");
-
-    // 根据百分比设置样式和内容
-    if (percentage ]]></content>
-  </entry>
-  <entry>
-    <title>images</title>
-    <url>/images/index.html</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>音乐馆</title>
-    <url>/3.html</url>
+    <title>友情链接</title>
+    <url>/link/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>music</title>
     <url>/music/index.html</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>images</title>
+    <url>/images/index.html</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
