@@ -205,9 +205,39 @@ div#post {
   
   /* 首页侧栏卡片 */
   #aside-content .card-widget {
-    background: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(-45deg, #3f9debee, #0a75daee, #0250f7ee, #2c12c4ee) !important;
   }
-  
+  /* 个人信息Follow me按钮 */
+#aside-content > .card-widget.card-info > #card-info-btn {
+  background-color: #7107ebf8;
+  border-radius: 8px;
+}
+/* ===== 动画定义 ===== */
+@keyframes Gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* ===== 暗夜模式适配 ===== */
+[data-theme="dark"] .card-widget{
+  background: rgba(45, 10, 61, 0.7) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+/* 背景宇宙星光  */
+#universe{
+  display: block;
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
   /* 文章页面正文背景 */
   div#post {
     background: rgba(255, 255, 255, 0.9);
