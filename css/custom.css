@@ -205,7 +205,7 @@ div#post {
   
   /* 首页侧栏卡片 */
   #aside-content .card-widget {
-    background: linear-gradient(-45deg, #3f9debee, #0a75daee, #0250f7ee, #2c12c4ee) !important;
+    background: linear-gradient(-45deg, #f2f3f5ee, #e6eaeeee, #f2f3f5ee, #fafafcee) !important;
   }
   /* 个人信息Follow me按钮 */
 #aside-content > .card-widget.card-info > #card-info-btn {
@@ -585,7 +585,7 @@ div#post {
 :root {
   --hl-color: #c9d1d9;
   --hl-bg: #0d1117;
-  --hltools-bg: #faf9fc;
+  --hltools-bg: #080808;
   --hltools-color: #fff;
   --hlnumber-bg: #0d1117;
   --hlnumber-color: #fff;
